@@ -259,26 +259,12 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center cursor-pointer group" onClick={() => scrollToSection('home')}>
-            <span
-              style={{
-                fontFamily: "'Playfair Display', 'Palatino Linotype', Georgia, serif",
-                fontWeight: 900,
-                fontSize: '1.75rem',
-                letterSpacing: '-0.03em',
-                lineHeight: 1,
-                background: 'linear-gradient(135deg, #ffffff 0%, #d4af6a 60%, #ffffff 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                textShadow: 'none',
-                transition: 'all 0.3s ease',
-                display: 'inline-block',
-                fontStyle: 'italic',
-              }}
-              className="group-hover:scale-105 transition-transform duration-300"
-            >
-              paidhu
-            </span>
+            <img
+              src="/paidhu_exact.jpg"
+              alt="Paidhu"
+              className="h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
+              style={{ mixBlendMode: 'screen' }}
+            />
           </div>
 
           {/* Desktop Menu */}
@@ -1194,23 +1180,12 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-12">
           {/* Brand Info */}
           <div className="md:col-span-4">
-            <span
-              style={{
-                fontFamily: "'Playfair Display', 'Palatino Linotype', Georgia, serif",
-                fontWeight: 900,
-                fontSize: '2rem',
-                letterSpacing: '-0.03em',
-                lineHeight: 1,
-                background: 'linear-gradient(135deg, #ffffff 0%, #d4af6a 55%, #ffffff 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                display: 'inline-block',
-                fontStyle: 'italic',
-              }}
-            >
-              paidhu
-            </span>
+            <img
+              src="/paidhu_exact.jpg"
+              alt="Paidhu"
+              className="h-14 w-auto object-contain"
+              style={{ mixBlendMode: 'screen' }}
+            />
             <p className="text-xs opacity-65 leading-relaxed mt-4 max-w-sm">
               Building sustainable, ethical, and value-driven business verticals for a cleaner, modern tomorrow.
             </p>
