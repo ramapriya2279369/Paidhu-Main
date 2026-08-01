@@ -24,6 +24,25 @@ interface Brand {
   category: string;
 }
 
+interface Project {
+  title: string;
+  category: string;
+  image: string;
+  stat: string;
+  desc: string;
+  link: string;
+}
+
+interface NewsItem {
+  id: number;
+  category: string;
+  title: string;
+  date: string;
+  readTime: string;
+  snippet: string;
+  image: string;
+}
+
 interface HeroSlide {
   id: number;
   tag: string;
@@ -140,11 +159,76 @@ const BUSINESSES: Business[] = [
   },
 ];
 
+const FEATURED_PROJECTS: Project[] = [
+  {
+    title: 'Kashmir Organic Saffron Initiative',
+    category: 'Ethical Agriculture',
+    image: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80',
+    stat: '100+ Farming Families Supported',
+    desc: 'Empowering local growers with fair trade pricing, organic soil testing, and direct global export channels.',
+    link: 'https://www.paidhuethicalfoods.com/',
+  },
+  {
+    title: 'Viyara Enterprise AI Suite',
+    category: 'Technology & AI',
+    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
+    stat: '40% Efficiency Increase',
+    desc: 'Deploying custom predictive analytics and automated workflows for international enterprise clients.',
+    link: 'https://viyara.co.in/',
+  },
+  {
+    title: 'Floffi Zero-Plastic Packaging',
+    category: 'Sustainable FMCG',
+    image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80',
+    stat: '100% Recyclable Glass Jars',
+    desc: 'Replacing single-use plastic wrappers with eco-friendly glass containers and natural sealants.',
+    link: 'https://floffi.in/',
+  },
+  {
+    title: 'Kalika Sphere Tech Bootcamps',
+    category: 'EdTech & Academics',
+    image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80',
+    stat: '94% Placement Rate',
+    desc: 'Intensive full-stack development and AI engineering courses for career changers and fresh graduates.',
+    link: 'https://www.kalikasphere.com/',
+  },
+];
+
 const BRANDS: Brand[] = [
   { name: 'Paidhu Ethical Foods', logo: '/paidhu_logo.png', link: 'https://www.paidhuethicalfoods.com/', desc: 'Premium Kashmiri saffron & organic edible flower crops.', category: 'Foods' },
   { name: 'Floffi Preservation', logo: 'https://floffi.in/floffi_logo.png', link: 'https://floffi.in/', desc: 'Artisanal floral fruit jams & natural gourmet spreads.', category: 'Consumer' },
   { name: 'Viyara IT Services', logo: 'https://viyara.co.in/logo-badge-blue.png', link: 'https://viyara.co.in/', desc: 'Enterprise SaaS, cloud engineering & AI software solutions.', category: 'Technology' },
   { name: 'Kalika Sphere', logo: 'https://www.kalikasphere.com/assets/logo-Drzuq4t7.png', link: 'https://www.kalikasphere.com/', desc: 'Future-ready tech learning platforms & skill bootcamps.', category: 'EdTech' },
+];
+
+const NEWS_ITEMS: NewsItem[] = [
+  {
+    id: 1,
+    category: 'Corporate Growth',
+    title: 'Paidhu Group Expands Sustainable Agriculture Footprint Across North & South India',
+    date: 'August 2026',
+    readTime: '4 min read',
+    snippet: 'Unifying Kashmir organic saffron sourcing with Tamil Nadu botanical flower cultivation under Paidhu Ethical Foods.',
+    image: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    id: 2,
+    category: 'Technology & AI',
+    title: 'Viyara IT Services Unveils Enterprise AI Automation Platform for Global Clients',
+    date: 'July 2026',
+    readTime: '5 min read',
+    snippet: 'Engineering intelligent cloud workflows, machine learning pipelines, and modern SaaS architectures.',
+    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    id: 3,
+    category: 'Education & Impact',
+    title: 'Kalika Sphere Launches Free Tech Scholarship Program for Rural Students',
+    date: 'June 2026',
+    readTime: '3 min read',
+    snippet: 'Allocating 5% of group resources to train over 500 aspiring software developers in full-stack engineering.',
+    image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80',
+  },
 ];
 
 const STATS = [
@@ -309,7 +393,7 @@ function ScrollProgressBar() {
   );
 }
 
-// ─── MEGA NAVBAR & SEARCH ────────────────────────────────────────────────
+// ─── HEADER NAVBAR ───────────────────────────────────────────────────────
 function HeaderNav() {
   const [scrolled, setScrolled] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
@@ -341,7 +425,7 @@ function HeaderNav() {
           right: 0,
           zIndex: 1000,
           transition: 'all 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
-          background: scrolled ? 'rgba(15, 23, 42, 0.94)' : 'linear-gradient(to bottom, rgba(15, 23, 42, 0.8), transparent)',
+          background: scrolled ? 'rgba(15, 23, 42, 0.94)' : 'linear-gradient(to bottom, rgba(15, 23, 42, 0.85), transparent)',
           backdropFilter: scrolled ? 'blur(16px) saturate(180%)' : 'blur(4px)',
           borderBottom: scrolled ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid transparent',
           padding: scrolled ? '12px 0' : '20px 0',
@@ -363,14 +447,16 @@ function HeaderNav() {
             />
           </button>
 
-          {/* Desktop Links */}
-          <nav className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: 36 }}>
+          {/* Desktop Nav Items */}
+          <nav className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
             {[
-              { label: 'About Group', id: 'about' },
+              { label: 'About', id: 'about' },
               { label: 'Businesses', id: 'businesses' },
-              { label: 'Brands', id: 'brands' },
-              { label: 'Stories & Impact', id: 'stories' },
-              { label: 'Why Paidhu', id: 'why-us' },
+              { label: 'Featured Projects', id: 'projects' },
+              { label: 'Stories & ESG', id: 'stories' },
+              { label: 'News & Insights', id: 'news' },
+              { label: 'Careers', id: 'careers' },
+              { label: 'Why Us', id: 'why-us' },
             ].map((item) => (
               <button
                 key={item.id}
@@ -382,7 +468,7 @@ function HeaderNav() {
                   color: 'rgba(255,255,255,0.85)',
                   fontSize: '0.875rem',
                   fontWeight: 500,
-                  letterSpacing: '0.04em',
+                  letterSpacing: '0.03em',
                   cursor: 'pointer',
                   padding: '6px 0',
                 }}
@@ -394,7 +480,7 @@ function HeaderNav() {
 
           {/* Actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            {/* Search Toggle */}
+            {/* Search Button */}
             <button
               onClick={() => setSearchOpen(true)}
               style={{
@@ -415,7 +501,7 @@ function HeaderNav() {
               🔍
             </button>
 
-            {/* CTA Button */}
+            {/* Contact CTA */}
             <button
               onClick={() => scrollTo('contact')}
               className="btn-primary desktop-only"
@@ -424,7 +510,7 @@ function HeaderNav() {
               Contact Us
             </button>
 
-            {/* Mega Menu Toggle */}
+            {/* Menu Toggle Button */}
             <button
               onClick={() => setMegaOpen(!megaOpen)}
               style={{
@@ -469,16 +555,7 @@ function HeaderNav() {
         >
           <button
             onClick={() => setSearchOpen(false)}
-            style={{
-              position: 'absolute',
-              top: 32,
-              right: 32,
-              background: 'none',
-              border: 'none',
-              color: 'white',
-              fontSize: 32,
-              cursor: 'pointer',
-            }}
+            style={{ position: 'absolute', top: 32, right: 32, background: 'none', border: 'none', color: 'white', fontSize: 32, cursor: 'pointer' }}
           >
             ✕
           </button>
@@ -488,36 +565,22 @@ function HeaderNav() {
             </h3>
             <input
               type="text"
-              placeholder="Search verticals, products, software, sustainability..."
+              placeholder="Search verticals, projects, news, careers..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               autoFocus
               className="form-input"
-              style={{
-                fontSize: '1.25rem',
-                padding: '18px 24px',
-                borderRadius: 50,
-                background: 'rgba(255,255,255,0.08)',
-                borderColor: '#E8B86D',
-              }}
+              style={{ fontSize: '1.25rem', padding: '18px 24px', borderRadius: 50, background: 'rgba(255,255,255,0.08)', borderColor: '#E8B86D' }}
             />
             <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap', marginTop: 24 }}>
-              {['Ethical Foods', 'Floffi Jams', 'Viyara IT', 'Kalika Sphere', 'ESG Sourcing'].map((tag) => (
+              {['Ethical Foods', 'Viyara AI Suite', 'Floffi Jams', 'Kalika Sphere Bootcamps', 'Careers'].map((tag) => (
                 <button
                   key={tag}
                   onClick={() => {
                     setSearchQuery(tag);
-                    scrollTo(tag.includes('Foods') ? 'businesses' : tag.includes('IT') ? 'businesses' : 'brands');
+                    scrollTo(tag.includes('Foods') ? 'businesses' : tag.includes('AI') ? 'projects' : tag.includes('Careers') ? 'careers' : 'brands');
                   }}
-                  style={{
-                    background: 'rgba(255,255,255,0.06)',
-                    border: '1px solid rgba(255,255,255,0.15)',
-                    color: 'rgba(255,255,255,0.8)',
-                    borderRadius: 50,
-                    padding: '6px 16px',
-                    fontSize: '0.8125rem',
-                    cursor: 'pointer',
-                  }}
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.8)', borderRadius: 50, padding: '6px 16px', fontSize: '0.8125rem', cursor: 'pointer' }}
                 >
                   #{tag}
                 </button>
@@ -545,19 +608,19 @@ function HeaderNav() {
           overflowY: 'auto',
         }}
       >
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 48 }}>
-          {/* Navigation Column */}
+        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 48 }}>
+          {/* Nav Links */}
           <div>
-            <h4 style={{ color: '#E8B86D', fontSize: '0.75rem', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 24 }}>
-              Group Navigation
-            </h4>
+            <h4 style={{ color: '#E8B86D', fontSize: '0.75rem', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 24 }}>Navigation</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {[
                 { name: 'Home Overview', id: 'hero' },
                 { name: 'About Paidhu Group', id: 'about' },
                 { name: 'Business Verticals', id: 'businesses' },
-                { name: 'Subsidiaries & Brands', id: 'brands' },
-                { name: 'Impact & Sustainability', id: 'stories' },
+                { name: 'Featured Projects', id: 'projects' },
+                { name: 'Impact & ESG Stories', id: 'stories' },
+                { name: 'News & Insights', id: 'news' },
+                { name: 'Careers & Culture', id: 'careers' },
                 { name: 'Why Choose Paidhu', id: 'why-us' },
                 { name: 'Contact & Offices', id: 'contact' },
               ].map((item) => (
@@ -569,7 +632,7 @@ function HeaderNav() {
                     border: 'none',
                     color: 'white',
                     fontFamily: 'var(--font-serif)',
-                    fontSize: 'clamp(1.25rem, 2.5vw, 2rem)',
+                    fontSize: 'clamp(1.25rem, 2vw, 1.75rem)',
                     textAlign: 'left',
                     cursor: 'pointer',
                     transition: 'color 0.3s, transform 0.3s',
@@ -589,12 +652,10 @@ function HeaderNav() {
             </div>
           </div>
 
-          {/* Core Verticals Quick Links */}
+          {/* Subsidiaries */}
           <div>
-            <h4 style={{ color: '#E8B86D', fontSize: '0.75rem', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 24 }}>
-              Business Subsidiaries
-            </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <h4 style={{ color: '#E8B86D', fontSize: '0.75rem', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 24 }}>Business Subsidiaries</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {BUSINESSES.map((b) => (
                 <a
                   key={b.id}
@@ -631,17 +692,13 @@ function HeaderNav() {
             </div>
           </div>
 
-          {/* Quick Contact Box */}
+          {/* Contact HQ Box */}
           <div style={{ background: 'rgba(232,184,109,0.06)', border: '1px solid rgba(232,184,109,0.2)', borderRadius: 24, padding: 32 }}>
-            <h4 style={{ color: '#E8B86D', fontSize: '1.25rem', fontFamily: 'var(--font-serif)', marginBottom: 12 }}>
-              Global Headquarters
-            </h4>
+            <h4 style={{ color: '#E8B86D', fontSize: '1.25rem', fontFamily: 'var(--font-serif)', marginBottom: 12 }}>Global Headquarters</h4>
             <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem', lineHeight: 1.7, marginBottom: 20 }}>
               No 11 Saraswati Avenue, Achipatti, Pollachi – 642002, Tamil Nadu, India.
             </p>
-            <p style={{ color: '#E8B86D', fontSize: '0.875rem', fontWeight: 600, marginBottom: 24 }}>
-              📞 +91 87542 87774
-            </p>
+            <p style={{ color: '#E8B86D', fontSize: '0.875rem', fontWeight: 600, marginBottom: 24 }}>📞 +91 87542 87774</p>
             <button onClick={() => scrollTo('contact')} className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
               Send Inquiry →
             </button>
@@ -652,44 +709,29 @@ function HeaderNav() {
   );
 }
 
-// ─── TATA-STYLE SWIPABLE HERO SLIDER ────────────────────────────────────
+// ─── 1. HERO SWIPER ───────────────────────────────────────────────────────
 function HeroSwiper() {
   const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const touchStart = useRef<number>(0);
   const touchEnd = useRef<number>(0);
 
-  const nextSlide = useCallback(() => {
-    setCurrent((prev) => (prev + 1) % HERO_SLIDES.length);
-  }, []);
+  const nextSlide = useCallback(() => setCurrent((prev) => (prev + 1) % HERO_SLIDES.length), []);
+  const prevSlide = useCallback(() => setCurrent((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length), []);
 
-  const prevSlide = useCallback(() => {
-    setCurrent((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
-  }, []);
-
-  // Autoplay
   useEffect(() => {
     if (isPaused) return;
-    const timer = setInterval(() => {
-      nextSlide();
-    }, 6000);
+    const timer = setInterval(() => nextSlide(), 6000);
     return () => clearInterval(timer);
   }, [nextSlide, isPaused]);
 
-  // Touch Swipe Handlers
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStart.current = e.targetTouches[0].clientX;
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    touchEnd.current = e.targetTouches[0].clientX;
-  };
-
+  const handleTouchStart = (e: React.TouchEvent) => { touchStart.current = e.targetTouches[0].clientX; };
+  const handleTouchMove = (e: React.TouchEvent) => { touchEnd.current = e.targetTouches[0].clientX; };
   const handleTouchEnd = () => {
     if (!touchStart.current || !touchEnd.current) return;
-    const distance = touchStart.current - touchEnd.current;
-    if (distance > 50) nextSlide();
-    if (distance < -50) prevSlide();
+    const dist = touchStart.current - touchEnd.current;
+    if (dist > 50) nextSlide();
+    if (dist < -50) prevSlide();
     touchStart.current = 0;
     touchEnd.current = 0;
   };
@@ -702,15 +744,8 @@ function HeroSwiper() {
       onTouchEnd={handleTouchEnd}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
-      style={{
-        position: 'relative',
-        height: '100vh',
-        minHeight: 700,
-        background: '#0F172A',
-        overflow: 'hidden',
-      }}
+      style={{ position: 'relative', height: '100vh', minHeight: 700, background: '#0F172A', overflow: 'hidden' }}
     >
-      {/* SLIDES */}
       {HERO_SLIDES.map((slide, index) => {
         const isActive = index === current;
         return (
@@ -727,7 +762,6 @@ function HeroSwiper() {
               justifyContent: 'center',
             }}
           >
-            {/* Background Image with Ken Burns effect */}
             <div
               style={{
                 position: 'absolute',
@@ -740,98 +774,32 @@ function HeroSwiper() {
                 filter: 'brightness(0.4) contrast(1.1)',
               }}
             />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, #0F172A 0%, transparent 60%), linear-gradient(to right, rgba(15,23,42,0.85) 0%, transparent 70%)' }} />
 
-            {/* Gradient Overlays */}
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                background: 'linear-gradient(to top, #0F172A 0%, transparent 60%), linear-gradient(to right, rgba(15,23,42,0.85) 0%, transparent 70%)',
-              }}
-            />
-
-            {/* Content Container */}
-            <div
-              className="container"
-              style={{
-                position: 'relative',
-                zIndex: 10,
-                padding: '0 clamp(24px, 6vw, 96px)',
-                maxWidth: 1100,
-              }}
-            >
-              {/* Tag */}
+            <div className="container" style={{ position: 'relative', zIndex: 10, padding: '0 clamp(24px, 6vw, 96px)', maxWidth: 1100 }}>
               <div style={{ marginBottom: 20, opacity: isActive ? 1 : 0, transform: isActive ? 'translateY(0)' : 'translateY(20px)', transition: 'all 0.8s 0.2s' }}>
-                <span
-                  style={{
-                    color: '#E8B86D',
-                    fontSize: '0.8125rem',
-                    fontWeight: 600,
-                    letterSpacing: '0.18em',
-                    textTransform: 'uppercase',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 12,
-                  }}
-                >
+                <span style={{ color: '#E8B86D', fontSize: '0.8125rem', fontWeight: 600, letterSpacing: '0.18em', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: 12 }}>
                   <span style={{ width: 32, height: 2, background: '#E8B86D' }} />
                   {slide.tag}
                 </span>
               </div>
 
-              {/* Title */}
-              <h1
-                className="display-xl"
-                style={{
-                  color: 'white',
-                  marginBottom: 20,
-                  opacity: isActive ? 1 : 0,
-                  transform: isActive ? 'translateY(0)' : 'translateY(30px)',
-                  transition: 'all 0.8s 0.4s',
-                }}
-              >
+              <h1 className="display-xl" style={{ color: 'white', marginBottom: 20, opacity: isActive ? 1 : 0, transform: isActive ? 'translateY(0)' : 'translateY(30px)', transition: 'all 0.8s 0.4s' }}>
                 {slide.title}<br />
                 <span className="gradient-text">{slide.highlight}</span>
               </h1>
 
-              {/* Subtitle */}
-              <p
-                style={{
-                  color: 'rgba(255,255,255,0.75)',
-                  fontSize: 'clamp(1rem, 2vw, 1.25rem)',
-                  lineHeight: 1.7,
-                  maxWidth: 640,
-                  marginBottom: 40,
-                  opacity: isActive ? 1 : 0,
-                  transform: isActive ? 'translateY(0)' : 'translateY(30px)',
-                  transition: 'all 0.8s 0.6s',
-                }}
-              >
+              <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 'clamp(1rem, 2vw, 1.25rem)', lineHeight: 1.7, maxWidth: 640, marginBottom: 40, opacity: isActive ? 1 : 0, transform: isActive ? 'translateY(0)' : 'translateY(30px)', transition: 'all 0.8s 0.6s' }}>
                 {slide.subtitle}
               </p>
 
-              {/* CTAs */}
-              <div
-                style={{
-                  display: 'flex',
-                  gap: 16,
-                  flexWrap: 'wrap',
-                  opacity: isActive ? 1 : 0,
-                  transform: isActive ? 'translateY(0)' : 'translateY(30px)',
-                  transition: 'all 0.8s 0.8s',
-                }}
-              >
+              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', opacity: isActive ? 1 : 0, transform: isActive ? 'translateY(0)' : 'translateY(30px)', transition: 'all 0.8s 0.8s' }}>
                 {slide.ctaLink.startsWith('http') ? (
                   <a href={slide.ctaLink} target="_blank" rel="noopener noreferrer" className="btn-primary">
                     {slide.ctaText} →
                   </a>
                 ) : (
-                  <button
-                    className="btn-primary"
-                    onClick={() => {
-                      document.querySelector(slide.ctaLink)?.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                  >
+                  <button className="btn-primary" onClick={() => document.querySelector(slide.ctaLink)?.scrollIntoView({ behavior: 'smooth' })}>
                     {slide.ctaText} →
                   </button>
                 )}
@@ -841,12 +809,7 @@ function HeroSwiper() {
                     {slide.secondaryCtaText}
                   </a>
                 ) : (
-                  <button
-                    className="btn-outline"
-                    onClick={() => {
-                      document.querySelector(slide.secondaryCtaLink)?.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                  >
+                  <button className="btn-outline" onClick={() => document.querySelector(slide.secondaryCtaLink)?.scrollIntoView({ behavior: 'smooth' })}>
                     {slide.secondaryCtaText}
                   </button>
                 )}
@@ -856,133 +819,34 @@ function HeroSwiper() {
         );
       })}
 
-      {/* TATA SLIDER CONTROLS (Bottom Right) */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 40,
-          right: 'clamp(24px, 6vw, 96px)',
-          zIndex: 20,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 24,
-          background: 'rgba(15,23,42,0.6)',
-          backdropFilter: 'blur(12px)',
-          padding: '12px 24px',
-          borderRadius: 50,
-          border: '1px solid rgba(255,255,255,0.1)',
-        }}
-      >
-        {/* Slide Counter */}
+      {/* Slider Controls */}
+      <div style={{ position: 'absolute', bottom: 40, right: 'clamp(24px, 6vw, 96px)', zIndex: 20, display: 'flex', alignItems: 'center', gap: 24, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(12px)', padding: '12px 24px', borderRadius: 50, border: '1px solid rgba(255,255,255,0.1)' }}>
         <span style={{ color: 'white', fontSize: '0.875rem', fontWeight: 600, fontFamily: 'monospace' }}>
           0{current + 1} / 0{HERO_SLIDES.length}
         </span>
-
-        {/* Slide Dots */}
         <div style={{ display: 'flex', gap: 8 }}>
           {HERO_SLIDES.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => setCurrent(idx)}
-              style={{
-                background: idx === current ? '#E8B86D' : 'rgba(255,255,255,0.3)',
-                width: idx === current ? 24 : 8,
-                height: 8,
-                borderRadius: 4,
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-              }}
-              title={`Go to slide ${idx + 1}`}
-            />
+            <button key={idx} onClick={() => setCurrent(idx)} style={{ background: idx === current ? '#E8B86D' : 'rgba(255,255,255,0.3)', width: idx === current ? 24 : 8, height: 8, borderRadius: 4, border: 'none', cursor: 'pointer', transition: 'all 0.3s' }} />
           ))}
         </div>
-
-        {/* Prev / Next Arrows */}
         <div style={{ display: 'flex', gap: 8 }}>
-          <button
-            onClick={prevSlide}
-            style={{
-              background: 'rgba(255,255,255,0.1)',
-              border: 'none',
-              color: 'white',
-              width: 32,
-              height: 32,
-              borderRadius: '50%',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            ‹
-          </button>
-          <button
-            onClick={nextSlide}
-            style={{
-              background: 'rgba(255,255,255,0.1)',
-              border: 'none',
-              color: 'white',
-              width: 32,
-              height: 32,
-              borderRadius: '50%',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            ›
-          </button>
+          <button onClick={prevSlide} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', width: 32, height: 32, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>‹</button>
+          <button onClick={nextSlide} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', width: 32, height: 32, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>›</button>
         </div>
-      </div>
-
-      {/* Swipe Hint Label */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 40,
-          left: 'clamp(24px, 6vw, 96px)',
-          zIndex: 20,
-          color: 'rgba(255,255,255,0.5)',
-          fontSize: '0.75rem',
-          letterSpacing: '0.15em',
-          textTransform: 'uppercase',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-        }}
-      >
-        <span>👈 Swipe or Click to Explore</span>
       </div>
     </section>
   );
 }
 
-// ─── MARQUEE ─────────────────────────────────────────────────────────────
+// ─── 2. MARQUEE STRIP ─────────────────────────────────────────────────────
 function MarqueeStrip() {
   const items = ['Ethical Foods', 'Viyara IT Services', 'Floffi Preserves', 'Kalika Sphere EdTech', '100% Traceable Saffron', 'SaaS & AI Platforms', 'Fair Wage Agriculture'];
   const list = [...items, ...items];
-
   return (
     <div style={{ background: '#E8B86D', padding: '14px 0', overflow: 'hidden' }}>
       <div className="marquee-track">
         {list.map((item, i) => (
-          <span
-            key={i}
-            style={{
-              color: '#0F172A',
-              fontSize: '0.8125rem',
-              fontWeight: 700,
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase',
-              whiteSpace: 'nowrap',
-              paddingRight: 48,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 48,
-            }}
-          >
+          <span key={i} style={{ color: '#0F172A', fontSize: '0.8125rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', whiteSpace: 'nowrap', paddingRight: 48, display: 'inline-flex', alignItems: 'center', gap: 48 }}>
             {item}
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#0F172A', opacity: 0.5 }} />
           </span>
@@ -992,72 +856,32 @@ function MarqueeStrip() {
   );
 }
 
-// ─── ABOUT GROUP ──────────────────────────────────────────────────────────
+// ─── 3. ABOUT GROUP ───────────────────────────────────────────────────────
 function AboutGroup() {
-  const [statsVisible, setStatsVisible] = useState(false);
-  const statsRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setStatsVisible(true); },
-      { threshold: 0.2 }
-    );
-    if (statsRef.current) observer.observe(statsRef.current);
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <section id="about" style={{ background: '#F7F8FA', padding: 'clamp(80px, 12vw, 140px) clamp(24px, 5vw, 64px)' }}>
       <div className="container">
-        {/* Header */}
         <div style={{ marginBottom: 72 }}>
-          <span className="label reveal" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>
-            Group Architecture
-          </span>
+          <span className="label reveal" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>Group Overview</span>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 48, alignItems: 'end' }}>
-            <h2 className="display-md reveal" style={{ color: '#111827' }}>
-              A Diversified Enterprise Built on Purpose & Precision
-            </h2>
+            <h2 className="display-md reveal" style={{ color: '#111827' }}>A Diversified Enterprise Built on Purpose & Precision</h2>
             <div className="reveal-right">
               <div style={{ width: 48, height: 3, background: '#E8B86D', marginBottom: 20, borderRadius: 2 }} />
               <p style={{ color: '#6B7280', fontSize: '1.0625rem', lineHeight: 1.8 }}>
-                Founded in 2019, Paidhu Group spans agriculture, organic food processing, enterprise IT engineering, consumer brands, and skill academies. We combine traditional ethics with modern technology to scale sustainable value.
+                Founded in 2019, Paidhu Group operates across agriculture, organic food processing, enterprise IT software, consumer brands, and skill academies. We integrate ethical sourcing with modern technology to deliver long-term value.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Stats Strip */}
-        <div
-          ref={statsRef}
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: 2,
-            background: 'rgba(22,36,54,0.08)',
-            borderRadius: 24,
-            overflow: 'hidden',
-            marginBottom: 80,
-          }}
-        >
-          {STATS.map((s, i) => (
-            <StatCard key={i} stat={s} visible={statsVisible} />
-          ))}
-        </div>
-
-        {/* Core Pillars */}
+        {/* Mission / Vision / Values Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
           {[
-            { title: 'Ethical Agriculture', desc: 'Working directly with Kashmir saffron & botanical flower farmers with 100% fair-wage pricing.', icon: '🌸' },
-            { title: 'Digital Innovation', desc: 'Building enterprise cloud systems, SaaS engines, and custom AI tools under Viyara IT Services.', icon: '⚡' },
-            { title: 'Natural FMCG', desc: 'Crafting floral fruit preserves and gourmet jams with zero artificial colors or synthetic additives.', icon: '🍯' },
-            { title: 'Skill Academies', desc: 'Empowering students and professionals with hands-on coding and tech certifications at Kalika Sphere.', icon: '🎓' },
+            { title: 'Our Mission', desc: 'To build ethical, scalable business verticals that elevate human well-being and protect natural resources.', icon: '🎯' },
+            { title: 'Our Vision', desc: 'A global enterprise ecosystem where financial growth and societal ethics advance together seamlessly.', icon: '🌅' },
+            { title: 'Our Core Values', desc: 'Authenticity in sourcing, rigor in technology, equity for local farmers, and continuous learning.', icon: '🧭' },
           ].map((item, idx) => (
-            <div
-              key={idx}
-              className="card-premium reveal"
-              style={{ padding: 36, transitionDelay: `${idx * 100}ms` }}
-            >
+            <div key={idx} className="card-premium reveal" style={{ padding: 36, transitionDelay: `${idx * 100}ms` }}>
               <div style={{ fontSize: 36, marginBottom: 16 }}>{item.icon}</div>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#162436', marginBottom: 12 }}>{item.title}</h3>
               <p style={{ color: '#6B7280', fontSize: '0.9375rem', lineHeight: 1.7 }}>{item.desc}</p>
@@ -1069,33 +893,47 @@ function AboutGroup() {
   );
 }
 
+// ─── 4. STATISTICS SECTION ────────────────────────────────────────────────
+function StatisticsSection() {
+  const [visible, setVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setVisible(true); }, { threshold: 0.3 });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <section ref={ref} style={{ background: '#162436', padding: '80px clamp(24px, 5vw, 64px)', color: 'white' }}>
+      <div className="container">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 32 }}>
+          {STATS.map((s, i) => (
+            <StatCard key={i} stat={s} visible={visible} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function StatCard({ stat, visible }: { stat: typeof STATS[0]; visible: boolean }) {
   const count = useCounter(stat.value, 2000, visible);
 
   return (
-    <div
-      style={{
-        background: 'white',
-        padding: '40px 28px',
-        textAlign: 'center',
-        transition: 'background 0.3s',
-      }}
-      onMouseEnter={(e) => (e.currentTarget.style.background = '#FAFBFD')}
-      onMouseLeave={(e) => (e.currentTarget.style.background = 'white')}
-    >
+    <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: '36px 28px', textAlign: 'center' }}>
       <div style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.5rem, 4vw, 3.5rem)', fontWeight: 700, color: '#E8B86D', lineHeight: 1 }}>
         {stat.value > 1000 ? count.toLocaleString() : count}{stat.suffix}
       </div>
-      <h4 style={{ color: '#111827', fontSize: '0.9375rem', fontWeight: 600, marginTop: 8 }}>{stat.label}</h4>
-      <p style={{ color: '#6B7280', fontSize: '0.8125rem', marginTop: 4 }}>{stat.desc}</p>
+      <h4 style={{ color: 'white', fontSize: '1rem', fontWeight: 600, marginTop: 12 }}>{stat.label}</h4>
+      <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8125rem', marginTop: 4 }}>{stat.desc}</p>
     </div>
   );
 }
 
-// ─── SWIPABLE BUSINESS VERTICALS CAROUSEL ────────────────────────────────
+// ─── 5. BUSINESS VERTICALS SWIPER ─────────────────────────────────────────
 function BusinessCarousel() {
   const [activeIndex, setActiveIndex] = useState(0);
-
   const next = () => setActiveIndex((prev) => (prev + 1) % BUSINESSES.length);
   const prev = () => setActiveIndex((prev) => (prev - 1 + BUSINESSES.length) % BUSINESSES.length);
 
@@ -1104,104 +942,33 @@ function BusinessCarousel() {
       <div className="container">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 64, flexWrap: 'wrap', gap: 24 }}>
           <div>
-            <span className="label reveal" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>
-              Enterprise Portfolio
-            </span>
-            <h2 className="display-md reveal" style={{ color: 'white' }}>
-              Explore Business Verticals
-            </h2>
+            <span className="label reveal" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>Enterprise Verticals</span>
+            <h2 className="display-md reveal" style={{ color: 'white' }}>Core Business Subsidiaries</h2>
           </div>
-
-          {/* Carousel Arrows */}
           <div className="reveal-right" style={{ display: 'flex', gap: 12 }}>
-            <button
-              onClick={prev}
-              style={{
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                color: 'white',
-                width: 48,
-                height: 48,
-                borderRadius: '50%',
-                cursor: 'pointer',
-                fontSize: 20,
-                transition: 'all 0.3s',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = '#E8B86D')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.08)')}
-            >
-              ←
-            </button>
-            <button
-              onClick={next}
-              style={{
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                color: 'white',
-                width: 48,
-                height: 48,
-                borderRadius: '50%',
-                cursor: 'pointer',
-                fontSize: 20,
-                transition: 'all 0.3s',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = '#E8B86D')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.08)')}
-            >
-              →
-            </button>
+            <button onClick={prev} style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: 'white', width: 48, height: 48, borderRadius: '50%', cursor: 'pointer', fontSize: 20 }}>←</button>
+            <button onClick={next} style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: 'white', width: 48, height: 48, borderRadius: '50%', cursor: 'pointer', fontSize: 20 }}>→</button>
           </div>
         </div>
 
-        {/* Carousel Active Business Focus Display */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 32, alignItems: 'center' }}>
-          {/* Left Feature Card */}
-          <div
-            className="reveal"
-            style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(232,184,109,0.3)',
-              borderRadius: 32,
-              padding: 'clamp(32px, 5vw, 48px)',
-              position: 'relative',
-              overflow: 'hidden',
-            }}
-          >
-            <span
-              style={{
-                background: 'rgba(232,184,109,0.15)',
-                color: '#E8B86D',
-                padding: '6px 16px',
-                borderRadius: 50,
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                marginBottom: 24,
-                display: 'inline-block',
-              }}
-            >
+          <div className="reveal" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(232,184,109,0.3)', borderRadius: 32, padding: 'clamp(32px, 5vw, 48px)' }}>
+            <span style={{ background: 'rgba(232,184,109,0.15)', color: '#E8B86D', padding: '6px 16px', borderRadius: 50, fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 24, display: 'inline-block' }}>
               {BUSINESSES[activeIndex].category}
             </span>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
               <img src={BUSINESSES[activeIndex].logo} alt={BUSINESSES[activeIndex].name} style={{ height: 48, objectFit: 'contain' }} />
               <div>
-                <h3 style={{ color: 'white', fontFamily: 'var(--font-serif)', fontSize: '1.75rem', fontWeight: 700 }}>
-                  {BUSINESSES[activeIndex].name}
-                </h3>
+                <h3 style={{ color: 'white', fontFamily: 'var(--font-serif)', fontSize: '1.75rem', fontWeight: 700 }}>{BUSINESSES[activeIndex].name}</h3>
                 <p style={{ color: '#E8B86D', fontSize: '0.875rem', fontWeight: 600 }}>{BUSINESSES[activeIndex].tagline}</p>
               </div>
             </div>
 
-            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem', lineHeight: 1.8, marginBottom: 32 }}>
-              {BUSINESSES[activeIndex].description}
-            </p>
+            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem', lineHeight: 1.8, marginBottom: 32 }}>{BUSINESSES[activeIndex].description}</p>
 
             <div style={{ marginBottom: 32 }}>
-              <h4 style={{ color: 'white', fontSize: '0.8125rem', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>
-                Key Highlights
-              </h4>
+              <h4 style={{ color: 'white', fontSize: '0.8125rem', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>Key Highlights</h4>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 {BUSINESSES[activeIndex].highlights.map((h, i) => (
                   <div key={i} style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1211,52 +978,25 @@ function BusinessCarousel() {
               </div>
             </div>
 
-            <a
-              href={BUSINESSES[activeIndex].link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary"
-            >
+            <a href={BUSINESSES[activeIndex].link} target="_blank" rel="noopener noreferrer" className="btn-primary">
               Visit {BUSINESSES[activeIndex].name} →
             </a>
           </div>
 
-          {/* Right Image Feature */}
           <div className="reveal-right" style={{ position: 'relative', borderRadius: 32, overflow: 'hidden', height: 440 }}>
-            <img
-              src={BUSINESSES[activeIndex].image}
-              alt={BUSINESSES[activeIndex].name}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'all 0.6s ease' }}
-            />
+            <img src={BUSINESSES[activeIndex].image} alt={BUSINESSES[activeIndex].name} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'all 0.6s ease' }} />
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(15,23,42,0.9), transparent)' }} />
             <div style={{ position: 'absolute', bottom: 32, left: 32, right: 32 }}>
               <span style={{ color: '#E8B86D', fontSize: '0.75rem', letterSpacing: '0.15em', textTransform: 'uppercase' }}>Benchmark</span>
-              <p style={{ color: 'white', fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontWeight: 700, marginTop: 4 }}>
-                {BUSINESSES[activeIndex].stats}
-              </p>
+              <p style={{ color: 'white', fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontWeight: 700, marginTop: 4 }}>{BUSINESSES[activeIndex].stats}</p>
             </div>
           </div>
         </div>
 
-        {/* Horizontal Swiper Selectors */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginTop: 32 }}>
           {BUSINESSES.map((b, idx) => (
-            <button
-              key={b.id}
-              onClick={() => setActiveIndex(idx)}
-              style={{
-                background: idx === activeIndex ? 'rgba(232,184,109,0.15)' : 'rgba(255,255,255,0.03)',
-                border: `1px solid ${idx === activeIndex ? '#E8B86D' : 'rgba(255,255,255,0.08)'}`,
-                borderRadius: 20,
-                padding: 20,
-                textAlign: 'left',
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-              }}
-            >
-              <span style={{ color: idx === activeIndex ? '#E8B86D' : 'rgba(255,255,255,0.4)', fontSize: '0.75rem', fontFamily: 'monospace' }}>
-                0{idx + 1}
-              </span>
+            <button key={b.id} onClick={() => setActiveIndex(idx)} style={{ background: idx === activeIndex ? 'rgba(232,184,109,0.15)' : 'rgba(255,255,255,0.03)', border: `1px solid ${idx === activeIndex ? '#E8B86D' : 'rgba(255,255,255,0.08)'}`, borderRadius: 20, padding: 20, textAlign: 'left', cursor: 'pointer', transition: 'all 0.3s' }}>
+              <span style={{ color: idx === activeIndex ? '#E8B86D' : 'rgba(255,255,255,0.4)', fontSize: '0.75rem', fontFamily: 'monospace' }}>0{idx + 1}</span>
               <h4 style={{ color: 'white', fontSize: '0.9375rem', fontWeight: 600, marginTop: 4 }}>{b.name}</h4>
             </button>
           ))}
@@ -1266,66 +1006,37 @@ function BusinessCarousel() {
   );
 }
 
-// ─── BRANDS GRID ──────────────────────────────────────────────────────────
-function BrandsGrid() {
+// ─── 6. FEATURED PROJECTS ─────────────────────────────────────────────────
+function FeaturedProjects() {
   return (
-    <section id="brands" style={{ background: '#F7F8FA', padding: 'clamp(80px, 12vw, 140px) clamp(24px, 5vw, 64px)' }}>
+    <section id="projects" style={{ background: '#F7F8FA', padding: 'clamp(80px, 12vw, 140px) clamp(24px, 5vw, 64px)' }}>
       <div className="container">
         <div style={{ textAlign: 'center', marginBottom: 64 }}>
-          <span className="label reveal" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>
-            Group Ecosystem
-          </span>
-          <h2 className="display-md reveal" style={{ color: '#111827' }}>
-            Group Subsidiaries & Brands
-          </h2>
+          <span className="label reveal" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>Key Milestones</span>
+          <h2 className="display-md reveal" style={{ color: '#111827' }}>Featured Enterprise Projects</h2>
           <p className="reveal" style={{ color: '#6B7280', maxWidth: 520, margin: '16px auto 0', fontSize: '1rem' }}>
-            Pioneering excellence across agriculture, retail food, enterprise technology, and academies.
+            Transformative initiatives driving impact across organic agriculture, software AI, eco-packaging, and developer education.
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 24 }}>
-          {BRANDS.map((b, i) => (
-            <a
-              key={i}
-              href={b.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="card-premium reveal"
-              style={{
-                textDecoration: 'none',
-                padding: 36,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                transitionDelay: `${i * 80}ms`,
-              }}
-            >
-              <div>
-                <span
-                  style={{
-                    background: 'rgba(22,36,54,0.06)',
-                    color: '#162436',
-                    padding: '4px 12px',
-                    borderRadius: 50,
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    marginBottom: 20,
-                    display: 'inline-block',
-                  }}
-                >
-                  {b.category}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
+          {FEATURED_PROJECTS.map((proj, idx) => (
+            <div key={idx} className="card-premium reveal" style={{ transitionDelay: `${idx * 80}ms` }}>
+              <div style={{ height: 220, overflow: 'hidden', position: 'relative' }}>
+                <img src={proj.image} alt={proj.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }} />
+                <span style={{ position: 'absolute', top: 16, left: 16, background: '#0F172A', color: '#E8B86D', padding: '4px 12px', borderRadius: 50, fontSize: '0.75rem', fontWeight: 600 }}>
+                  {proj.category}
                 </span>
-                <div style={{ height: 60, display: 'flex', alignItems: 'center', marginBottom: 20 }}>
-                  <img src={b.logo} alt={b.name} style={{ maxHeight: 50, maxWidth: '100%', objectFit: 'contain' }} />
-                </div>
-                <h3 style={{ color: '#111827', fontSize: '1.125rem', fontWeight: 700, marginBottom: 8 }}>{b.name}</h3>
-                <p style={{ color: '#6B7280', fontSize: '0.875rem', lineHeight: 1.6 }}>{b.desc}</p>
               </div>
-
-              <div style={{ marginTop: 24, color: '#E8B86D', fontSize: '0.8125rem', fontWeight: 700, textTransform: 'uppercase' }}>
-                Visit Platform →
+              <div style={{ padding: 28 }}>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#111827', marginBottom: 8 }}>{proj.title}</h3>
+                <p style={{ color: '#E8B86D', fontSize: '0.8125rem', fontWeight: 700, marginBottom: 12 }}>{proj.stat}</p>
+                <p style={{ color: '#6B7280', fontSize: '0.875rem', lineHeight: 1.6, marginBottom: 20 }}>{proj.desc}</p>
+                <a href={proj.link} target="_blank" rel="noopener noreferrer" style={{ color: '#162436', fontWeight: 700, fontSize: '0.8125rem', textTransform: 'uppercase', textDecoration: 'none' }}>
+                  Read Details →
+                </a>
               </div>
-            </a>
+            </div>
           ))}
         </div>
       </div>
@@ -1333,7 +1044,7 @@ function BrandsGrid() {
   );
 }
 
-// ─── TATA-STYLE TABBED STORYTELLING ──────────────────────────────────────
+// ─── 7. STORYTELLING & ESG ────────────────────────────────────────────────
 function StorytellingSection() {
   const [activeTab, setActiveTab] = useState(0);
   const current = STORY_TABS[activeTab];
@@ -1342,67 +1053,22 @@ function StorytellingSection() {
     <section id="stories" style={{ background: '#162436', padding: 'clamp(80px, 12vw, 140px) clamp(24px, 5vw, 64px)', color: 'white' }}>
       <div className="container">
         <div style={{ textAlign: 'center', marginBottom: 56 }}>
-          <span className="label reveal" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>
-            Impact Stories
-          </span>
-          <h2 className="display-md reveal" style={{ color: 'white' }}>
-            How We Shape Sustainable Enterprise
-          </h2>
+          <span className="label reveal" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>Impact Stories</span>
+          <h2 className="display-md reveal" style={{ color: 'white' }}>How We Shape Sustainable Enterprise</h2>
         </div>
 
-        {/* Tab Navigation Buttons */}
-        <div
-          className="reveal"
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: 12,
-            flexWrap: 'wrap',
-            marginBottom: 48,
-          }}
-        >
+        <div className="reveal" style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap', marginBottom: 48 }}>
           {STORY_TABS.map((tab, idx) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(idx)}
-              style={{
-                background: idx === activeTab ? '#E8B86D' : 'rgba(255,255,255,0.08)',
-                color: idx === activeTab ? '#0F172A' : 'white',
-                border: 'none',
-                padding: '12px 24px',
-                borderRadius: 50,
-                fontSize: '0.875rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-              }}
-            >
+            <button key={tab.id} onClick={() => setActiveTab(idx)} style={{ background: idx === activeTab ? '#E8B86D' : 'rgba(255,255,255,0.08)', color: idx === activeTab ? '#0F172A' : 'white', border: 'none', padding: '12px 24px', borderRadius: 50, fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.3s' }}>
               {tab.title}
             </button>
           ))}
         </div>
 
-        {/* Active Tab Panel */}
-        <div
-          className="reveal"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: 48,
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: 32,
-            padding: 'clamp(32px, 5vw, 56px)',
-            alignItems: 'center',
-          }}
-        >
+        <div className="reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 48, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 32, padding: 'clamp(32px, 5vw, 56px)', alignItems: 'center' }}>
           <div>
-            <h3 style={{ color: '#E8B86D', fontFamily: 'var(--font-serif)', fontSize: '1.75rem', fontWeight: 700, marginBottom: 8 }}>
-              {current.subtitle}
-            </h3>
-            <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '1.0625rem', lineHeight: 1.8, marginBottom: 32 }}>
-              {current.description}
-            </p>
+            <h3 style={{ color: '#E8B86D', fontFamily: 'var(--font-serif)', fontSize: '1.75rem', fontWeight: 700, marginBottom: 8 }}>{current.subtitle}</h3>
+            <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '1.0625rem', lineHeight: 1.8, marginBottom: 32 }}>{current.description}</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               {current.points.map((pt, i) => (
                 <div key={i} style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 12, padding: 14, fontSize: '0.875rem', border: '1px solid rgba(255,255,255,0.08)' }}>
@@ -1411,10 +1077,8 @@ function StorytellingSection() {
               ))}
             </div>
           </div>
-
           <div style={{ borderRadius: 24, overflow: 'hidden', height: 380, position: 'relative' }}>
             <img src={current.image} alt={current.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(22,36,54,0.6), transparent)' }} />
           </div>
         </div>
       </div>
@@ -1422,41 +1086,102 @@ function StorytellingSection() {
   );
 }
 
-// ─── WHY CHOOSE PAIDHU ──────────────────────────────────────────────────
+// ─── 8. BRANDS GRID ───────────────────────────────────────────────────────
+function BrandsGrid() {
+  return (
+    <section id="brands" style={{ background: '#F7F8FA', padding: 'clamp(80px, 12vw, 140px) clamp(24px, 5vw, 64px)' }}>
+      <div className="container">
+        <div style={{ textAlign: 'center', marginBottom: 64 }}>
+          <span className="label reveal" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>Ecosystem</span>
+          <h2 className="display-md reveal" style={{ color: '#111827' }}>Group Brands</h2>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 24 }}>
+          {BRANDS.map((b, i) => (
+            <a key={i} href={b.link} target="_blank" rel="noopener noreferrer" className="card-premium reveal" style={{ textDecoration: 'none', padding: 36, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ height: 60, display: 'flex', alignItems: 'center', marginBottom: 20 }}>
+                  <img src={b.logo} alt={b.name} style={{ maxHeight: 50, maxWidth: '100%', objectFit: 'contain' }} />
+                </div>
+                <h3 style={{ color: '#111827', fontSize: '1.125rem', fontWeight: 700, marginBottom: 8 }}>{b.name}</h3>
+                <p style={{ color: '#6B7280', fontSize: '0.875rem', lineHeight: 1.6 }}>{b.desc}</p>
+              </div>
+              <div style={{ marginTop: 24, color: '#E8B86D', fontSize: '0.8125rem', fontWeight: 700, textTransform: 'uppercase' }}>Visit Platform →</div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── 9. NEWS & INSIGHTS ───────────────────────────────────────────────────
+function NewsInsights() {
+  return (
+    <section id="news" style={{ background: '#0F172A', padding: 'clamp(80px, 12vw, 140px) clamp(24px, 5vw, 64px)' }}>
+      <div className="container">
+        <div style={{ textAlign: 'center', marginBottom: 64 }}>
+          <span className="label reveal" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>Media & Press</span>
+          <h2 className="display-md reveal" style={{ color: 'white' }}>Corporate News & Insights</h2>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 32 }}>
+          {NEWS_ITEMS.map((item, idx) => (
+            <div key={item.id} className="card-dark reveal" style={{ transitionDelay: `${idx * 100}ms` }}>
+              <div style={{ height: 200, overflow: 'hidden', position: 'relative' }}>
+                <img src={item.image} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+              <div style={{ padding: 28 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#E8B86D', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: 12 }}>
+                  <span>{item.category}</span>
+                  <span>{item.date}</span>
+                </div>
+                <h3 style={{ color: 'white', fontSize: '1.125rem', fontWeight: 700, marginBottom: 12, lineHeight: 1.4 }}>{item.title}</h3>
+                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', lineHeight: 1.6, marginBottom: 20 }}>{item.snippet}</p>
+                <span style={{ color: '#E8B86D', fontSize: '0.8125rem', fontWeight: 700, cursor: 'pointer' }}>Read Full Story →</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── 10. CAREERS & CULTURE ────────────────────────────────────────────────
+function CareersSection() {
+  return (
+    <section id="careers" style={{ background: '#162436', padding: 'clamp(80px, 12vw, 140px) clamp(24px, 5vw, 64px)', color: 'white' }}>
+      <div className="container">
+        <div style={{ background: 'linear-gradient(135deg, rgba(232,184,109,0.15), rgba(15,23,42,0.8))', border: '1px solid rgba(232,184,109,0.3)', borderRadius: 32, padding: 'clamp(40px, 6vw, 72px)', textAlign: 'center' }}>
+          <span className="label" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>Careers at Paidhu</span>
+          <h2 className="display-md" style={{ color: 'white', marginBottom: 16 }}>Shape the Future of Ethical Enterprise</h2>
+          <p style={{ color: 'rgba(255,255,255,0.75)', maxWidth: 600, margin: '0 auto 32px', fontSize: '1.0625rem', lineHeight: 1.8 }}>
+            Join our multidisciplinary teams in software engineering, agricultural technology, retail branding, and EdTech instruction.
+          </p>
+          <button onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })} className="btn-primary">
+            Explore Open Roles & Contact HR →
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── 11. WHY CHOOSE PAIDHU ────────────────────────────────────────────────
 function WhyChooseUs() {
   return (
     <section id="why-us" style={{ background: '#0F172A', padding: 'clamp(80px, 12vw, 140px) clamp(24px, 5vw, 64px)' }}>
       <div className="container">
         <div style={{ textAlign: 'center', marginBottom: 72 }}>
-          <span className="label reveal" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>
-            Group Values
-          </span>
-          <h2 className="display-md reveal" style={{ color: 'white' }}>
-            The Paidhu Advantage
-          </h2>
+          <span className="label reveal" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>Group Principles</span>
+          <h2 className="display-md reveal" style={{ color: 'white' }}>The Paidhu Advantage</h2>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
           {WHY_US.map((item, i) => (
-            <div
-              key={i}
-              className="card-dark reveal"
-              style={{ padding: 36, transitionDelay: `${i * 80}ms` }}
-            >
-              <div
-                style={{
-                  width: 52,
-                  height: 52,
-                  borderRadius: 16,
-                  background: 'rgba(232,184,109,0.12)',
-                  border: '1px solid rgba(232,184,109,0.2)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 24,
-                  marginBottom: 20,
-                }}
-              >
+            <div key={i} className="card-dark reveal" style={{ padding: 36, transitionDelay: `${i * 80}ms` }}>
+              <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(232,184,109,0.12)', border: '1px solid rgba(232,184,109,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, marginBottom: 20 }}>
                 {item.icon}
               </div>
               <h3 style={{ color: 'white', fontSize: '1.125rem', fontWeight: 600, marginBottom: 10 }}>{item.title}</h3>
@@ -1469,7 +1194,7 @@ function WhyChooseUs() {
   );
 }
 
-// ─── CONTACT SECTION ─────────────────────────────────────────────────────
+// ─── 12. CONTACT SECTION ─────────────────────────────────────────────────
 function ContactSection() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [sent, setSent] = useState(false);
@@ -1485,14 +1210,9 @@ function ContactSection() {
     <section id="contact" style={{ background: '#162436', padding: 'clamp(80px, 12vw, 140px) clamp(24px, 5vw, 64px)', color: 'white' }}>
       <div className="container">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 64, alignItems: 'start' }}>
-          {/* Left Info */}
           <div>
-            <span className="label reveal" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>
-              Connect With Us
-            </span>
-            <h2 className="display-md reveal" style={{ color: 'white', marginBottom: 24 }}>
-              Let's Build the Future Together
-            </h2>
+            <span className="label reveal" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>Connect With Us</span>
+            <h2 className="display-md reveal" style={{ color: 'white', marginBottom: 24 }}>Let's Build the Future Together</h2>
             <p className="reveal" style={{ color: 'rgba(255,255,255,0.65)', fontSize: '1.0625rem', lineHeight: 1.8, marginBottom: 40 }}>
               Partner with Paidhu Group across agriculture exports, custom IT engineering, consumer brand distribution, or skill academies.
             </p>
@@ -1504,20 +1224,7 @@ function ContactSection() {
                 { icon: '✉️', title: 'Email & Web', text: 'www.paidhu.com' },
               ].map((c, idx) => (
                 <div key={idx} className="reveal" style={{ display: 'flex', gap: 16, transitionDelay: `${idx * 100}ms` }}>
-                  <div
-                    style={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: 12,
-                      background: 'rgba(232,184,109,0.15)',
-                      border: '1px solid rgba(232,184,109,0.3)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 20,
-                      flexShrink: 0,
-                    }}
-                  >
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(232,184,109,0.15)', border: '1px solid rgba(232,184,109,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
                     {c.icon}
                   </div>
                   <div>
@@ -1529,16 +1236,7 @@ function ContactSection() {
             </div>
           </div>
 
-          {/* Right Form */}
-          <div
-            className="reveal-right"
-            style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: 32,
-              padding: 'clamp(28px, 4vw, 48px)',
-            }}
-          >
+          <div className="reveal-right" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 32, padding: 'clamp(28px, 4vw, 48px)' }}>
             {sent ? (
               <div style={{ textAlign: 'center', padding: '48px 0' }}>
                 <div style={{ fontSize: 48, marginBottom: 16 }}>🎉</div>
@@ -1548,56 +1246,22 @@ function ContactSection() {
             ) : (
               <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
                 <h3 style={{ color: 'white', fontSize: '1.375rem', fontFamily: 'var(--font-serif)', marginBottom: 6 }}>Corporate Inquiry</h3>
-
                 <div>
                   <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8125rem', marginBottom: 6, display: 'block' }}>Full Name</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Your name"
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className="form-input"
-                  />
+                  <input type="text" required placeholder="Your name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="form-input" />
                 </div>
-
                 <div>
                   <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8125rem', marginBottom: 6, display: 'block' }}>Email Address</label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="your@email.com"
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="form-input"
-                  />
+                  <input type="email" required placeholder="your@email.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="form-input" />
                 </div>
-
                 <div>
                   <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8125rem', marginBottom: 6, display: 'block' }}>Subject</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Partnership, Sales, Services..."
-                    value={form.subject}
-                    onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                    className="form-input"
-                  />
+                  <input type="text" required placeholder="Partnership, Sales, Services..." value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} className="form-input" />
                 </div>
-
                 <div>
                   <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8125rem', marginBottom: 6, display: 'block' }}>Message</label>
-                  <textarea
-                    required
-                    rows={4}
-                    placeholder="Provide details about your inquiry..."
-                    value={form.message}
-                    onChange={(e) => setForm({ ...form, message: e.target.value })}
-                    className="form-input"
-                    style={{ resize: 'none' }}
-                  />
+                  <textarea required rows={4} placeholder="Provide details about your inquiry..." value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} className="form-input" style={{ resize: 'none' }} />
                 </div>
-
                 <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: 10 }}>
                   Send Corporate Message →
                 </button>
@@ -1610,53 +1274,29 @@ function ContactSection() {
   );
 }
 
-// ─── FOOTER ───────────────────────────────────────────────────────────────
+// ─── 13. FOOTER ───────────────────────────────────────────────────────────
 function Footer() {
-  const scrollTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-  };
-
+  const scrollTo = (id: string) => { document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }); };
   return (
     <footer style={{ background: '#090F1D', padding: '80px clamp(24px, 5vw, 64px) 32px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
       <div className="container">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 48, marginBottom: 64 }}>
-          {/* Col 1 */}
           <div>
-            <img
-              src="/ChatGPT Image Aug 1, 2026, 08_30_36 PM.png"
-              alt="Paidhu Group"
-              style={{ height: 60, width: 'auto', filter: 'invert(1)', mixBlendMode: 'screen', marginBottom: 20 }}
-            />
+            <img src="/ChatGPT Image Aug 1, 2026, 08_30_36 PM.png" alt="Paidhu Group" style={{ height: 60, width: 'auto', filter: 'invert(1)', mixBlendMode: 'screen', marginBottom: 20 }} />
             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem', lineHeight: 1.7 }}>
               Building ethical, sustainable, and value-driven business verticals for a modern global economy.
             </p>
           </div>
-
-          {/* Col 2 */}
           <div>
             <h4 style={{ color: '#E8B86D', fontSize: '0.8125rem', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 20 }}>Quick Links</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {['about', 'businesses', 'brands', 'stories', 'why-us', 'contact'].map((item) => (
-                <button
-                  key={item}
-                  onClick={() => scrollTo(item)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'rgba(255,255,255,0.6)',
-                    textAlign: 'left',
-                    fontSize: '0.875rem',
-                    cursor: 'pointer',
-                    textTransform: 'capitalize',
-                  }}
-                >
+              {['about', 'businesses', 'projects', 'stories', 'news', 'careers', 'why-us', 'contact'].map((item) => (
+                <button key={item} onClick={() => scrollTo(item)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', textAlign: 'left', fontSize: '0.875rem', cursor: 'pointer', textTransform: 'capitalize' }}>
                   {item.replace('-', ' ')}
                 </button>
               ))}
             </div>
           </div>
-
-          {/* Col 3 */}
           <div>
             <h4 style={{ color: '#E8B86D', fontSize: '0.8125rem', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 20 }}>Subsidiaries</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -1667,8 +1307,6 @@ function Footer() {
               ))}
             </div>
           </div>
-
-          {/* Col 4 */}
           <div>
             <h4 style={{ color: '#E8B86D', fontSize: '0.8125rem', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 20 }}>Contact Us</h4>
             <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', lineHeight: 1.6 }}>
@@ -1705,9 +1343,13 @@ export default function Page() {
         <HeroSwiper />
         <MarqueeStrip />
         <AboutGroup />
+        <StatisticsSection />
         <BusinessCarousel />
-        <BrandsGrid />
+        <FeaturedProjects />
         <StorytellingSection />
+        <BrandsGrid />
+        <NewsInsights />
+        <CareersSection />
         <WhyChooseUs />
         <ContactSection />
       </main>
