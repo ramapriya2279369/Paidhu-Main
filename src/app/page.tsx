@@ -262,7 +262,8 @@ export default function Home() {
             <img 
               src="/paidhu_logo_new.png" 
               alt="Paidhu" 
-              className="h-10 w-auto object-contain transition-all duration-300 invert dark:invert-0" 
+              className="h-10 w-auto object-contain transition-all duration-300" 
+              style={{ mixBlendMode: 'screen' }}
             />
           </div>
 
@@ -1183,6 +1184,7 @@ export default function Home() {
               src="/paidhu_logo_new.png" 
               alt="Paidhu" 
               className="h-12 w-auto object-contain mb-2" 
+              style={{ mixBlendMode: 'screen' }}
             />
             <p className="text-xs opacity-65 leading-relaxed mt-4 max-w-sm">
               Building sustainable, ethical, and value-driven business verticals for a cleaner, modern tomorrow.
