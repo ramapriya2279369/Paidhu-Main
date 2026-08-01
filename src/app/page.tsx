@@ -263,7 +263,10 @@ export default function Home() {
               src="/ChatGPT Image Aug 1, 2026, 08_30_36 PM.png"
               alt="Paidhu"
               className="h-20 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
-              style={{ filter: 'invert(1)', opacity: 1 }}
+              style={{
+                filter: 'invert(1)',
+                mixBlendMode: 'screen',
+              }}
             />
           </div>
 
@@ -1184,7 +1187,10 @@ export default function Home() {
               src="/ChatGPT Image Aug 1, 2026, 08_30_36 PM.png"
               alt="Paidhu"
               className="h-20 w-auto object-contain mb-2"
-              style={{ filter: 'invert(1)', opacity: 1 }}
+              style={{
+                filter: 'invert(1)',
+                mixBlendMode: 'screen',
+              }}
             />
             <p className="text-xs opacity-65 leading-relaxed mt-4 max-w-sm">
               Building sustainable, ethical, and value-driven business verticals for a cleaner, modern tomorrow.
