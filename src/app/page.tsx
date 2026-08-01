@@ -111,9 +111,6 @@ export default function Home() {
     home: useRef<HTMLDivElement>(null),
     about: useRef<HTMLDivElement>(null),
     businesses: useRef<HTMLDivElement>(null),
-
-    innovation: useRef<HTMLDivElement>(null),
-    sustainability: useRef<HTMLDivElement>(null),
     brands: useRef<HTMLDivElement>(null),
     timeline: useRef<HTMLDivElement>(null),
     whyus: useRef<HTMLDivElement>(null),
@@ -263,9 +260,9 @@ export default function Home() {
           {/* Logo */}
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => scrollToSection('home')}>
             <img 
-              src="/paidhu_logo_03.png" 
+              src="/paidhu_logo_new.png" 
               alt="Paidhu" 
-              className="h-8 w-auto dark:invert-0 invert object-contain transition-all duration-300" 
+              className="h-10 w-auto object-contain transition-all duration-300 invert dark:invert-0" 
             />
           </div>
 
@@ -1183,9 +1180,9 @@ export default function Home() {
           {/* Brand Info */}
           <div className="md:col-span-4">
             <img 
-              src="/paidhu_logo_03.png" 
+              src="/paidhu_logo_new.png" 
               alt="Paidhu" 
-              className="h-10 w-auto object-contain mb-2" 
+              className="h-12 w-auto object-contain mb-2" 
             />
             <p className="text-xs opacity-65 leading-relaxed mt-4 max-w-sm">
               Building sustainable, ethical, and value-driven business verticals for a cleaner, modern tomorrow.
