@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" width="320" height="80" fill="none">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Almendra:wght@700&amp;display=swap');
+    </style>
+  </defs>
+  <!-- Stylized paidhu text using elegant serif paths -->
+  <text
+    x="50%"
+    y="62"
+    text-anchor="middle"
+    font-family="'Almendra', 'Palatino Linotype', 'Book Antiqua', Georgia, serif"
+    font-weight="700"
+    font-size="58"
+    fill="currentColor"
+    letter-spacing="-1"
+  >paidhu</text>
+</svg>
