@@ -112,7 +112,6 @@ export default function Home() {
     about: useRef<HTMLDivElement>(null),
     businesses: useRef<HTMLDivElement>(null),
     brands: useRef<HTMLDivElement>(null),
-    timeline: useRef<HTMLDivElement>(null),
     whyus: useRef<HTMLDivElement>(null),
     contact: useRef<HTMLDivElement>(null),
   };
@@ -833,54 +832,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Evolution Timeline */}
-      <section
-        id="timeline"
-        ref={sectionRefs.timeline}
-        className="py-24 md:py-32 bg-[#F8F6F2] dark:bg-[#1A1A1A] relative"
-      >
-        <div className="max-w-4xl mx-auto px-6">
-          <ScrollReveal>
-            <div className="text-center mb-16">
-              <span className="text-xs uppercase tracking-widest text-accent-gold font-semibold">Group Journey</span>
-              <h2 className="text-3xl md:text-5xl font-serif font-light mt-2 mb-4 text-primary dark:text-white">Our Corporate Timeline</h2>
-              <p className="text-sm opacity-70 max-w-sm mx-auto">
-                Charting consistent and responsible progress.
-              </p>
-            </div>
-          </ScrollReveal>
-
-          <div className="relative border-l-2 border-accent-gold/30 ml-4 md:ml-32 space-y-12">
-            {[
-              { year: 'Phase 1', title: 'Foundation & Agriculture', desc: 'Paidhu Ethical Foods launched, establishing fair trade roots in Kashmir saffron and edible flowers.' },
-              { year: 'Phase 2', title: 'Floffi Brand Launch', desc: 'Introduction of Floffi natural fruit jams and preserves to modern consumer breakfast segments.' },
-              { year: 'Phase 3', title: 'Digital Expansion', desc: 'Viyara IT services set up, providing premium UI/UX design, SaaS, and AI platform support.' },
-              { year: 'Phase 4', title: 'Kalika Sphere Academy', desc: 'EdTech and skill growth initiative launched, empowering professional digital certification.' },
-              { year: 'Future', title: 'Eco-System Scalability', desc: 'Unifying global food distribution logistics, AI scaling, and carbon-neutral green projects.' },
-            ].map((item, idx) => (
-              <ScrollReveal key={idx} delay={idx * 100} direction="left">
-                <div className="relative pl-8 md:pl-12 group">
-                {/* Timeline Dot */}
-                <div className="absolute left-[-9px] top-1.5 w-4.5 h-4.5 rounded-full border-2 border-accent-gold bg-[#F8F6F2] dark:bg-[#1A1A1A] group-hover:bg-accent-gold transition-colors duration-300 flex items-center justify-center">
-                  <div className="w-1.5 h-1.5 rounded-full bg-accent-gold group-hover:bg-white" />
-                </div>
-                
-                {/* Side Year display for desktop */}
-                <div className="hidden md:block absolute left-[-160px] top-1 text-right w-28">
-                  <span className="font-serif text-sm font-bold text-accent-gold">{item.year}</span>
-                </div>
-
-                <div className="p-6 rounded-2xl glass-card transition-all duration-300 group-hover:translate-x-1">
-                  <span className="md:hidden text-xs font-bold text-accent-gold block mb-1">{item.year}</span>
-                  <h3 className="font-serif text-base font-bold mb-2 text-primary dark:text-white">{item.title}</h3>
-                  <p className="text-xs opacity-75 leading-relaxed">{item.desc}</p>
-                </div>
-              </div>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Why Choose Us */}
       <section
