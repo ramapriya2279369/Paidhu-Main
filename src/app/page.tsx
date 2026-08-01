@@ -1,1359 +1,937 @@
 'use client';
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-// ─── TYPES ───────────────────────────────────────────────────────────────
-interface Business {
-  id: string;
-  name: string;
-  tagline: string;
-  description: string;
-  link: string;
-  logo: string;
-  category: string;
-  image: string;
-  stats: string;
-  highlights: string[];
-}
+// Advanced Subtle Grid Canvas Background (Clean & High-End)
+function DynamicCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const ripples = useRef<Array<{ x: number; y: number; radius: number; maxRadius: number; speed: number; alpha: number }>>([]);
 
-interface Brand {
-  name: string;
-  logo: string;
-  link: string;
-  desc: string;
-  category: string;
-}
-
-interface Project {
-  title: string;
-  category: string;
-  image: string;
-  stat: string;
-  desc: string;
-  link: string;
-}
-
-interface NewsItem {
-  id: number;
-  category: string;
-  title: string;
-  date: string;
-  readTime: string;
-  snippet: string;
-  image: string;
-}
-
-interface HeroSlide {
-  id: number;
-  tag: string;
-  title: string;
-  highlight: string;
-  subtitle: string;
-  bgImage: string;
-  ctaText: string;
-  ctaLink: string;
-  secondaryCtaText: string;
-  secondaryCtaLink: string;
-}
-
-// ─── CONSTANTS ───────────────────────────────────────────────────────────
-const HERO_SLIDES: HeroSlide[] = [
-  {
-    id: 1,
-    tag: 'Paidhu Group Global Vision',
-    title: 'Building Businesses That',
-    highlight: 'Inspire a Better Future',
-    subtitle: 'A multi-vertical enterprise pioneering ethical foods, digital transformation, natural preservation, and skill education worldwide.',
-    bgImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=2000&q=80',
-    ctaText: 'Explore Verticals',
-    ctaLink: '#businesses',
-    secondaryCtaText: 'Group Story',
-    secondaryCtaLink: '#about',
-  },
-  {
-    id: 2,
-    tag: 'Sustainable Agriculture & Foods',
-    title: 'Pure Kashmiri Saffron &',
-    highlight: 'Botanical Edible Flowers',
-    subtitle: 'Paidhu Ethical Foods brings 100% trace-to-origin organic crops, empowering smallholder farmers with fair trade practices.',
-    bgImage: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=2000&q=80',
-    ctaText: 'Discover Foods',
-    ctaLink: 'https://www.paidhuethicalfoods.com/',
-    secondaryCtaText: 'Our Ethics',
-    secondaryCtaLink: '#why-us',
-  },
-  {
-    id: 3,
-    tag: 'Digital Transformation & AI',
-    title: 'Enterprise Software &',
-    highlight: 'Intelligent Cloud Systems',
-    subtitle: 'Viyara IT Services engineers next-generation SaaS architectures, AI platforms, and bespoke digital experiences for global clients.',
-    bgImage: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=2000&q=80',
-    ctaText: 'Explore Viyara IT',
-    ctaLink: 'https://viyara.co.in/',
-    secondaryCtaText: 'Tech Impact',
-    secondaryCtaLink: '#stories',
-  },
-  {
-    id: 4,
-    tag: 'Consumer Preserves & EdTech',
-    title: 'Natural Floral Jams &',
-    highlight: 'Future-Ready Education',
-    subtitle: 'From Floffi natural fruit preserves to Kalika Sphere tech academies, we deliver excellence across consumer and skill sectors.',
-    bgImage: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=2000&q=80',
-    ctaText: 'View All Brands',
-    ctaLink: '#brands',
-    secondaryCtaText: 'Get in Touch',
-    secondaryCtaLink: '#contact',
-  },
-];
-
-const BUSINESSES: Business[] = [
-  {
-    id: 'ethical-foods',
-    name: 'Paidhu Ethical Foods',
-    tagline: 'Farm to Table, Honestly',
-    description: 'Pioneering Kashmir saffron, edible flower crops, and handcrafted botanicals sourced directly through fair-trade agricultural partnerships.',
-    link: 'https://www.paidhuethicalfoods.com/',
-    logo: '/paidhu_logo.png',
-    category: 'Agriculture & Foods',
-    image: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=800&q=80',
-    stats: '100% Trace-to-Origin',
-    highlights: ['Organic Kashmiri Saffron', 'Botanical Edible Flowers', 'Fair Trade Partner Network', 'Sustainable Crop Science'],
-  },
-  {
-    id: 'floffi',
-    name: 'Floffi Preservation',
-    tagline: 'Nature Bottled Beautifully',
-    description: 'Naturally crafted floral fruit jams, spreads, and botanical preserves prepared with zero artificial preservatives and pure garden recipes.',
-    link: 'https://floffi.in/',
-    logo: 'https://floffi.in/floffi_logo.png',
-    category: 'Consumer Goods',
-    image: 'https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&w=800&q=80',
-    stats: '0 Artificial Additives',
-    highlights: ['Handcrafted Botanical Jams', 'Eco-Friendly Packaging', 'Artisanal Fruit Preserves', 'Global Gourmet Export'],
-  },
-  {
-    id: 'viyara',
-    name: 'Viyara IT Services',
-    tagline: 'Engineering Digital Excellence',
-    description: 'Enterprise-grade software engineering, SaaS platform development, cloud modernization, and custom AI integration for global enterprises.',
-    link: 'https://viyara.co.in/',
-    logo: 'https://viyara.co.in/logo-badge-blue.png',
-    category: 'Technology & AI',
-    image: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=800&q=80',
-    stats: '99.9% System Reliability',
-    highlights: ['Full-Stack Enterprise Tech', 'AI & Machine Learning', 'UI/UX Design Systems', 'Scalable Cloud DevOps'],
-  },
-  {
-    id: 'kalika',
-    name: 'Kalika Sphere',
-    tagline: 'Knowledge Without Boundaries',
-    description: 'Next-generation EdTech platform offering skill development academies, developer bootcamps, and professional corporate certifications.',
-    link: 'https://www.kalikasphere.com/',
-    logo: 'https://www.kalikasphere.com/assets/logo-Drzuq4t7.png',
-    category: 'Education & Academics',
-    image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80',
-    stats: '5,000+ Skilled Graduates',
-    highlights: ['Hands-On Coding Bootcamps', 'Corporate Tech Training', 'Industry Certifications', 'Placement Support'],
-  },
-];
-
-const FEATURED_PROJECTS: Project[] = [
-  {
-    title: 'Kashmir Organic Saffron Initiative',
-    category: 'Ethical Agriculture',
-    image: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80',
-    stat: '100+ Farming Families Supported',
-    desc: 'Empowering local growers with fair trade pricing, organic soil testing, and direct global export channels.',
-    link: 'https://www.paidhuethicalfoods.com/',
-  },
-  {
-    title: 'Viyara Enterprise AI Suite',
-    category: 'Technology & AI',
-    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
-    stat: '40% Efficiency Increase',
-    desc: 'Deploying custom predictive analytics and automated workflows for international enterprise clients.',
-    link: 'https://viyara.co.in/',
-  },
-  {
-    title: 'Floffi Zero-Plastic Packaging',
-    category: 'Sustainable FMCG',
-    image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80',
-    stat: '100% Recyclable Glass Jars',
-    desc: 'Replacing single-use plastic wrappers with eco-friendly glass containers and natural sealants.',
-    link: 'https://floffi.in/',
-  },
-  {
-    title: 'Kalika Sphere Tech Bootcamps',
-    category: 'EdTech & Academics',
-    image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80',
-    stat: '94% Placement Rate',
-    desc: 'Intensive full-stack development and AI engineering courses for career changers and fresh graduates.',
-    link: 'https://www.kalikasphere.com/',
-  },
-];
-
-const BRANDS: Brand[] = [
-  { name: 'Paidhu Ethical Foods', logo: '/paidhu_logo.png', link: 'https://www.paidhuethicalfoods.com/', desc: 'Premium Kashmiri saffron & organic edible flower crops.', category: 'Foods' },
-  { name: 'Floffi Preservation', logo: 'https://floffi.in/floffi_logo.png', link: 'https://floffi.in/', desc: 'Artisanal floral fruit jams & natural gourmet spreads.', category: 'Consumer' },
-  { name: 'Viyara IT Services', logo: 'https://viyara.co.in/logo-badge-blue.png', link: 'https://viyara.co.in/', desc: 'Enterprise SaaS, cloud engineering & AI software solutions.', category: 'Technology' },
-  { name: 'Kalika Sphere', logo: 'https://www.kalikasphere.com/assets/logo-Drzuq4t7.png', link: 'https://www.kalikasphere.com/', desc: 'Future-ready tech learning platforms & skill bootcamps.', category: 'EdTech' },
-];
-
-const NEWS_ITEMS: NewsItem[] = [
-  {
-    id: 1,
-    category: 'Corporate Growth',
-    title: 'Paidhu Group Expands Sustainable Agriculture Footprint Across North & South India',
-    date: 'August 2026',
-    readTime: '4 min read',
-    snippet: 'Unifying Kashmir organic saffron sourcing with Tamil Nadu botanical flower cultivation under Paidhu Ethical Foods.',
-    image: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: 2,
-    category: 'Technology & AI',
-    title: 'Viyara IT Services Unveils Enterprise AI Automation Platform for Global Clients',
-    date: 'July 2026',
-    readTime: '5 min read',
-    snippet: 'Engineering intelligent cloud workflows, machine learning pipelines, and modern SaaS architectures.',
-    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: 3,
-    category: 'Education & Impact',
-    title: 'Kalika Sphere Launches Free Tech Scholarship Program for Rural Students',
-    date: 'June 2026',
-    readTime: '3 min read',
-    snippet: 'Allocating 5% of group resources to train over 500 aspiring software developers in full-stack engineering.',
-    image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80',
-  },
-];
-
-const STATS = [
-  { value: 4, suffix: '+', label: 'Core Verticals', desc: 'Foods, Tech, FMCG & EdTech' },
-  { value: 100, suffix: '%', label: 'Ethical Sourcing', desc: 'Direct farm & fair-wage trade' },
-  { value: 5, suffix: 'K+', label: 'Global Clients & Learners', desc: 'Across digital & retail channels' },
-  { value: 2019, suffix: '', label: 'Group Founding Year', desc: 'Pioneering ethical business' },
-];
-
-const STORY_TABS = [
-  {
-    id: 'sustainability',
-    title: 'ESG & Sustainability',
-    subtitle: 'Zero-compromise responsibility from soil to software.',
-    description: 'We believe true growth must be regenerative. In agriculture, we enforce 100% biodegradable packaging and trace-to-origin sourcing. In technology, we build energy-efficient cloud architectures.',
-    image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80',
-    points: ['100% Recyclable Packaging', 'Zero Plastic Wrappers in FMCG', 'Farmer Fair-Value Wage Guarantee', 'Green Cloud Infrastructure'],
-  },
-  {
-    id: 'innovation',
-    title: 'Technological Excellence',
-    subtitle: 'Pioneering intelligent platforms across industries.',
-    description: 'Viyara IT Services drives digital transformation across all group verticals. By combining modern React/Next.js frameworks, machine learning models, and real-time logistics analytics, we turn complex operations into seamless experiences.',
-    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
-    points: ['AI-Driven Crop & Quality Analytics', 'High-Performance SaaS Engines', 'Custom Brand Digital Twins', 'Automated Enterprise Workflows'],
-  },
-  {
-    id: 'empowerment',
-    title: 'Community Empowerment',
-    subtitle: 'Investing in human potential and future skills.',
-    description: 'Through Kalika Sphere, we allocate 5% of group resources toward free skill development workshops, developer scholarships, and rural digital literacy drives, building talent pipelines for tomorrow.',
-    image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80',
-    points: ['Free Tech Scholarships', 'Kashmir Farmer Upskilling', 'Women-Led Artisanal Food Co-ops', 'Youth Certification Drives'],
-  },
-];
-
-const WHY_US = [
-  { icon: '🌿', title: 'Purpose-Driven Enterprise', desc: 'Every business vertical is established around a distinct societal mission — aligning financial success with human progress.' },
-  { icon: '🔬', title: 'Research-Backed Quality', desc: 'From botanical crop engineering to AI algorithm design, we ground every endeavor in rigorous scientific research.' },
-  { icon: '🤝', title: 'Farmer & Community Equity', desc: 'Fair wages, direct crop purchasing, and local community investments ensure equitable distribution of value.' },
-  { icon: '🚀', title: 'Cross-Vertical Synergies', desc: 'Our multi-industry portfolio leverages in-house IT expertise to digitize agriculture, retail, and education.' },
-  { icon: '🛡️', title: 'Uncompromising Standards', desc: 'Strict ISO and organic compliance across food products, paired with 99.9% SLA guarantees in technology.' },
-  { icon: '🌍', title: 'Global Vision, Local Roots', desc: 'Proudly rooted in Tamil Nadu & Kashmir, India — engineering products and software for global markets.' },
-];
-
-// ─── HOOKS ───────────────────────────────────────────────────────────────
-function useScrollReveal() {
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    const spacing = 40;
+    const dotRadius = 1;
+
+    // Drifting particles (very slow and professional)
+    const particles: Array<{ x: number; y: number; vx: number; vy: number; radius: number }> = [];
+    const numParticles = 15;
+    for (let i = 0; i < numParticles; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.1,
+        vy: (Math.random() - 0.5) * 0.1,
+        radius: Math.random() * 1.2 + 0.4,
+      });
+    }
+
+    const draw = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      // Draw subtle grid dots
+      ctx.fillStyle = 'rgba(63, 94, 81, 0.03)';
+      for (let x = 0; x < width; x += spacing) {
+        for (let y = 0; y < height; y += spacing) {
+          let scale = 1;
+          ripples.current.forEach((r) => {
+            const dist = Math.hypot(x - r.x, y - r.y);
+            const diff = Math.abs(dist - r.radius);
+            if (diff < 60) {
+              const strength = (1 - diff / 60) * r.alpha;
+              scale += strength * 1.5;
+            }
+          });
+
+          ctx.beginPath();
+          ctx.arc(x, y, dotRadius * scale, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // Draw drifting particles & connection lines
+      ctx.fillStyle = 'rgba(63, 94, 81, 0.04)';
+      ctx.strokeStyle = 'rgba(63, 94, 81, 0.01)';
+      particles.forEach((p, idx) => {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0 || p.x > width) p.vx *= -1;
+        if (p.y < 0 || p.y > height) p.vy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        for (let j = idx + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+          if (dist < 150) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
           }
-        });
-      },
-      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
-    );
-    document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach((el) => {
-      observer.observe(el);
-    });
-    return () => observer.disconnect();
-  }, []);
-}
+        }
+      });
 
-function useCounter(target: number, duration = 2000, start = false) {
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    if (!start) return;
-    let startTime: number | null = null;
-    const step = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.floor(eased * target));
-      if (progress < 1) requestAnimationFrame(step);
+      // Update click ripples
+      ripples.current.forEach((r, idx) => {
+        r.radius += r.speed;
+        r.alpha -= 0.015;
+        if (r.alpha <= 0) {
+          ripples.current.splice(idx, 1);
+          return;
+        }
+        ctx.strokeStyle = `rgba(63, 94, 81, ${r.alpha * 0.08})`;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+
+      animationFrameId = requestAnimationFrame(draw);
     };
-    requestAnimationFrame(step);
-  }, [target, duration, start]);
-  return count;
-}
 
-// ─── LOADING SCREEN ──────────────────────────────────────────────────────
-function LoadingScreen() {
-  const [hidden, setHidden] = useState(false);
-  const [opacity, setOpacity] = useState(1);
+    draw();
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setOpacity(0);
-      setTimeout(() => setHidden(true), 700);
-    }, 1400);
-    return () => clearTimeout(timer);
+    const handleResize = () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+
+    const handleClick = (e: MouseEvent) => {
+      ripples.current.push({
+        x: e.clientX,
+        y: e.clientY,
+        radius: 0,
+        maxRadius: 200,
+        speed: 3,
+        alpha: 0.8,
+      });
+    };
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('click', handleClick);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('click', handleClick);
+    };
   }, []);
 
-  if (hidden) return null;
+  return <canvas ref={canvasRef} style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }} />;
+}
+
+// Magnetic Element Wrapper
+function MagneticElement({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const el = ref.current;
+    if (!el) return;
+    const { left, top, width, height } = el.getBoundingClientRect();
+    const xc = left + width / 2;
+    const yc = top + height / 2;
+    setPosition({
+      x: (e.clientX - xc) * 0.2,
+      y: (e.clientY - yc) * 0.2,
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setPosition({ x: 0, y: 0 });
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      animate={{ x: position.x, y: position.y }}
+      transition={{ type: 'spring', stiffness: 220, damping: 22 }}
+      style={{ display: 'inline-block' }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// 3D Parallax Layer Card Wrapper
+function ParallaxCard({ children }: { children: React.ReactNode }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [rotateX, setRotateX] = useState(0);
+  const [rotateY, setRotateY] = useState(0);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = cardRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const xc = rect.width / 2;
+    const yc = rect.height / 2;
+    setRotateY((x - xc) / 12);
+    setRotateX((yc - y) / 12);
+  };
+
+  const handleMouseLeave = () => {
+    setRotateX(0);
+    setRotateY(0);
+  };
 
   return (
     <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
       style={{
-        position: 'fixed',
-        inset: 0,
-        background: '#0F172A',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 99999,
-        opacity,
-        transition: 'opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1)',
-        pointerEvents: hidden ? 'none' : 'all',
+        perspective: 1200,
+        height: '100%',
       }}
     >
-      <img
-        src="/ChatGPT Image Aug 1, 2026, 08_30_36 PM.png"
-        alt="Paidhu Group"
+      <motion.div
+        animate={{ rotateX, rotateY }}
+        transition={{ type: 'spring', stiffness: 200, damping: 22 }}
         style={{
-          height: 84,
-          width: 'auto',
-          filter: 'invert(1)',
-          mixBlendMode: 'screen',
+          transformStyle: 'preserve-3d',
+          height: '100%',
         }}
-      />
-      <div style={{ marginTop: 28, width: 180, height: 2, background: 'rgba(255,255,255,0.1)', borderRadius: 2, overflow: 'hidden' }}>
-        <div style={{ height: '100%', background: 'linear-gradient(90deg, #E8B86D, #F0C98A)', animation: 'loadProgress 1.4s cubic-bezier(0.65, 0, 0.35, 1) forwards' }} />
-      </div>
-      <style>{`
-        @keyframes loadProgress {
-          from { width: 0%; }
-          to { width: 100%; }
-        }
-      `}</style>
+      >
+        <div style={{ transformStyle: 'preserve-3d', height: '100%', transition: 'all 0.3s' }}>
+          {children}
+        </div>
+      </motion.div>
     </div>
   );
 }
 
-// ─── SCROLL PROGRESS BAR ─────────────────────────────────────────────────
-function ScrollProgressBar() {
-  const [progress, setProgress] = useState(0);
+// Infinite Scrolling Ticker Banner Component
+function TickerBanner() {
+  return (
+    <div style={{ overflow: 'hidden', whiteSpace: 'nowrap', display: 'flex', background: '#D5D8D5', padding: '16px 0', borderTop: '1px solid #B4BCB4', borderBottom: '1px solid #B4BCB4', position: 'relative', zIndex: 2 }}>
+      <motion.div
+        animate={{ x: [0, -1000] }}
+        transition={{ repeat: Infinity, ease: 'linear', duration: 25 }}
+        style={{ display: 'flex', gap: 60, fontSize: '0.875rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.2em', color: '#3F5E51' }}
+      >
+        <span>Paidhu Ethical Foods</span>
+        <span>•</span>
+        <span>Floffi Preservation</span>
+        <span>•</span>
+        <span>Viyara IT Services</span>
+        <span>•</span>
+        <span>Kalika Sphere</span>
+        <span>•</span>
+        <span>Paidhu Ethical Foods</span>
+        <span>•</span>
+        <span>Floffi Preservation</span>
+        <span>•</span>
+        <span>Viyara IT Services</span>
+        <span>•</span>
+        <span>Kalika Sphere</span>
+      </motion.div>
+    </div>
+  );
+}
+
+const BUSINESSES = [
+  {
+    id: 'ethical-foods',
+    name: 'Paidhu Ethical Foods',
+    sector: 'Agriculture & Sustainable Sourcing',
+    tagline: 'Empowering Kashmir’s Heritage Agriculture',
+    description: 'Re-engineering Kashmir saffron farming through absolute vertical integration. By partnering directly with local smallholder grower families, we guarantee origin-traceable saffron, wild organic honey, and hand-selected floral crops. Our fair-trade pricing model ensures کشمیر farmers receive honest value while preserving pristine agricultural traditions.',
+    highlights: ['100% Trace-to-Origin Saffron', 'Empowering 100+ Grower Families', 'Fair-Trade Guaranteed Sourcing', 'Pristine Saffron Logistics Pipelines'],
+    metrics: { count: '100+', label: 'Local Kashmir Farms' },
+    link: 'https://www.paidhuethicalfoods.com/',
+    logo: '/paidhu_logo.png',
+    image: '/paidhu_screen.png',
+    color: '#3F5E51',
+  },
+  {
+    id: 'floffi',
+    name: 'Floffi Preservation',
+    sector: 'FMCG & Artisanal Preserves',
+    tagline: 'Artisanal Preserves, Zero Synthetic Chemistry',
+    description: 'Redefining the pantry staples category through pure, chemical-free food preservation. Floffi processes native wild fruits, botanical petals, and natural Kashmir honey in small, artisanal batches. By using zero artificial gelling agents or synthetic additives, we bottle natural purity in 100% biodegradable glass preserves.',
+    highlights: ['0% Artificial Additives & Gelatins', 'Small-Batch Glass Preservation', 'Supporting Agrarian Micro-Enterprises', 'Native Himalayan Fruit Botanicals'],
+    metrics: { count: '12+', label: 'Artisanal Flavors' },
+    link: 'https://floffi.in/',
+    logo: 'https://floffi.in/floffi_logo.png',
+    image: '/floffi_screen.png',
+    color: '#3F5E51',
+  },
+  {
+    id: 'viyara',
+    name: 'Viyara IT Services',
+    sector: 'Enterprise Software & Custom AI',
+    tagline: 'Engineering Scalable Digital Infrastructure',
+    description: 'Building the digital pipelines that scale tomorrow\'s web. Viyara IT delivers enterprise software architecture, high-performance cloud operations, scalable SaaS frameworks, and custom generative AI system integrations. Viyara operates as the engineering core behind modern distribution networks.',
+    highlights: ['Scalable SaaS Architecture Design', 'Generative AI Pipeline Integration', 'Automated DevOps & Cloud Modernization', 'Powering Supply Chain Technologies'],
+    metrics: { count: '99.9%', label: 'Platform Reliability' },
+    link: 'https://viyara.co.in/',
+    logo: 'https://viyara.co.in/logo-badge-blue.png',
+    image: '/viyara_screen.png',
+    color: '#3F5E51',
+  },
+  {
+    id: 'kalika',
+    name: 'Kalika Sphere',
+    sector: 'Education & Technical Academics',
+    tagline: 'Democratizing Advanced Technology Education',
+    description: 'Democratizing modern tech education through immersive, project-driven learning. Kalika Sphere operates full-stack bootcamps, developer mentorship circles, and skill certifications that bridge the gap between local graduate talent and enterprise software demand. We foster technical excellence without systemic boundaries.',
+    highlights: ['Project-Driven Software Engineering', 'Elite Mentor Placement Pathways', 'Rural Technology Scholarships', 'Over 5,000+ Certified Graduates'],
+    metrics: { count: '5,000+', label: 'Graduates Trained' },
+    link: 'https://www.kalikasphere.com/',
+    logo: 'https://www.kalikasphere.com/assets/logo-Drzuq4t7.png',
+    image: '/kalika_screen.png',
+    color: '#3F5E51',
+  },
+];
+
+// Processed Logo Component using Canvas to strip black background
+function ProcessedLogo() {
+  const [dataUrl, setDataUrl] = useState<string>('');
+
   useEffect(() => {
-    const handleScroll = () => {
-      const total = document.documentElement.scrollHeight - window.innerHeight;
-      if (total > 0) setProgress((window.scrollY / total) * 100);
+    const img = new Image();
+    img.src = '/paidhu_logo_raw.png';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.drawImage(img, 0, 0);
+
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imgData.data;
+
+      // Make black transparent and change white text to Sage Mint (#3F5E51)
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i+1];
+        const b = data[i+2];
+        
+        // If it's close to black background, set alpha to 0
+        if (r < 50 && g < 50 && b < 50) {
+          data[i+3] = 0;
+        } else {
+          // Keep anti-aliasing smooth by scaling transparency with brightness
+          const brightness = (r + g + b) / 3 / 255;
+          data[i] = 63;     // R
+          data[i+1] = 94;    // G
+          data[i+2] = 81;    // B
+          data[i+3] = Math.round(brightness * 255);
+        }
+      }
+
+      ctx.putImageData(imgData, 0, 0);
+      setDataUrl(canvas.toDataURL());
     };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: `${progress}%`,
-        height: 3,
-        background: 'linear-gradient(90deg, #E8B86D, #F0C98A, #FFFFFF)',
-        zIndex: 10000,
-        transition: 'width 0.1s linear',
-      }}
-    />
-  );
-}
-
-// ─── HEADER NAVBAR ───────────────────────────────────────────────────────
-function HeaderNav() {
-  const [scrolled, setScrolled] = useState(false);
-  const [megaOpen, setMegaOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const scrollTo = (id: string) => {
-    setMegaOpen(false);
-    setSearchOpen(false);
-    const target = document.getElementById(id);
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-
-  return (
-    <>
-      <header
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 1000,
-          transition: 'all 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
-          background: scrolled ? 'rgba(15, 23, 42, 0.94)' : 'linear-gradient(to bottom, rgba(15, 23, 42, 0.85), transparent)',
-          backdropFilter: scrolled ? 'blur(16px) saturate(180%)' : 'blur(4px)',
-          borderBottom: scrolled ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid transparent',
-          padding: scrolled ? '12px 0' : '20px 0',
-        }}
-      >
-        <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 clamp(20px, 4vw, 64px)' }}>
-          {/* Logo */}
-          <button onClick={() => scrollTo('hero')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-            <img
-              src="/ChatGPT Image Aug 1, 2026, 08_30_36 PM.png"
-              alt="Paidhu Group"
-              style={{
-                height: scrolled ? 48 : 58,
-                width: 'auto',
-                filter: 'invert(1)',
-                mixBlendMode: 'screen',
-                transition: 'all 0.3s ease',
-              }}
-            />
-          </button>
-
-          {/* Desktop Nav Items */}
-          <nav className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-            {[
-              { label: 'About', id: 'about' },
-              { label: 'Businesses', id: 'businesses' },
-              { label: 'Featured Projects', id: 'projects' },
-              { label: 'Stories & ESG', id: 'stories' },
-              { label: 'News & Insights', id: 'news' },
-              { label: 'Careers', id: 'careers' },
-              { label: 'Why Us', id: 'why-us' },
-            ].map((item) => (
-              <button
-                key={item.id}
-                onClick={() => scrollTo(item.id)}
-                className="hover-underline"
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'rgba(255,255,255,0.85)',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                  letterSpacing: '0.03em',
-                  cursor: 'pointer',
-                  padding: '6px 0',
-                }}
-              >
-                {item.label}
-              </button>
-            ))}
-          </nav>
-
-          {/* Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            {/* Search Button */}
-            <button
-              onClick={() => setSearchOpen(true)}
-              style={{
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                color: 'white',
-                width: 38,
-                height: 38,
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-              }}
-              title="Search"
-            >
-              🔍
-            </button>
-
-            {/* Contact CTA */}
-            <button
-              onClick={() => scrollTo('contact')}
-              className="btn-primary desktop-only"
-              style={{ padding: '10px 22px', fontSize: '0.8125rem' }}
-            >
-              Contact Us
-            </button>
-
-            {/* Menu Toggle Button */}
-            <button
-              onClick={() => setMegaOpen(!megaOpen)}
-              style={{
-                background: megaOpen ? '#E8B86D' : 'rgba(255,255,255,0.12)',
-                color: megaOpen ? '#0F172A' : 'white',
-                border: 'none',
-                padding: '10px 18px',
-                borderRadius: 50,
-                fontSize: '0.8125rem',
-                fontWeight: 600,
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                transition: 'all 0.3s',
-              }}
-            >
-              <span>{megaOpen ? 'Close' : 'Menu'}</span>
-              <span style={{ fontSize: '1rem', lineHeight: 1 }}>{megaOpen ? '✕' : '☰'}</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* SEARCH OVERLAY */}
-      {searchOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 10001,
-            background: 'rgba(15, 23, 42, 0.96)',
-            backdropFilter: 'blur(20px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 24,
-            animation: 'fadeIn 0.3s ease',
-          }}
-        >
-          <button
-            onClick={() => setSearchOpen(false)}
-            style={{ position: 'absolute', top: 32, right: 32, background: 'none', border: 'none', color: 'white', fontSize: 32, cursor: 'pointer' }}
-          >
-            ✕
-          </button>
-          <div style={{ maxWidth: 640, width: '100%', textAlign: 'center' }}>
-            <h3 style={{ color: '#E8B86D', fontSize: '0.875rem', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 16 }}>
-              Search Paidhu Group
-            </h3>
-            <input
-              type="text"
-              placeholder="Search verticals, projects, news, careers..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              autoFocus
-              className="form-input"
-              style={{ fontSize: '1.25rem', padding: '18px 24px', borderRadius: 50, background: 'rgba(255,255,255,0.08)', borderColor: '#E8B86D' }}
-            />
-            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap', marginTop: 24 }}>
-              {['Ethical Foods', 'Viyara AI Suite', 'Floffi Jams', 'Kalika Sphere Bootcamps', 'Careers'].map((tag) => (
-                <button
-                  key={tag}
-                  onClick={() => {
-                    setSearchQuery(tag);
-                    scrollTo(tag.includes('Foods') ? 'businesses' : tag.includes('AI') ? 'projects' : tag.includes('Careers') ? 'careers' : 'brands');
-                  }}
-                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.8)', borderRadius: 50, padding: '6px 16px', fontSize: '0.8125rem', cursor: 'pointer' }}
-                >
-                  #{tag}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* MEGA MENU OVERLAY */}
-      <div
-        style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 998,
-          background: '#0F172A',
-          color: 'white',
-          opacity: megaOpen ? 1 : 0,
-          pointerEvents: megaOpen ? 'all' : 'none',
-          transition: 'all 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          padding: '120px clamp(24px, 6vw, 96px) 60px',
-          overflowY: 'auto',
-        }}
-      >
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 48 }}>
-          {/* Nav Links */}
-          <div>
-            <h4 style={{ color: '#E8B86D', fontSize: '0.75rem', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 24 }}>Navigation</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {[
-                { name: 'Home Overview', id: 'hero' },
-                { name: 'About Paidhu Group', id: 'about' },
-                { name: 'Business Verticals', id: 'businesses' },
-                { name: 'Featured Projects', id: 'projects' },
-                { name: 'Impact & ESG Stories', id: 'stories' },
-                { name: 'News & Insights', id: 'news' },
-                { name: 'Careers & Culture', id: 'careers' },
-                { name: 'Why Choose Paidhu', id: 'why-us' },
-                { name: 'Contact & Offices', id: 'contact' },
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => scrollTo(item.id)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'white',
-                    fontFamily: 'var(--font-serif)',
-                    fontSize: 'clamp(1.25rem, 2vw, 1.75rem)',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    transition: 'color 0.3s, transform 0.3s',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#E8B86D';
-                    e.currentTarget.style.transform = 'translateX(8px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = 'white';
-                    e.currentTarget.style.transform = 'translateX(0)';
-                  }}
-                >
-                  {item.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Subsidiaries */}
-          <div>
-            <h4 style={{ color: '#E8B86D', fontSize: '0.75rem', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 24 }}>Business Subsidiaries</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {BUSINESSES.map((b) => (
-                <a
-                  key={b.id}
-                  href={b.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    textDecoration: 'none',
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    borderRadius: 16,
-                    padding: 16,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 16,
-                    transition: 'all 0.3s',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(232,184,109,0.1)';
-                    e.currentTarget.style.borderColor = 'rgba(232,184,109,0.3)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
-                  }}
-                >
-                  <img src={b.logo} alt={b.name} style={{ width: 36, height: 36, objectFit: 'contain' }} />
-                  <div>
-                    <h5 style={{ color: 'white', fontSize: '0.9375rem', fontWeight: 600 }}>{b.name}</h5>
-                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}>{b.category}</p>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Contact HQ Box */}
-          <div style={{ background: 'rgba(232,184,109,0.06)', border: '1px solid rgba(232,184,109,0.2)', borderRadius: 24, padding: 32 }}>
-            <h4 style={{ color: '#E8B86D', fontSize: '1.25rem', fontFamily: 'var(--font-serif)', marginBottom: 12 }}>Global Headquarters</h4>
-            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem', lineHeight: 1.7, marginBottom: 20 }}>
-              No 11 Saraswati Avenue, Achipatti, Pollachi – 642002, Tamil Nadu, India.
-            </p>
-            <p style={{ color: '#E8B86D', fontSize: '0.875rem', fontWeight: 600, marginBottom: 24 }}>📞 +91 87542 87774</p>
-            <button onClick={() => scrollTo('contact')} className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-              Send Inquiry →
-            </button>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
-
-// ─── 1. HERO SWIPER ───────────────────────────────────────────────────────
-function HeroSwiper() {
-  const [current, setCurrent] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const touchStart = useRef<number>(0);
-  const touchEnd = useRef<number>(0);
-
-  const nextSlide = useCallback(() => setCurrent((prev) => (prev + 1) % HERO_SLIDES.length), []);
-  const prevSlide = useCallback(() => setCurrent((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length), []);
-
-  useEffect(() => {
-    if (isPaused) return;
-    const timer = setInterval(() => nextSlide(), 6000);
-    return () => clearInterval(timer);
-  }, [nextSlide, isPaused]);
-
-  const handleTouchStart = (e: React.TouchEvent) => { touchStart.current = e.targetTouches[0].clientX; };
-  const handleTouchMove = (e: React.TouchEvent) => { touchEnd.current = e.targetTouches[0].clientX; };
-  const handleTouchEnd = () => {
-    if (!touchStart.current || !touchEnd.current) return;
-    const dist = touchStart.current - touchEnd.current;
-    if (dist > 50) nextSlide();
-    if (dist < -50) prevSlide();
-    touchStart.current = 0;
-    touchEnd.current = 0;
-  };
-
-  return (
-    <section
-      id="hero"
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-      style={{ position: 'relative', height: '100vh', minHeight: 700, background: '#0F172A', overflow: 'hidden' }}
+    <motion.div
+      whileHover={{ scale: 1.03, y: -0.5 }}
+      style={{ display: 'flex', alignItems: 'center' }}
     >
-      {HERO_SLIDES.map((slide, index) => {
-        const isActive = index === current;
-        return (
-          <div
-            key={slide.id}
-            style={{
-              position: 'absolute',
-              inset: 0,
-              opacity: isActive ? 1 : 0,
-              pointerEvents: isActive ? 'all' : 'none',
-              transition: 'opacity 1s cubic-bezier(0.22, 1, 0.36, 1)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                backgroundImage: `url(${slide.bgImage})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                transform: isActive ? 'scale(1.05)' : 'scale(1)',
-                transition: 'transform 7s ease-out',
-                filter: 'brightness(0.4) contrast(1.1)',
-              }}
-            />
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, #0F172A 0%, transparent 60%), linear-gradient(to right, rgba(15,23,42,0.85) 0%, transparent 70%)' }} />
-
-            <div className="container" style={{ position: 'relative', zIndex: 10, padding: '0 clamp(24px, 6vw, 96px)', maxWidth: 1100 }}>
-              <div style={{ marginBottom: 20, opacity: isActive ? 1 : 0, transform: isActive ? 'translateY(0)' : 'translateY(20px)', transition: 'all 0.8s 0.2s' }}>
-                <span style={{ color: '#E8B86D', fontSize: '0.8125rem', fontWeight: 600, letterSpacing: '0.18em', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: 12 }}>
-                  <span style={{ width: 32, height: 2, background: '#E8B86D' }} />
-                  {slide.tag}
-                </span>
-              </div>
-
-              <h1 className="display-xl" style={{ color: 'white', marginBottom: 20, opacity: isActive ? 1 : 0, transform: isActive ? 'translateY(0)' : 'translateY(30px)', transition: 'all 0.8s 0.4s' }}>
-                {slide.title}<br />
-                <span className="gradient-text">{slide.highlight}</span>
-              </h1>
-
-              <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 'clamp(1rem, 2vw, 1.25rem)', lineHeight: 1.7, maxWidth: 640, marginBottom: 40, opacity: isActive ? 1 : 0, transform: isActive ? 'translateY(0)' : 'translateY(30px)', transition: 'all 0.8s 0.6s' }}>
-                {slide.subtitle}
-              </p>
-
-              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', opacity: isActive ? 1 : 0, transform: isActive ? 'translateY(0)' : 'translateY(30px)', transition: 'all 0.8s 0.8s' }}>
-                {slide.ctaLink.startsWith('http') ? (
-                  <a href={slide.ctaLink} target="_blank" rel="noopener noreferrer" className="btn-primary">
-                    {slide.ctaText} →
-                  </a>
-                ) : (
-                  <button className="btn-primary" onClick={() => document.querySelector(slide.ctaLink)?.scrollIntoView({ behavior: 'smooth' })}>
-                    {slide.ctaText} →
-                  </button>
-                )}
-
-                {slide.secondaryCtaLink.startsWith('http') ? (
-                  <a href={slide.secondaryCtaLink} target="_blank" rel="noopener noreferrer" className="btn-outline">
-                    {slide.secondaryCtaText}
-                  </a>
-                ) : (
-                  <button className="btn-outline" onClick={() => document.querySelector(slide.secondaryCtaLink)?.scrollIntoView({ behavior: 'smooth' })}>
-                    {slide.secondaryCtaText}
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        );
-      })}
-
-      {/* Slider Controls */}
-      <div style={{ position: 'absolute', bottom: 40, right: 'clamp(24px, 6vw, 96px)', zIndex: 20, display: 'flex', alignItems: 'center', gap: 24, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(12px)', padding: '12px 24px', borderRadius: 50, border: '1px solid rgba(255,255,255,0.1)' }}>
-        <span style={{ color: 'white', fontSize: '0.875rem', fontWeight: 600, fontFamily: 'monospace' }}>
-          0{current + 1} / 0{HERO_SLIDES.length}
-        </span>
-        <div style={{ display: 'flex', gap: 8 }}>
-          {HERO_SLIDES.map((_, idx) => (
-            <button key={idx} onClick={() => setCurrent(idx)} style={{ background: idx === current ? '#E8B86D' : 'rgba(255,255,255,0.3)', width: idx === current ? 24 : 8, height: 8, borderRadius: 4, border: 'none', cursor: 'pointer', transition: 'all 0.3s' }} />
-          ))}
-        </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={prevSlide} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', width: 32, height: 32, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>‹</button>
-          <button onClick={nextSlide} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', width: 32, height: 32, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>›</button>
-        </div>
-      </div>
-    </section>
+      {dataUrl ? (
+        <img 
+          src={dataUrl} 
+          alt="Paidhu" 
+          style={{ height: 38, width: 'auto', objectFit: 'contain' }} 
+        />
+      ) : (
+        <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.25rem', fontWeight: 800, color: '#3F5E51' }}>paidhu</span>
+      )}
+    </motion.div>
   );
 }
 
-// ─── 2. MARQUEE STRIP ─────────────────────────────────────────────────────
-function MarqueeStrip() {
-  const items = ['Ethical Foods', 'Viyara IT Services', 'Floffi Preserves', 'Kalika Sphere EdTech', '100% Traceable Saffron', 'SaaS & AI Platforms', 'Fair Wage Agriculture'];
-  const list = [...items, ...items];
+// Hero Dynamic Slideshow Showcase Component
+function HeroSlideshow({ isMobile }: { isMobile: boolean }) {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % BUSINESSES.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const slide = BUSINESSES[index];
+
   return (
-    <div style={{ background: '#E8B86D', padding: '14px 0', overflow: 'hidden' }}>
-      <div className="marquee-track">
-        {list.map((item, i) => (
-          <span key={i} style={{ color: '#0F172A', fontSize: '0.8125rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', whiteSpace: 'nowrap', paddingRight: 48, display: 'inline-flex', alignItems: 'center', gap: 48 }}>
-            {item}
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#0F172A', opacity: 0.5 }} />
-          </span>
+    <div style={{ position: 'relative', width: '100%', height: isMobile ? 240 : 360, background: '#F5F5F0', border: '1px solid #C5C4BE', borderRadius: 24, overflow: 'hidden', boxShadow: '0 20px 40px rgba(63,94,81,0.04)' }}>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={slide.id}
+          initial={{ opacity: 0, scale: 1.02 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.6 }}
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1 }}
+        >
+          <img src={slide.image} alt={slide.name} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.95 }} />
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(to top, rgba(44,45,43,0.9) 0%, rgba(44,45,43,0.4) 60%, transparent 100%)' }} />
+        </motion.div>
+      </AnimatePresence>
+
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: isMobile ? 20 : 32, zIndex: 2, display: 'flex', flexDirection: 'column', gap: 6, color: '#F5F5F0' }}>
+        <span style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#B4BCB4' }}>{slide.sector}</span>
+        <h3 style={{ fontFamily: 'var(--font-display)', fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: 700, margin: 0 }}>{slide.name}</h3>
+        {!isMobile && <p style={{ fontSize: '0.875rem', opacity: 0.8, margin: 0, maxWidth: 440 }}>{slide.tagline}</p>}
+      </div>
+
+      <div style={{ position: 'absolute', top: isMobile ? 16 : 24, right: isMobile ? 16 : 24, zIndex: 3, display: 'flex', gap: 6 }}>
+        {BUSINESSES.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setIndex(i)}
+            style={{
+              width: isMobile ? 16 : 24,
+              height: 4,
+              borderRadius: 2,
+              border: 'none',
+              background: i === index ? '#3F5E51' : 'rgba(245, 245, 240, 0.4)',
+              cursor: 'pointer',
+              transition: 'background 0.3s'
+            }}
+          />
         ))}
       </div>
     </div>
   );
 }
 
-// ─── 3. ABOUT GROUP ───────────────────────────────────────────────────────
-function AboutGroup() {
-  return (
-    <section id="about" style={{ background: '#F7F8FA', padding: 'clamp(80px, 12vw, 140px) clamp(24px, 5vw, 64px)' }}>
-      <div className="container">
-        <div style={{ marginBottom: 72 }}>
-          <span className="label reveal" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>Group Overview</span>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 48, alignItems: 'end' }}>
-            <h2 className="display-md reveal" style={{ color: '#111827' }}>A Diversified Enterprise Built on Purpose & Precision</h2>
-            <div className="reveal-right">
-              <div style={{ width: 48, height: 3, background: '#E8B86D', marginBottom: 20, borderRadius: 2 }} />
-              <p style={{ color: '#6B7280', fontSize: '1.0625rem', lineHeight: 1.8 }}>
-                Founded in 2019, Paidhu Group operates across agriculture, organic food processing, enterprise IT software, consumer brands, and skill academies. We integrate ethical sourcing with modern technology to deliver long-term value.
-              </p>
-            </div>
-          </div>
-        </div>
+export default function Page() {
+  const [form, setForm] = useState({ name: '', email: '', message: '' });
+  const [sent, setSent] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [trailPos, setTrailPos] = useState({ x: 0, y: 0 });
+  const [isMobile, setIsMobile] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-        {/* Mission / Vision / Values Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
-          {[
-            { title: 'Our Mission', desc: 'To build ethical, scalable business verticals that elevate human well-being and protect natural resources.', icon: '🎯' },
-            { title: 'Our Vision', desc: 'A global enterprise ecosystem where financial growth and societal ethics advance together seamlessly.', icon: '🌅' },
-            { title: 'Our Core Values', desc: 'Authenticity in sourcing, rigor in technology, equity for local farmers, and continuous learning.', icon: '🧭' },
-          ].map((item, idx) => (
-            <div key={idx} className="card-premium reveal" style={{ padding: 36, transitionDelay: `${idx * 100}ms` }}>
-              <div style={{ fontSize: 36, marginBottom: 16 }}>{item.icon}</div>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#162436', marginBottom: 12 }}>{item.title}</h3>
-              <p style={{ color: '#6B7280', fontSize: '0.9375rem', lineHeight: 1.7 }}>{item.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─── 4. STATISTICS SECTION ────────────────────────────────────────────────
-function StatisticsSection() {
-  const [visible, setVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
+  // Responsive check
   useEffect(() => {
-    const obs = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setVisible(true); }, { threshold: 0.3 });
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
+    const checkResponsive = () => {
+      setIsMobile(window.innerWidth < 850);
+    };
+    checkResponsive();
+    window.addEventListener('resize', checkResponsive);
+    return () => window.removeEventListener('resize', checkResponsive);
   }, []);
 
-  return (
-    <section ref={ref} style={{ background: '#162436', padding: '80px clamp(24px, 5vw, 64px)', color: 'white' }}>
-      <div className="container">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 32 }}>
-          {STATS.map((s, i) => (
-            <StatCard key={i} stat={s} visible={visible} />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalScroll > 0) {
+        setScrollProgress((window.scrollY / totalScroll) * 100);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
 
-function StatCard({ stat, visible }: { stat: typeof STATS[0]; visible: boolean }) {
-  const count = useCounter(stat.value, 2000, visible);
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({
+        x: (e.clientX / window.innerWidth - 0.5) * 12,
+        y: (e.clientY / window.innerHeight - 0.5) * 12,
+      });
+      setTrailPos({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
 
-  return (
-    <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: '36px 28px', textAlign: 'center' }}>
-      <div style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.5rem, 4vw, 3.5rem)', fontWeight: 700, color: '#E8B86D', lineHeight: 1 }}>
-        {stat.value > 1000 ? count.toLocaleString() : count}{stat.suffix}
-      </div>
-      <h4 style={{ color: 'white', fontSize: '1rem', fontWeight: 600, marginTop: 12 }}>{stat.label}</h4>
-      <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8125rem', marginTop: 4 }}>{stat.desc}</p>
-    </div>
-  );
-}
-
-// ─── 5. BUSINESS VERTICALS SWIPER ─────────────────────────────────────────
-function BusinessCarousel() {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const next = () => setActiveIndex((prev) => (prev + 1) % BUSINESSES.length);
-  const prev = () => setActiveIndex((prev) => (prev - 1 + BUSINESSES.length) % BUSINESSES.length);
-
-  return (
-    <section id="businesses" style={{ background: '#0F172A', padding: 'clamp(80px, 12vw, 140px) clamp(24px, 5vw, 64px)', overflow: 'hidden' }}>
-      <div className="container">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 64, flexWrap: 'wrap', gap: 24 }}>
-          <div>
-            <span className="label reveal" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>Enterprise Verticals</span>
-            <h2 className="display-md reveal" style={{ color: 'white' }}>Core Business Subsidiaries</h2>
-          </div>
-          <div className="reveal-right" style={{ display: 'flex', gap: 12 }}>
-            <button onClick={prev} style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: 'white', width: 48, height: 48, borderRadius: '50%', cursor: 'pointer', fontSize: 20 }}>←</button>
-            <button onClick={next} style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: 'white', width: 48, height: 48, borderRadius: '50%', cursor: 'pointer', fontSize: 20 }}>→</button>
-          </div>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 32, alignItems: 'center' }}>
-          <div className="reveal" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(232,184,109,0.3)', borderRadius: 32, padding: 'clamp(32px, 5vw, 48px)' }}>
-            <span style={{ background: 'rgba(232,184,109,0.15)', color: '#E8B86D', padding: '6px 16px', borderRadius: 50, fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 24, display: 'inline-block' }}>
-              {BUSINESSES[activeIndex].category}
-            </span>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-              <img src={BUSINESSES[activeIndex].logo} alt={BUSINESSES[activeIndex].name} style={{ height: 48, objectFit: 'contain' }} />
-              <div>
-                <h3 style={{ color: 'white', fontFamily: 'var(--font-serif)', fontSize: '1.75rem', fontWeight: 700 }}>{BUSINESSES[activeIndex].name}</h3>
-                <p style={{ color: '#E8B86D', fontSize: '0.875rem', fontWeight: 600 }}>{BUSINESSES[activeIndex].tagline}</p>
-              </div>
-            </div>
-
-            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem', lineHeight: 1.8, marginBottom: 32 }}>{BUSINESSES[activeIndex].description}</p>
-
-            <div style={{ marginBottom: 32 }}>
-              <h4 style={{ color: 'white', fontSize: '0.8125rem', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>Key Highlights</h4>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                {BUSINESSES[activeIndex].highlights.map((h, i) => (
-                  <div key={i} style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ color: '#E8B86D' }}>✓</span> {h}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <a href={BUSINESSES[activeIndex].link} target="_blank" rel="noopener noreferrer" className="btn-primary">
-              Visit {BUSINESSES[activeIndex].name} →
-            </a>
-          </div>
-
-          <div className="reveal-right" style={{ position: 'relative', borderRadius: 32, overflow: 'hidden', height: 440 }}>
-            <img src={BUSINESSES[activeIndex].image} alt={BUSINESSES[activeIndex].name} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'all 0.6s ease' }} />
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(15,23,42,0.9), transparent)' }} />
-            <div style={{ position: 'absolute', bottom: 32, left: 32, right: 32 }}>
-              <span style={{ color: '#E8B86D', fontSize: '0.75rem', letterSpacing: '0.15em', textTransform: 'uppercase' }}>Benchmark</span>
-              <p style={{ color: 'white', fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontWeight: 700, marginTop: 4 }}>{BUSINESSES[activeIndex].stats}</p>
-            </div>
-          </div>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginTop: 32 }}>
-          {BUSINESSES.map((b, idx) => (
-            <button key={b.id} onClick={() => setActiveIndex(idx)} style={{ background: idx === activeIndex ? 'rgba(232,184,109,0.15)' : 'rgba(255,255,255,0.03)', border: `1px solid ${idx === activeIndex ? '#E8B86D' : 'rgba(255,255,255,0.08)'}`, borderRadius: 20, padding: 20, textAlign: 'left', cursor: 'pointer', transition: 'all 0.3s' }}>
-              <span style={{ color: idx === activeIndex ? '#E8B86D' : 'rgba(255,255,255,0.4)', fontSize: '0.75rem', fontFamily: 'monospace' }}>0{idx + 1}</span>
-              <h4 style={{ color: 'white', fontSize: '0.9375rem', fontWeight: 600, marginTop: 4 }}>{b.name}</h4>
-            </button>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─── 6. FEATURED PROJECTS ─────────────────────────────────────────────────
-function FeaturedProjects() {
-  return (
-    <section id="projects" style={{ background: '#F7F8FA', padding: 'clamp(80px, 12vw, 140px) clamp(24px, 5vw, 64px)' }}>
-      <div className="container">
-        <div style={{ textAlign: 'center', marginBottom: 64 }}>
-          <span className="label reveal" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>Key Milestones</span>
-          <h2 className="display-md reveal" style={{ color: '#111827' }}>Featured Enterprise Projects</h2>
-          <p className="reveal" style={{ color: '#6B7280', maxWidth: 520, margin: '16px auto 0', fontSize: '1rem' }}>
-            Transformative initiatives driving impact across organic agriculture, software AI, eco-packaging, and developer education.
-          </p>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
-          {FEATURED_PROJECTS.map((proj, idx) => (
-            <div key={idx} className="card-premium reveal" style={{ transitionDelay: `${idx * 80}ms` }}>
-              <div style={{ height: 220, overflow: 'hidden', position: 'relative' }}>
-                <img src={proj.image} alt={proj.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }} />
-                <span style={{ position: 'absolute', top: 16, left: 16, background: '#0F172A', color: '#E8B86D', padding: '4px 12px', borderRadius: 50, fontSize: '0.75rem', fontWeight: 600 }}>
-                  {proj.category}
-                </span>
-              </div>
-              <div style={{ padding: 28 }}>
-                <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#111827', marginBottom: 8 }}>{proj.title}</h3>
-                <p style={{ color: '#E8B86D', fontSize: '0.8125rem', fontWeight: 700, marginBottom: 12 }}>{proj.stat}</p>
-                <p style={{ color: '#6B7280', fontSize: '0.875rem', lineHeight: 1.6, marginBottom: 20 }}>{proj.desc}</p>
-                <a href={proj.link} target="_blank" rel="noopener noreferrer" style={{ color: '#162436', fontWeight: 700, fontSize: '0.8125rem', textTransform: 'uppercase', textDecoration: 'none' }}>
-                  Read Details →
-                </a>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─── 7. STORYTELLING & ESG ────────────────────────────────────────────────
-function StorytellingSection() {
-  const [activeTab, setActiveTab] = useState(0);
-  const current = STORY_TABS[activeTab];
-
-  return (
-    <section id="stories" style={{ background: '#162436', padding: 'clamp(80px, 12vw, 140px) clamp(24px, 5vw, 64px)', color: 'white' }}>
-      <div className="container">
-        <div style={{ textAlign: 'center', marginBottom: 56 }}>
-          <span className="label reveal" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>Impact Stories</span>
-          <h2 className="display-md reveal" style={{ color: 'white' }}>How We Shape Sustainable Enterprise</h2>
-        </div>
-
-        <div className="reveal" style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap', marginBottom: 48 }}>
-          {STORY_TABS.map((tab, idx) => (
-            <button key={tab.id} onClick={() => setActiveTab(idx)} style={{ background: idx === activeTab ? '#E8B86D' : 'rgba(255,255,255,0.08)', color: idx === activeTab ? '#0F172A' : 'white', border: 'none', padding: '12px 24px', borderRadius: 50, fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.3s' }}>
-              {tab.title}
-            </button>
-          ))}
-        </div>
-
-        <div className="reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 48, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 32, padding: 'clamp(32px, 5vw, 56px)', alignItems: 'center' }}>
-          <div>
-            <h3 style={{ color: '#E8B86D', fontFamily: 'var(--font-serif)', fontSize: '1.75rem', fontWeight: 700, marginBottom: 8 }}>{current.subtitle}</h3>
-            <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '1.0625rem', lineHeight: 1.8, marginBottom: 32 }}>{current.description}</p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              {current.points.map((pt, i) => (
-                <div key={i} style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 12, padding: 14, fontSize: '0.875rem', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  🌟 {pt}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div style={{ borderRadius: 24, overflow: 'hidden', height: 380, position: 'relative' }}>
-            <img src={current.image} alt={current.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─── 8. BRANDS GRID ───────────────────────────────────────────────────────
-function BrandsGrid() {
-  return (
-    <section id="brands" style={{ background: '#F7F8FA', padding: 'clamp(80px, 12vw, 140px) clamp(24px, 5vw, 64px)' }}>
-      <div className="container">
-        <div style={{ textAlign: 'center', marginBottom: 64 }}>
-          <span className="label reveal" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>Ecosystem</span>
-          <h2 className="display-md reveal" style={{ color: '#111827' }}>Group Brands</h2>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 24 }}>
-          {BRANDS.map((b, i) => (
-            <a key={i} href={b.link} target="_blank" rel="noopener noreferrer" className="card-premium reveal" style={{ textDecoration: 'none', padding: 36, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div>
-                <div style={{ height: 60, display: 'flex', alignItems: 'center', marginBottom: 20 }}>
-                  <img src={b.logo} alt={b.name} style={{ maxHeight: 50, maxWidth: '100%', objectFit: 'contain' }} />
-                </div>
-                <h3 style={{ color: '#111827', fontSize: '1.125rem', fontWeight: 700, marginBottom: 8 }}>{b.name}</h3>
-                <p style={{ color: '#6B7280', fontSize: '0.875rem', lineHeight: 1.6 }}>{b.desc}</p>
-              </div>
-              <div style={{ marginTop: 24, color: '#E8B86D', fontSize: '0.8125rem', fontWeight: 700, textTransform: 'uppercase' }}>Visit Platform →</div>
-            </a>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─── 9. NEWS & INSIGHTS ───────────────────────────────────────────────────
-function NewsInsights() {
-  return (
-    <section id="news" style={{ background: '#0F172A', padding: 'clamp(80px, 12vw, 140px) clamp(24px, 5vw, 64px)' }}>
-      <div className="container">
-        <div style={{ textAlign: 'center', marginBottom: 64 }}>
-          <span className="label reveal" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>Media & Press</span>
-          <h2 className="display-md reveal" style={{ color: 'white' }}>Corporate News & Insights</h2>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 32 }}>
-          {NEWS_ITEMS.map((item, idx) => (
-            <div key={item.id} className="card-dark reveal" style={{ transitionDelay: `${idx * 100}ms` }}>
-              <div style={{ height: 200, overflow: 'hidden', position: 'relative' }}>
-                <img src={item.image} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              </div>
-              <div style={{ padding: 28 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#E8B86D', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: 12 }}>
-                  <span>{item.category}</span>
-                  <span>{item.date}</span>
-                </div>
-                <h3 style={{ color: 'white', fontSize: '1.125rem', fontWeight: 700, marginBottom: 12, lineHeight: 1.4 }}>{item.title}</h3>
-                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', lineHeight: 1.6, marginBottom: 20 }}>{item.snippet}</p>
-                <span style={{ color: '#E8B86D', fontSize: '0.8125rem', fontWeight: 700, cursor: 'pointer' }}>Read Full Story →</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─── 10. CAREERS & CULTURE ────────────────────────────────────────────────
-function CareersSection() {
-  return (
-    <section id="careers" style={{ background: '#162436', padding: 'clamp(80px, 12vw, 140px) clamp(24px, 5vw, 64px)', color: 'white' }}>
-      <div className="container">
-        <div style={{ background: 'linear-gradient(135deg, rgba(232,184,109,0.15), rgba(15,23,42,0.8))', border: '1px solid rgba(232,184,109,0.3)', borderRadius: 32, padding: 'clamp(40px, 6vw, 72px)', textAlign: 'center' }}>
-          <span className="label" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>Careers at Paidhu</span>
-          <h2 className="display-md" style={{ color: 'white', marginBottom: 16 }}>Shape the Future of Ethical Enterprise</h2>
-          <p style={{ color: 'rgba(255,255,255,0.75)', maxWidth: 600, margin: '0 auto 32px', fontSize: '1.0625rem', lineHeight: 1.8 }}>
-            Join our multidisciplinary teams in software engineering, agricultural technology, retail branding, and EdTech instruction.
-          </p>
-          <button onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })} className="btn-primary">
-            Explore Open Roles & Contact HR →
-          </button>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─── 11. WHY CHOOSE PAIDHU ────────────────────────────────────────────────
-function WhyChooseUs() {
-  return (
-    <section id="why-us" style={{ background: '#0F172A', padding: 'clamp(80px, 12vw, 140px) clamp(24px, 5vw, 64px)' }}>
-      <div className="container">
-        <div style={{ textAlign: 'center', marginBottom: 72 }}>
-          <span className="label reveal" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>Group Principles</span>
-          <h2 className="display-md reveal" style={{ color: 'white' }}>The Paidhu Advantage</h2>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
-          {WHY_US.map((item, i) => (
-            <div key={i} className="card-dark reveal" style={{ padding: 36, transitionDelay: `${i * 80}ms` }}>
-              <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(232,184,109,0.12)', border: '1px solid rgba(232,184,109,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, marginBottom: 20 }}>
-                {item.icon}
-              </div>
-              <h3 style={{ color: 'white', fontSize: '1.125rem', fontWeight: 600, marginBottom: 10 }}>{item.title}</h3>
-              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9375rem', lineHeight: 1.7 }}>{item.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─── 12. CONTACT SECTION ─────────────────────────────────────────────────
-function ContactSection() {
-  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
-  const [sent, setSent] = useState(false);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSent(true);
-    setTimeout(() => setSent(false), 5000);
-    setForm({ name: '', email: '', subject: '', message: '' });
+    setTimeout(() => setSent(false), 4000);
+    setForm({ name: '', email: '', message: '' });
+  };
+
+  const scrollTo = (id: string) => {
+    setMobileMenuOpen(false);
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const selectBusiness = (id: string) => {
+    setDropdownOpen(false);
+    setMobileMenuOpen(false);
+    setTimeout(() => {
+      scrollTo(`brand-${id}`);
+    }, 100);
   };
 
   return (
-    <section id="contact" style={{ background: '#162436', padding: 'clamp(80px, 12vw, 140px) clamp(24px, 5vw, 64px)', color: 'white' }}>
-      <div className="container">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 64, alignItems: 'start' }}>
-          <div>
-            <span className="label reveal" style={{ color: '#E8B86D', marginBottom: 12, display: 'block' }}>Connect With Us</span>
-            <h2 className="display-md reveal" style={{ color: 'white', marginBottom: 24 }}>Let's Build the Future Together</h2>
-            <p className="reveal" style={{ color: 'rgba(255,255,255,0.65)', fontSize: '1.0625rem', lineHeight: 1.8, marginBottom: 40 }}>
-              Partner with Paidhu Group across agriculture exports, custom IT engineering, consumer brand distribution, or skill academies.
+    <div style={{ background: '#ECEBE4', color: '#2C2D2B', fontFamily: 'var(--font-body)', minHeight: '100vh', display: 'flex', flexDirection: 'column', overflowX: 'hidden', position: 'relative' }}>
+      
+      {/* Subtle Canvas grid dots background */}
+      <DynamicCanvas />
+
+      {/* Subtle cursor light glow trail */}
+      {!isMobile && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: trailPos.y - 120,
+            left: trailPos.x - 120,
+            width: 240,
+            height: 240,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(63, 94, 81, 0.03) 0%, transparent 70%)',
+            pointerEvents: 'none',
+            zIndex: 1,
+            transition: 'transform 0.1s ease-out',
+          }}
+        />
+      )}
+
+      {/* SCROLL BAR */}
+      <div style={{ position: 'fixed', top: 0, left: 0, width: `${scrollProgress}%`, height: '3px', background: 'linear-gradient(90deg, #3F5E51, #5A7E70)', zIndex: 1000, transition: 'width 0.1s ease-out' }} />
+
+      {/* HEADER */}
+      <motion.header 
+        initial={{ opacity: 0, y: -15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        onMouseLeave={() => setDropdownOpen(false)}
+        style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(236, 235, 228, 0.96)', backdropFilter: 'blur(20px)', borderBottom: '1px solid #C5C4BE', padding: '16px 24px' }}
+      >
+        <div style={{ maxWidth: 1140, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
+          <button onClick={() => scrollTo('hero')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+            <ProcessedLogo />
+          </button>
+          
+          {/* Responsive Navigation block */}
+          {isMobile ? (
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 4,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 5,
+                zIndex: 1001
+              }}
+            >
+              <span style={{ display: 'block', width: 22, height: 2, background: '#2C2D2B', transform: mobileMenuOpen ? 'rotate(45deg) translate(5px, 5px)' : 'none', transition: 'transform 0.2s' }} />
+              <span style={{ display: 'block', width: 22, height: 2, background: '#2C2D2B', opacity: mobileMenuOpen ? 0 : 1, transition: 'opacity 0.2s' }} />
+              <span style={{ display: 'block', width: 22, height: 2, background: '#2C2D2B', transform: mobileMenuOpen ? 'rotate(-45deg) translate(5px, -5px)' : 'none', transition: 'transform 0.2s' }} />
+            </button>
+          ) : (
+            <nav style={{ display: 'flex', gap: 36, alignItems: 'center' }}>
+              <button 
+                onMouseEnter={() => setDropdownOpen(true)}
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                style={{ 
+                  background: 'none', 
+                  border: 'none', 
+                  cursor: 'pointer', 
+                  fontSize: '0.8125rem', 
+                  fontWeight: 700, 
+                  color: dropdownOpen ? '#3F5E51' : '#5A5D5A', 
+                  letterSpacing: '0.12em', 
+                  textTransform: 'uppercase',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '8px 0',
+                  borderBottom: dropdownOpen ? '2px solid #3F5E51' : '2px solid transparent',
+                  transition: 'all 0.2s'
+                }}
+              >
+                Businesses
+              </button>
+
+              <MagneticElement>
+                <button onClick={() => scrollTo('brands')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 700, color: '#5A5D5A', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Portfolio</button>
+              </MagneticElement>
+              <MagneticElement>
+                <button onClick={() => scrollTo('contact')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 700, color: '#5A5D5A', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Inquiry</button>
+              </MagneticElement>
+            </nav>
+          )}
+
+          {/* TATA STYLE CORPORATE MEGA DROPDOWN MENU (Desktop only) */}
+          {!isMobile && (
+            <AnimatePresence>
+              {dropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  transition={{ duration: 0.25, ease: 'easeOut' }}
+                  onMouseEnter={() => setDropdownOpen(true)}
+                  style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    right: 0,
+                    background: 'rgba(245, 245, 240, 0.98)',
+                    backdropFilter: 'blur(20px)',
+                    border: '1px solid #C5C4BE',
+                    borderRadius: '16px',
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.06)',
+                    padding: '36px 40px',
+                    marginTop: '12px',
+                    zIndex: 1000,
+                    display: 'grid',
+                    gridTemplateColumns: '1.2fr 1fr 1.5fr',
+                    gap: '40px',
+                    textAlign: 'left'
+                  }}
+                >
+                  {/* Column 1: Business Overview */}
+                  <div style={{ borderRight: '1px solid rgba(197, 196, 190, 0.5)', paddingRight: '32px' }}>
+                    <h4 style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#3F5E51', letterSpacing: '0.1em', marginBottom: '16px' }}>Business Overview</h4>
+                    <p style={{ fontSize: '0.875rem', color: '#5A5D5A', lineHeight: 1.6, marginBottom: '20px' }}>
+                      Mapping Kashmir fair-trade agriculture, artisanal FMCG, software engineering, and developer education under one cohesive conglomerate ecosystem.
+                    </p>
+                    <button 
+                      onClick={() => { setDropdownOpen(false); scrollTo('brands'); }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 700, color: '#2C2D2B', textDecoration: 'underline', padding: 0 }}
+                    >
+                      Explore Group Brands
+                    </button>
+                  </div>
+
+                  {/* Column 2: Our Brands */}
+                  <div style={{ borderRight: '1px solid rgba(197, 196, 190, 0.5)', paddingRight: '32px' }}>
+                    <h4 style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#3F5E51', letterSpacing: '0.1em', marginBottom: '16px' }}>Our Brands</h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                      {BUSINESSES.map((b) => (
+                        <button
+                          key={b.id}
+                          onClick={() => selectBusiness(b.id)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            textAlign: 'left',
+                            fontSize: '0.875rem',
+                            fontWeight: 600,
+                            color: '#2C2D2B',
+                            padding: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            transition: 'color 0.2s'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.color = '#3F5E51'}
+                          onMouseLeave={(e) => e.currentTarget.style.color = '#2C2D2B'}
+                        >
+                          <span style={{ fontSize: '0.5rem', color: '#3F5E51' }}>●</span>
+                          {b.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Column 3: Business Verticals */}
+                  <div>
+                    <h4 style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#3F5E51', letterSpacing: '0.1em', marginBottom: '16px' }}>Business Verticals</h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px', fontSize: '0.8125rem', color: '#5A5D5A' }}>
+                      <div>
+                        <strong style={{ color: '#2C2D2B', display: 'block', fontSize: '0.875rem' }}>Technology & SaaS Platforms</strong>
+                        Cloud automation, SaaS operations, Custom AI workflows, Bootcamps.
+                      </div>
+                      <div>
+                        <strong style={{ color: '#2C2D2B', display: 'block', fontSize: '0.875rem' }}>Sustainable Agriculture & Food</strong>
+                        Trace-to-origin Kashmiri Saffron exports, handpicked flower crops.
+                      </div>
+                      <div>
+                        <strong style={{ color: '#2C2D2B', display: 'block', fontSize: '0.875rem' }}>Consumer Preservation FMCG</strong>
+                        Floral preserves, organic botanicals, biodegradable glass spreads.
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          )}
+        </div>
+
+        {/* Mobile Menu Panel */}
+        <AnimatePresence>
+          {isMobile && mobileMenuOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              style={{
+                background: '#ECEBE4',
+                padding: '24px 8px',
+                borderTop: '1px solid #C5C4BE',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 16,
+                zIndex: 999,
+                position: 'relative'
+              }}
+            >
+              <button onClick={() => scrollTo('brands')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem', fontWeight: 700, color: '#2C2D2B', textAlign: 'left', letterSpacing: '0.05em' }}>PORTFOLIO</button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingLeft: 12, borderLeft: '1px solid #C5C4BE' }}>
+                {BUSINESSES.map((b) => (
+                  <button key={b.id} onClick={() => selectBusiness(b.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.875rem', color: '#5A5D5A', textAlign: 'left' }}>
+                    {b.name}
+                  </button>
+                ))}
+              </div>
+              <button onClick={() => scrollTo('contact')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem', fontWeight: 700, color: '#2C2D2B', textAlign: 'left', letterSpacing: '0.05em' }}>INQUIRY</button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.header>
+
+      {/* HERO */}
+      <section id="hero" style={{ padding: isMobile ? '80px 20px 60px' : '120px 24px 80px', position: 'relative', background: '#F5F5F0', borderBottom: '1px solid #C5C4BE', overflow: 'hidden' }}>
+        <div className="glow-spot" style={{ top: '10%', left: '-10%' }} />
+        <div className="glow-spot" style={{ bottom: '10%', right: '-10%' }} />
+
+        <div className="container" style={{ maxWidth: 1140, margin: '0 auto', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(320px, 1fr))', gap: isMobile ? 40 : 56, alignItems: 'center', position: 'relative', zIndex: 2 }}>
+          <motion.div
+            initial={{ opacity: 0, x: isMobile ? 0 : -40, y: isMobile ? 20 : 0 }}
+            animate={{ opacity: 1, x: 0, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, marginBottom: isMobile ? 16 : 24 }}>
+              <motion.span initial={{ width: 0 }} animate={{ width: 24 }} transition={{ delay: 0.2 }} style={{ height: 1, background: '#3F5E51' }} />
+              <span style={{ color: '#3F5E51', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', fontFamily: 'var(--font-display)' }}>
+                Paidhu Group Enterprise
+              </span>
+            </div>
+
+            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: isMobile ? '2.25rem' : 'clamp(2.5rem, 5vw, 4rem)', fontWeight: 800, color: '#2C2D2B', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: isMobile ? 18 : 24 }}>
+              Building Businesses That <br />
+              <motion.span
+                initial={{ opacity: 0, scale: 0.97 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.7, delay: 0.25 }}
+                className="gradient-sage-text"
+                style={{ fontStyle: 'italic', fontWeight: 700, display: 'inline-block' }}
+              >
+                Inspire a Better Future
+              </motion.span>
+            </h1>
+
+            <p style={{ color: '#5A5D5A', fontSize: isMobile ? '1rem' : '1.125rem', lineHeight: 1.7, maxWidth: 540, marginBottom: isMobile ? 28 : 40 }}>
+              A diversified modern conglomerate branching out into ethical agriculture, gourmet preservation, SaaS technology, and certification academics.
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-              {[
-                { icon: '📍', title: 'Headquarters', text: 'No 11 Saraswati Avenue, Achipatti, Pollachi – 642002, Tamil Nadu, India' },
-                { icon: '📞', title: 'Phone', text: '+91 87542 87774' },
-                { icon: '✉️', title: 'Email & Web', text: 'www.paidhu.com' },
-              ].map((c, idx) => (
-                <div key={idx} className="reveal" style={{ display: 'flex', gap: 16, transitionDelay: `${idx * 100}ms` }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(232,184,109,0.15)', border: '1px solid rgba(232,184,109,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
-                    {c.icon}
+            <div style={{ display: 'flex', gap: 16 }}>
+              <MagneticElement>
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => scrollTo('brands')} 
+                  className="btn-sage-action"
+                >
+                  Explore Portfolio
+                </motion.button>
+              </MagneticElement>
+              <MagneticElement>
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => scrollTo('contact')} 
+                  className="btn-outline-sage"
+                >
+                  Get In Touch
+                </motion.button>
+              </MagneticElement>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+            style={{ 
+              transform: isMobile ? 'none' : `translate3d(${mousePos.x}px, ${mousePos.y}px, 0)`,
+              transition: 'transform 0.4s ease-out'
+            }}
+          >
+            <HeroSlideshow isMobile={isMobile} />
+          </motion.div>
+        </div>
+      </section>
+
+      {/* INFINITE SCROLLING TICKER */}
+      <TickerBanner />
+
+      {/* PORTFOLIO GRID WITH 3D PARALLAX CARDS */}
+      <section id="brands" style={{ padding: isMobile ? '60px 20px' : '100px 24px', background: '#ECEBE4', borderBottom: '1px solid #C5C4BE' }}>
+        <div style={{ maxWidth: 1140, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: isMobile ? 40 : 64 }}>
+            <span style={{ color: '#3F5E51', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase', display: 'block', marginBottom: 12 }}>Subsidiaries</span>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: isMobile ? '2rem' : '2.5rem', fontWeight: 700, color: '#2C2D2B' }}>Group Brand Profiles</h2>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(230px, 1fr))', gap: 20 }}>
+            {BUSINESSES.map((b, idx) => (
+              <ParallaxCard key={idx}>
+                <motion.div 
+                  id={`brand-${b.id}`}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: idx * 0.1 }}
+                  className="elegant-panel"
+                  style={{ 
+                    overflow: 'hidden', 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    justifyContent: 'space-between', 
+                    height: '100%',
+                    transformStyle: 'preserve-3d',
+                    position: 'relative'
+                  }}
+                >
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    whileHover={{ opacity: 0.03 }}
+                    style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(135deg, #3F5E51 0%, transparent 60%)', zIndex: 1, pointerEvents: 'none' }}
+                  />
+
+                  <div style={{ transformStyle: 'preserve-3d', zIndex: 2 }}>
+                    <div style={{ height: 140, overflow: 'hidden', borderBottom: '1px solid #C5C4BE', position: 'relative', transformStyle: 'preserve-3d' }}>
+                      <motion.img 
+                        whileHover={{ scale: 1.06, translateZ: 20 }}
+                        transition={{ duration: 0.4 }}
+                        src={b.image} 
+                        alt={b.name} 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                      />
+                    </div>
+                    <div style={{ padding: 20, transformStyle: 'preserve-3d' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12, transformStyle: 'preserve-3d' }}>
+                        <motion.div 
+                          whileHover={{ scale: 1.05, rotate: 4, translateZ: 30 }}
+                          style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#ECEBE4', border: '1px solid #C5C4BE', borderRadius: 8, padding: 6, flexShrink: 0 }}
+                        >
+                          <img src={b.logo} alt={b.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                        </motion.div>
+                        <div>
+                          <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#3F5E51', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 2 }}>{b.sector}</span>
+                          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#2C2D2B', margin: 0, fontFamily: 'var(--font-display)' }}>{b.name}</h3>
+                        </div>
+                      </div>
+                      <p style={{ color: '#5A5D5A', fontSize: '0.8125rem', lineHeight: 1.5, margin: 0 }}>{b.description}</p>
+                    </div>
+                  </div>
+                  <div style={{ padding: '0 20px 20px', transformStyle: 'preserve-3d', zIndex: 2 }}>
+                    <motion.a 
+                      whileHover={{ x: 4, translateZ: 15 }}
+                      href={b.link} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#2C2D2B', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', textDecoration: 'none' }}
+                    >
+                      Visit Website <span style={{ color: '#3F5E51' }}>→</span>
+                    </motion.a>
+                  </div>
+                </motion.div>
+              </ParallaxCard>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CONTACT */}
+      <section id="contact" style={{ padding: isMobile ? '60px 20px' : '100px 24px', background: '#ECEBE4' }}>
+        <div style={{ maxWidth: 1140, margin: '0 auto', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', gap: isMobile ? 40 : 64, alignItems: 'start' }}>
+          <div>
+            <span style={{ color: '#3F5E51', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase', display: 'block', marginBottom: 12 }}>Corporate Inquiry</span>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2.25rem', fontWeight: 700, color: '#2C2D2B', marginBottom: 20 }}>Get In Touch</h2>
+            <p style={{ color: '#5A5D5A', fontSize: '1rem', lineHeight: 1.7, marginBottom: 36 }}>
+              Partner with Paidhu Group across agriculture exports, enterprise software services, retail distribution, or skill bootcamps.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20, fontSize: '0.875rem', color: '#5A5D5A', lineHeight: 1.6 }}>
+              <div><strong>Global Headquarters:</strong><br />No 11 Saraswati Avenue, Achipatti, Pollachi – 642002, Tamil Nadu, India.</div>
+              <div><strong>Phone:</strong> +91 87542 87774</div>
+              <div><strong>Website:</strong> www.paidhu.com</div>
+            </div>
+          </div>
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            style={{ background: '#F5F5F0', border: '1px solid #C5C4BE', borderRadius: 20, padding: isMobile ? 24 : 36, boxShadow: '0 8px 32px rgba(63, 94, 81, 0.01)' }}
+          >
+            <AnimatePresence mode="wait">
+              {sent ? (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  style={{ textAlign: 'center', padding: '36px 0', color: '#3F5E51' }}
+                >
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 700, fontFamily: 'var(--font-display)', marginBottom: 8 }}>Inquiry Submitted</h3>
+                  <p style={{ fontSize: '0.875rem', color: '#5A5D5A' }}>We will contact you within 24 hours.</p>
+                </motion.div>
+              ) : (
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+                  <div>
+                    <label style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#2C2D2B', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 6 }}>Full Name</label>
+                    <input type="text" required placeholder="Your name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} style={{ width: '100%', padding: '12px', border: '1px solid #C5C4BE', background: '#F5F5F0', color: '#2C2D2B', borderRadius: 8, fontSize: '0.875rem', outline: 'none' }} />
                   </div>
                   <div>
-                    <h4 style={{ color: '#E8B86D', fontSize: '0.8125rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{c.title}</h4>
-                    <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.9375rem', marginTop: 2 }}>{c.text}</p>
+                    <label style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#2C2D2B', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 6 }}>Email Address</label>
+                    <input type="email" required placeholder="your@email.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} style={{ width: '100%', padding: '12px', border: '1px solid #C5C4BE', background: '#F5F5F0', color: '#2C2D2B', borderRadius: 8, fontSize: '0.875rem', outline: 'none' }} />
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
+                  <div>
+                    <label style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#2C2D2B', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 6 }}>Message</label>
+                    <textarea required rows={4} placeholder="Your message..." value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} style={{ width: '100%', padding: '12px', border: '1px solid #C5C4BE', background: '#F5F5F0', color: '#2C2D2B', borderRadius: 8, fontSize: '0.875rem', outline: 'none', resize: 'none' }} />
+                  </div>
+                  <motion.button 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    type="submit" 
+                    className="btn-sage-action"
+                  >
+                    Submit Inquiry
+                  </motion.button>
+                </form>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        </div>
+      </section>
 
-          <div className="reveal-right" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 32, padding: 'clamp(28px, 4vw, 48px)' }}>
-            {sent ? (
-              <div style={{ textAlign: 'center', padding: '48px 0' }}>
-                <div style={{ fontSize: 48, marginBottom: 16 }}>🎉</div>
-                <h3 style={{ color: 'white', fontSize: '1.5rem', marginBottom: 8 }}>Inquiry Submitted!</h3>
-                <p style={{ color: 'rgba(255,255,255,0.6)' }}>Thank you. Our corporate team will reach out within 24 hours.</p>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-                <h3 style={{ color: 'white', fontSize: '1.375rem', fontFamily: 'var(--font-serif)', marginBottom: 6 }}>Corporate Inquiry</h3>
-                <div>
-                  <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8125rem', marginBottom: 6, display: 'block' }}>Full Name</label>
-                  <input type="text" required placeholder="Your name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="form-input" />
-                </div>
-                <div>
-                  <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8125rem', marginBottom: 6, display: 'block' }}>Email Address</label>
-                  <input type="email" required placeholder="your@email.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="form-input" />
-                </div>
-                <div>
-                  <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8125rem', marginBottom: 6, display: 'block' }}>Subject</label>
-                  <input type="text" required placeholder="Partnership, Sales, Services..." value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} className="form-input" />
-                </div>
-                <div>
-                  <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8125rem', marginBottom: 6, display: 'block' }}>Message</label>
-                  <textarea required rows={4} placeholder="Provide details about your inquiry..." value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} className="form-input" style={{ resize: 'none' }} />
-                </div>
-                <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: 10 }}>
-                  Send Corporate Message →
-                </button>
-              </form>
-            )}
+      {/* FOOTER */}
+      <footer style={{ marginTop: 'auto', background: '#ECEBE4', padding: '40px 24px', borderTop: '1px solid #C5C4BE', textAlign: 'center' }}>
+        <div style={{ maxWidth: 1140, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+          <span style={{ fontSize: '0.75rem', color: '#5A5D5A', letterSpacing: '0.05em' }}>© {new Date().getFullYear()} Paidhu Group. All rights reserved.</span>
+          <div style={{ display: 'flex', gap: 24 }}>
+            <span style={{ fontSize: '0.75rem', color: '#5A5D5A', cursor: 'pointer' }}>Privacy Policy</span>
+            <span style={{ fontSize: '0.75rem', color: '#5A5D5A', cursor: 'pointer' }}>Terms of Use</span>
           </div>
         </div>
-      </div>
-    </section>
-  );
-}
-
-// ─── 13. FOOTER ───────────────────────────────────────────────────────────
-function Footer() {
-  const scrollTo = (id: string) => { document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }); };
-  return (
-    <footer style={{ background: '#090F1D', padding: '80px clamp(24px, 5vw, 64px) 32px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-      <div className="container">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 48, marginBottom: 64 }}>
-          <div>
-            <img src="/ChatGPT Image Aug 1, 2026, 08_30_36 PM.png" alt="Paidhu Group" style={{ height: 60, width: 'auto', filter: 'invert(1)', mixBlendMode: 'screen', marginBottom: 20 }} />
-            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem', lineHeight: 1.7 }}>
-              Building ethical, sustainable, and value-driven business verticals for a modern global economy.
-            </p>
-          </div>
-          <div>
-            <h4 style={{ color: '#E8B86D', fontSize: '0.8125rem', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 20 }}>Quick Links</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {['about', 'businesses', 'projects', 'stories', 'news', 'careers', 'why-us', 'contact'].map((item) => (
-                <button key={item} onClick={() => scrollTo(item)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', textAlign: 'left', fontSize: '0.875rem', cursor: 'pointer', textTransform: 'capitalize' }}>
-                  {item.replace('-', ' ')}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <h4 style={{ color: '#E8B86D', fontSize: '0.8125rem', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 20 }}>Subsidiaries</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {BUSINESSES.map((b) => (
-                <a key={b.id} href={b.link} target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '0.875rem' }}>
-                  {b.name}
-                </a>
-              ))}
-            </div>
-          </div>
-          <div>
-            <h4 style={{ color: '#E8B86D', fontSize: '0.8125rem', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 20 }}>Contact Us</h4>
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', lineHeight: 1.6 }}>
-              No 11 Saraswati Avenue, Achipatti, Pollachi – 642002, Tamil Nadu.<br />
-              📞 +91 87542 87774
-            </p>
-          </div>
-        </div>
-
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 24, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
-          <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8125rem' }}>
-            © {new Date().getFullYear()} Paidhu Group. All rights reserved.
-          </p>
-          <div style={{ display: 'flex', gap: 20 }}>
-            <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8125rem' }}>Privacy Policy</span>
-            <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8125rem' }}>Terms of Use</span>
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
-// ─── MAIN PAGE COMPONENT ────────────────────────────────────────────────
-export default function Page() {
-  useScrollReveal();
-
-  return (
-    <>
-      <LoadingScreen />
-      <ScrollProgressBar />
-      <HeaderNav />
-      <main>
-        <HeroSwiper />
-        <MarqueeStrip />
-        <AboutGroup />
-        <StatisticsSection />
-        <BusinessCarousel />
-        <FeaturedProjects />
-        <StorytellingSection />
-        <BrandsGrid />
-        <NewsInsights />
-        <CareersSection />
-        <WhyChooseUs />
-        <ContactSection />
-      </main>
-      <Footer />
-    </>
+      </footer>
+    </div>
   );
 }
