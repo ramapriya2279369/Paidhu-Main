@@ -1,1067 +1,1406 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Menu, X, Sun, Moon, Search, Globe, ChevronRight, ArrowUpRight, 
-  Leaf, Cpu, ShieldCheck, TrendingUp, Mail, Phone, MapPin, 
-  ArrowRight, Award, Compass, RefreshCw, Send, CheckCircle2
-} from 'lucide-react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 
-
-// Define structures for business verticals
-interface BusinessVertical {
-  id: string;
+// ─── TYPES ───────────────────────────────────────────────────────────────
+interface Business {
   name: string;
   tagline: string;
-  desc: string;
-  image: string;
+  description: string;
+  link: string;
   logo: string;
-  brandColor: string;
-  subBrands: string[];
-  features: string[];
-  ctaText: string;
-  ctaUrl: string;
+  category: string;
+  color: string;
 }
 
-// Reusable ScrollReveal Animation Component
-const ScrollReveal = ({ 
-  children, 
-  className = '', 
-  delay = 0,
-  direction = 'up' 
-}: { 
-  children: React.ReactNode; 
-  className?: string; 
-  delay?: number; 
-  direction?: 'up' | 'down' | 'left' | 'right' | 'none';
-}) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const elementRef = useRef<HTMLDivElement>(null);
+interface Brand {
+  name: string;
+  logo: string;
+  link: string;
+  desc: string;
+}
 
+// ─── CONSTANTS ───────────────────────────────────────────────────────────
+const BUSINESSES: Business[] = [
+  {
+    name: 'Paidhu Ethical Foods',
+    tagline: 'Farm to Table, Honestly',
+    description: 'Premium organic saffron, edible flowers, and handcrafted botanicals sourced directly from Kashmir — ethical trade at every step.',
+    link: 'https://www.paidhuethicalfoods.com/',
+    logo: '/paidhu_logo.png',
+    category: 'Agriculture & Food',
+    color: '#2D5016',
+  },
+  {
+    name: 'Floffi Preservation',
+    tagline: 'Nature Bottled Beautifully',
+    description: 'Naturally crafted floral fruit jams, preserves, and spreads inspired by the finest gardens — pure ingredients, zero compromise.',
+    link: 'https://floffi.in/',
+    logo: 'https://floffi.in/floffi_logo.png',
+    category: 'Consumer Brands',
+    color: '#6B2D8B',
+  },
+  {
+    name: 'Viyara IT Services',
+    tagline: 'Engineering Digital Excellence',
+    description: 'World-class enterprise software, SaaS platforms, AI-driven solutions, and premium brand experiences for global clients.',
+    link: 'https://viyara.co.in/',
+    logo: 'https://viyara.co.in/logo-badge-blue.png',
+    category: 'Technology',
+    color: '#1A3A6B',
+  },
+  {
+    name: 'Kalika Sphere',
+    tagline: 'Knowledge Without Boundaries',
+    description: 'Future-ready skill development, tech certification programs, and corporate training — empowering the workforce of tomorrow.',
+    link: 'https://www.kalikasphere.com/',
+    logo: 'https://www.kalikasphere.com/assets/logo-Drzuq4t7.png',
+    category: 'Education & EdTech',
+    color: '#8B1A1A',
+  },
+];
+
+const BRANDS: Brand[] = [
+  { name: 'Paidhu Ethical Foods', logo: '/paidhu_logo.png', link: 'https://www.paidhuethicalfoods.com/', desc: 'Premium organic edible flowers & Kashmir saffron.' },
+  { name: 'Floffi Preservation', logo: 'https://floffi.in/floffi_logo.png', link: 'https://floffi.in/', desc: 'Naturally crafted floral jams & fruit preserves.' },
+  { name: 'Viyara IT Services', logo: 'https://viyara.co.in/logo-badge-blue.png', link: 'https://viyara.co.in/', desc: 'Enterprise software & premium brand experiences.' },
+  { name: 'Kalika Sphere', logo: 'https://www.kalikasphere.com/assets/logo-Drzuq4t7.png', link: 'https://www.kalikasphere.com/', desc: 'Future-ready skill development & tech courses.' },
+];
+
+const STATS = [
+  { value: 4, suffix: '+', label: 'Business Verticals' },
+  { value: 100, suffix: '%', label: 'Ethical Sourcing' },
+  { value: 5, suffix: 'K+', label: 'Happy Customers' },
+  { value: 2019, suffix: '', label: 'Founded' },
+];
+
+const WHY_US = [
+  {
+    icon: '🌿',
+    title: 'Purpose-Driven',
+    desc: 'Every business vertical is built around a clear ethical mission — profitability and purpose, never at odds.',
+  },
+  {
+    icon: '🔬',
+    title: 'Research-Backed',
+    desc: 'From agricultural science to AI-driven software, we invest in knowledge before commercialization.',
+  },
+  {
+    icon: '🤝',
+    title: 'Community First',
+    desc: 'Fair wages, local sourcing, and social education programs — our growth benefits communities.',
+  },
+  {
+    icon: '🚀',
+    title: 'Innovation Engine',
+    desc: 'Our diverse portfolio creates cross-industry synergies that drive innovation at every level.',
+  },
+  {
+    icon: '🛡️',
+    title: 'Quality Assured',
+    desc: 'Uncompromising standards across every product and service — premium at every price point.',
+  },
+  {
+    icon: '🌍',
+    title: 'Global Vision',
+    desc: 'Rooted in India, building for the world — our brands are designed for global markets.',
+  },
+];
+
+// ─── HOOKS ───────────────────────────────────────────────────────────────
+function useScrollReveal() {
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.unobserve(entry.target);
-        }
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
       },
-      { threshold: 0.05, rootMargin: '0px 0px -50px 0px' }
+      { threshold: 0.12, rootMargin: '0px 0px -60px 0px' }
     );
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach((el) => {
+      observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
+}
 
-    const currentRef = elementRef.current;
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
-
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
-      observer.disconnect();
+function useCounter(target: number, duration = 2000, start = false) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!start) return;
+    let startTime: number | null = null;
+    const step = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.floor(eased * target));
+      if (progress < 1) requestAnimationFrame(step);
     };
+    requestAnimationFrame(step);
+  }, [target, duration, start]);
+  return count;
+}
+
+// ─── LOADING SCREEN ──────────────────────────────────────────────────────
+function LoadingScreen() {
+  const [hidden, setHidden] = useState(false);
+  const [opacity, setOpacity] = useState(1);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setOpacity(0);
+      setTimeout(() => setHidden(true), 800);
+    }, 1800);
+    return () => clearTimeout(timer);
   }, []);
 
-  const getDirectionClass = () => {
-    switch (direction) {
-      case 'up': return 'translate-y-8';
-      case 'down': return '-translate-y-8';
-      case 'left': return 'translate-x-8';
-      case 'right': return '-translate-x-8';
-      case 'none': return '';
-    }
-  };
+  if (hidden) return null;
 
   return (
     <div
-      ref={elementRef}
-      style={{ transitionDelay: `${delay}ms` }}
-      className={`transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-        isVisible 
-          ? 'opacity-100 translate-y-0 translate-x-0' 
-          : `opacity-0 ${getDirectionClass()}`
-      } ${className}`}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'var(--dark)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 99999,
+        opacity,
+        transition: 'opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1)',
+        pointerEvents: hidden ? 'none' : 'all',
+      }}
     >
-      {children}
+      <img
+        src="/ChatGPT Image Aug 1, 2026, 08_30_36 PM.png"
+        alt="Paidhu"
+        style={{
+          height: 80,
+          width: 'auto',
+          filter: 'invert(1)',
+          mixBlendMode: 'screen',
+          animation: 'fadeIn 0.6s ease forwards',
+        }}
+      />
+      <div
+        style={{
+          marginTop: 32,
+          width: 200,
+          height: 2,
+          background: 'rgba(255,255,255,0.1)',
+          borderRadius: 2,
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          style={{
+            height: '100%',
+            background: 'linear-gradient(90deg, var(--accent), var(--accent-light))',
+            borderRadius: 2,
+            animation: 'loadBar 1.6s ease-out forwards',
+          }}
+        />
+      </div>
+      <style>{`
+        @keyframes loadBar {
+          from { width: 0%; }
+          to { width: 100%; }
+        }
+      `}</style>
     </div>
   );
-};
+}
 
-export default function Home() {
-  const [darkMode, setDarkMode] = useState(false);
-  const [activeSection, setActiveSection] = useState('home');
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [language, setLanguage] = useState('EN');
-  const [langMenuOpen, setLangMenuOpen] = useState(false);
-  const [megaMenuOpen, setMegaMenuOpen] = useState(false);
-
-  // Contact form state
-  const [formSubmitted, setFormSubmitted] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
-
-  // Stats Counters
-  const [brandsCount, setBrandsCount] = useState(0);
-  const [industriesCount, setIndustriesCount] = useState(0);
-  const [satisfaction, setSatisfaction] = useState(0);
-
-  // Refs for tracking sections in viewport
-  const sectionRefs: { [key: string]: React.RefObject<HTMLDivElement | null> } = {
-    home: useRef<HTMLDivElement>(null),
-    about: useRef<HTMLDivElement>(null),
-    businesses: useRef<HTMLDivElement>(null),
-    brands: useRef<HTMLDivElement>(null),
-    whyus: useRef<HTMLDivElement>(null),
-    contact: useRef<HTMLDivElement>(null),
-  };
-
-  // Handle intersection observer to update active section
+// ─── SCROLL PROGRESS ─────────────────────────────────────────────────────
+function ScrollProgressBar() {
+  const [width, setWidth] = useState(0);
   useEffect(() => {
-    const observerOptions = {
-      root: null,
-      rootMargin: '-30% 0px -60% 0px',
-      threshold: 0,
+    const onScroll = () => {
+      const scrolled = window.scrollY;
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      setWidth(total > 0 ? (scrolled / total) * 100 : 0);
     };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        height: 3,
+        width: `${width}%`,
+        background: 'linear-gradient(90deg, var(--accent), var(--accent-light))',
+        zIndex: 10000,
+        transition: 'width 0.1s linear',
+      }}
+    />
+  );
+}
 
-    const handleIntersection = (entries: IntersectionObserverEntry[]) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          setActiveSection(entry.target.id);
-        }
-      });
-    };
+// ─── NAVBAR ──────────────────────────────────────────────────────────────
+function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
 
-    const observer = new IntersectionObserver(handleIntersection, observerOptions);
+  const navItems = ['About', 'Businesses', 'Brands', 'Why Us', 'Contact'];
 
-    Object.values(sectionRefs).forEach((ref) => {
-      if (ref.current) observer.observe(ref.current);
-    });
-
-    return () => {
-      observer.disconnect();
-    };
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 60);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Theme Toggle Effect
-  useEffect(() => {
-    const root = window.document.documentElement;
-    if (darkMode) {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id.toLowerCase().replace(' ', '-').replace(/\s/g, '-'));
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  }, [darkMode]);
-
-  // Counters Effect when activeSection is 'about'
-  useEffect(() => {
-    if (activeSection === 'about') {
-      const duration = 2000;
-      const steps = 50;
-      const stepTime = duration / steps;
-      
-      let step = 0;
-      const timer = setInterval(() => {
-        step++;
-        setBrandsCount(Math.min(Math.floor((4 / steps) * step), 4));
-        setIndustriesCount(Math.min(Math.floor((3 / steps) * step), 3));
-        setSatisfaction(Math.min(Math.floor((100 / steps) * step), 100));
-
-        if (step >= steps) {
-          clearInterval(timer);
-        }
-      }, stepTime);
-
-      return () => clearInterval(timer);
-    }
-  }, [activeSection]);
-
-  const scrollToSection = (id: string) => {
-    setIsMobileMenuOpen(false);
-    const target = document.getElementById(id);
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth' });
-    }
+    setMenuOpen(false);
+    setActiveSection(id.toLowerCase());
   };
-
-  const handleContactSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (formData.name && formData.email && formData.message) {
-      setFormSubmitted(true);
-      setTimeout(() => {
-        setFormSubmitted(false);
-        setFormData({ name: '', email: '', message: '' });
-      }, 5000);
-    }
-  };
-
-  const businessVerticals: BusinessVertical[] = [
-    {
-      id: 'foods',
-      name: 'Paidhu Ethical Foods',
-      tagline: 'Naturally Crafting Floral and Botanical Goodness.',
-      desc: 'Discover premium quality organic edible flowers, organic saffron, and handcrafted floral jams. Sourced directly from local organic farms to enhance culinary and wellness experiences.',
-      image: '/paidhu_screen.png',
-      logo: '/paidhu_logo.png',
-      brandColor: '#522742',
-      subBrands: ['Edible Flowers', 'Bloom Cookies', 'Premium Saffron'],
-      features: ['Sustainable Sourcing', 'Organic Local Farming', 'Handcrafted Floral Jams'],
-      ctaText: 'Visit Paidhu Ethical Foods',
-      ctaUrl: 'https://www.paidhuethicalfoods.com/',
-    },
-    {
-      id: 'floffi',
-      name: 'Floffi',
-      tagline: 'Naturally Crafted Floral Goodness.',
-      desc: 'Pure sweetness, crafted from nature. Bringing premium fruit jams, low-sugar fruit spreads, and natural preserves to elevate daily breakfast essentials.',
-      image: '/floffi_screen.png',
-      logo: 'https://floffi.in/floffi_logo.png',
-      brandColor: '#E2583E',
-      subBrands: ['Jams', 'Fruit Spreads', 'Preserves'],
-      features: ['Naturally Sourced', 'Zero Artificial Preservatives', 'Breakfast Essentials'],
-      ctaText: 'Visit Floffi',
-      ctaUrl: 'https://floffi.in/',
-    },
-    {
-      id: 'viyara',
-      name: 'Viyara',
-      tagline: 'Digital Curation & Engineering.',
-      desc: 'VIYARA Marketing Solutions engineers world-class enterprise software and curates premium brand experiences for a market-leading digital presence.',
-      image: '/viyara_screen.png',
-      logo: 'https://viyara.co.in/logo-badge-blue.png',
-      brandColor: '#162436',
-      subBrands: ['AI & SaaS', 'UI/UX Design', 'Cloud Solutions'],
-      features: ['Enterprise Software', 'Brand Experiences', 'Digital Presence Curation'],
-      ctaText: 'Visit Viyara',
-      ctaUrl: 'https://viyara.co.in/',
-    },
-    {
-      id: 'kalika',
-      name: 'Kalika Sphere',
-      tagline: 'Empowering Future Skills and Learning.',
-      desc: 'Innovative EdTech platform delivering modern professional courses, digital learning certificates, and tailored corporate technology training.',
-      image: '/kalika_screen.png',
-      logo: 'https://www.kalikasphere.com/assets/logo-Drzuq4t7.png',
-      brandColor: '#06B6D4',
-      subBrands: ['Tech Seminars', 'Corporate Training', 'Career Coaching'],
-      features: ['Professional Certificates', 'Technology Seminars', 'Skill Development'],
-      ctaText: 'Visit Kalika Sphere',
-      ctaUrl: 'https://www.kalikasphere.com/',
-    },
-  ];
 
   return (
-    <div className="min-h-screen font-sans bg-[#F8F6F2] dark:bg-[#1A1A1A] text-[#1A1A1A] dark:text-[#F8F6F2] transition-colors duration-300">
-      
-      {/* Sticky Navigation Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 glass border-b border-gray-200/10 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
+    <>
+      <header
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          transition: 'all 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
+          background: scrolled ? 'rgba(22,36,54,0.92)' : 'transparent',
+          backdropFilter: scrolled ? 'blur(20px) saturate(180%)' : 'none',
+          borderBottom: scrolled ? '1px solid rgba(255,255,255,0.08)' : '1px solid transparent',
+          padding: scrolled ? '12px 0' : '20px 0',
+        }}
+      >
+        <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 clamp(24px, 5vw, 64px)' }}>
           {/* Logo */}
-          <div className="flex items-center cursor-pointer group" onClick={() => scrollToSection('home')}>
+          <button onClick={() => scrollTo('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, lineHeight: 0 }}>
             <img
               src="/ChatGPT Image Aug 1, 2026, 08_30_36 PM.png"
               alt="Paidhu"
-              className="h-20 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
-              style={{
-                filter: 'invert(1)',
-                mixBlendMode: 'screen',
-              }}
+              style={{ height: 56, width: 'auto', objectFit: 'contain', filter: 'invert(1)', mixBlendMode: 'screen', transition: 'transform 0.3s' }}
+              onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.05)')}
+              onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
             />
-          </div>
+          </button>
 
-          {/* Desktop Menu */}
-          <nav className="hidden lg:flex items-center gap-8 font-button text-sm tracking-wide font-medium">
-            {Object.keys(sectionRefs).map((key) => {
-              const label = key.charAt(0).toUpperCase() + key.slice(1);
-              const isSelected = activeSection === key;
-              if (key === 'businesses') {
-                return (
-                  <div
-                    key={key}
-                    className="relative py-2"
-                    onMouseEnter={() => setMegaMenuOpen(true)}
-                    onMouseLeave={() => setMegaMenuOpen(false)}
-                  >
-                    <button
-                      onClick={() => {
-                        scrollToSection(key);
-                        setMegaMenuOpen(false);
-                      }}
-                      className={`relative py-1 transition-colors duration-300 text-xs uppercase tracking-wider ${
-                        isSelected || megaMenuOpen
-                          ? 'text-accent-gold font-semibold' 
-                          : 'opacity-70 hover:opacity-100 hover:text-primary dark:hover:text-white'
-                      }`}
-                    >
-                      {label}
-                      {(isSelected || megaMenuOpen) && (
-                        <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent-gold rounded-full transition-transform duration-300" />
-                      )}
-                    </button>
-                  </div>
-                );
-              }
-              return (
-                <button
-                  key={key}
-                  onClick={() => scrollToSection(key)}
-                  className={`relative py-2 transition-colors duration-300 text-xs uppercase tracking-wider ${
-                    isSelected 
-                      ? 'text-accent-gold font-semibold' 
-                      : 'opacity-70 hover:opacity-100 hover:text-primary dark:hover:text-white'
-                  }`}
-                >
-                  {label === 'Whyus' ? 'Why Choose Us' : label}
-                  {isSelected && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent-gold rounded-full transition-transform duration-300" />
-                  )}
-                </button>
-              );
-            })}
+          {/* Desktop Nav */}
+          <nav style={{ display: 'flex', alignItems: 'center', gap: 40 }} className="desktop-nav">
+            {navItems.map((item) => (
+              <button
+                key={item}
+                onClick={() => scrollTo(item.toLowerCase().replace(/\s/g, '-'))}
+                className="hover-underline"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'rgba(255,255,255,0.85)',
+                  fontSize: '0.875rem',
+                  fontFamily: 'var(--font-sans)',
+                  fontWeight: 500,
+                  letterSpacing: '0.04em',
+                  padding: '4px 0',
+                  transition: 'color 0.3s',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--accent)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.85)')}
+              >
+                {item}
+              </button>
+            ))}
           </nav>
 
-          {/* Interactive Utilities */}
-          <div className="hidden lg:flex items-center gap-6">
-            {/* Search Icon */}
-            <button 
-              onClick={() => setSearchOpen(!searchOpen)} 
-              className="opacity-75 hover:opacity-100 transition-opacity p-2 rounded-full hover:bg-gray-200/20"
-              aria-label="Search"
-            >
-              <Search className="w-4 h-4 text-primary dark:text-white" />
-            </button>
-
-            {/* Language Selector */}
-            <div className="relative">
-              <button 
-                onClick={() => setLangMenuOpen(!langMenuOpen)}
-                className="flex items-center gap-1 text-xs tracking-wider opacity-75 hover:opacity-100 uppercase"
-              >
-                <Globe className="w-3.5 h-3.5" />
-                {language}
-              </button>
-              {langMenuOpen && (
-                <div className="absolute right-0 mt-2 py-2 w-28 bg-[#FFFFFF] dark:bg-dark border border-gray-200/20 rounded-xl shadow-xl z-50 text-xs">
-                  {['EN', 'ES', 'FR'].map((lang) => (
-                    <button
-                      key={lang}
-                      onClick={() => {
-                        setLanguage(lang);
-                        setLangMenuOpen(false);
-                      }}
-                      className="w-full text-left px-4 py-2 hover:bg-accent-gold/10 hover:text-accent-gold"
-                    >
-                      {lang === 'EN' ? 'English' : lang === 'ES' ? 'Español' : 'Français'}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Dark Mode Toggle */}
+          {/* CTA */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="p-2 rounded-full hover:bg-gray-200/20 transition-all opacity-75 hover:opacity-100"
-              aria-label="Toggle Theme"
+              onClick={() => scrollTo('contact')}
+              className="btn-primary"
+              style={{ padding: '10px 24px', fontSize: '0.8125rem', display: 'none' }}
+              id="nav-cta"
             >
-              {darkMode ? <Sun className="w-4 h-4 text-accent-gold" /> : <Moon className="w-4 h-4 text-primary" />}
+              Get in Touch
             </button>
-          </div>
-
-          {/* Mobile Menu Actions */}
-          <div className="flex lg:hidden items-center gap-4">
+            {/* Hamburger */}
             <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="p-2 rounded-full hover:bg-gray-200/20"
+              onClick={() => setMenuOpen(!menuOpen)}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 5,
+                padding: 8,
+              }}
+              className="hamburger-btn"
+              aria-label="Toggle menu"
             >
-              {darkMode ? <Sun className="w-4.5 h-4.5 text-accent-gold" /> : <Moon className="w-4.5 h-4.5" />}
-            </button>
-
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 rounded-full hover:bg-gray-200/20"
-              aria-label="Toggle Menu"
-            >
-              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {[0, 1, 2].map((i) => (
+                <span
+                  key={i}
+                  style={{
+                    display: 'block',
+                    width: 24,
+                    height: 2,
+                    background: 'white',
+                    borderRadius: 2,
+                    transition: 'all 0.35s cubic-bezier(0.22, 1, 0.36, 1)',
+                    transform: menuOpen
+                      ? i === 0 ? 'translateY(7px) rotate(45deg)' : i === 2 ? 'translateY(-7px) rotate(-45deg)' : 'scaleX(0)'
+                      : 'none',
+                    opacity: menuOpen && i === 1 ? 0 : 1,
+                  }}
+                />
+              ))}
             </button>
           </div>
         </div>
-
-        {/* Mega Dropdown Menu */}
-        {megaMenuOpen && (
-          <div 
-            className="absolute top-20 left-0 right-0 w-full bg-[#1A1A1A] border-t border-white/10 text-white z-40 transition-all duration-300 shadow-2xl py-12"
-            onMouseEnter={() => setMegaMenuOpen(true)}
-            onMouseLeave={() => setMegaMenuOpen(false)}
-          >
-            <div className="max-w-7xl mx-auto px-6 grid grid-cols-12 gap-8">
-              {/* Left Column: Business Overview & Brands */}
-              <div className="col-span-4 border-r border-white/10 pr-8 space-y-8">
-                <div>
-                  <h3 className="text-xl font-serif font-light mb-2 text-white">Business Overview</h3>
-                  <button 
-                    onClick={() => { scrollToSection('about'); setMegaMenuOpen(false); }}
-                    className="text-xs uppercase tracking-wider text-accent-gold hover:text-white transition-colors flex items-center gap-1 font-button"
-                  >
-                    Learn more <ArrowRight className="w-3 h-3" />
-                  </button>
-                </div>
-                <div>
-                  <h3 className="text-xl font-serif font-light mb-2 text-white">Our Brands</h3>
-                  <button 
-                    onClick={() => { scrollToSection('brands'); setMegaMenuOpen(false); }}
-                    className="text-xs uppercase tracking-wider text-accent-gold hover:text-white transition-colors flex items-center gap-1 font-button"
-                  >
-                    Browse select Paidhu brands <ArrowRight className="w-3 h-3" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Right Column: Business Verticals */}
-              <div className="col-span-8 pl-8">
-                <h3 className="text-xs uppercase tracking-widest text-accent-gold font-semibold mb-6">Business Verticals</h3>
-                <div className="grid grid-cols-3 gap-8">
-                  {/* Vertical 1 */}
-                  <div>
-                    <h4 className="font-serif text-sm font-semibold mb-3 border-b border-white/5 pb-2 text-white/90">Agri & Food</h4>
-                    <ul className="space-y-2 text-xs text-white/70">
-                      <li>
-                        <a 
-                          href="https://www.paidhuethicalfoods.com/" 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="hover:text-accent-gold transition-colors block"
-                        >
-                          Paidhu Ethical Foods
-                        </a>
-                      </li>
-                      <li>
-                        <a 
-                          href="https://floffi.in/" 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="hover:text-accent-gold transition-colors block"
-                        >
-                          Floffi Preserves
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-
-                  {/* Vertical 2 */}
-                  <div>
-                    <h4 className="font-serif text-sm font-semibold mb-3 border-b border-white/5 pb-2 text-white/90">Technology & IT</h4>
-                    <ul className="space-y-2 text-xs text-white/70">
-                      <li>
-                        <a 
-                          href="https://viyara.co.in/" 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="hover:text-accent-gold transition-colors block"
-                        >
-                          Viyara Digital Transformation
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-
-                  {/* Vertical 3 */}
-                  <div>
-                    <h4 className="font-serif text-sm font-semibold mb-3 border-b border-white/5 pb-2 text-white/90">Skills & Education</h4>
-                    <ul className="space-y-2 text-xs text-white/70">
-                      <li>
-                        <a 
-                          href="https://www.kalikasphere.com/" 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="hover:text-accent-gold transition-colors block"
-                        >
-                          Kalika Sphere Academy
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Global Search Bar Overlay */}
-        {searchOpen && (
-          <div className="absolute top-20 left-0 right-0 bg-[#FFFFFF] dark:bg-dark border-b border-gray-200/25 p-4 shadow-lg flex justify-center animate-fade-in">
-            <div className="relative w-full max-w-xl">
-              <input
-                type="text"
-                placeholder="Search Group information, businesses, sustainability report..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-5 py-3 pr-12 rounded-full border border-gray-300/35 bg-[#F8F6F2] dark:bg-[#1A1A1A] focus:outline-none focus:ring-1 focus:ring-accent-gold text-sm"
-              />
-              <button className="absolute right-4 top-1/2 -translate-y-1/2 text-accent-gold">
-                <Search className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Mobile Navigation Drawer */}
-        {isMobileMenuOpen && (
-          <div className="lg:hidden w-full bg-[#FFFFFF]/95 dark:bg-[#1A1A1A]/95 backdrop-blur-lg border-b border-gray-200/20 py-6 px-6 flex flex-col gap-4 shadow-xl z-50">
-            {Object.keys(sectionRefs).map((key) => {
-              const label = key.charAt(0).toUpperCase() + key.slice(1);
-              return (
-                <button
-                  key={key}
-                  onClick={() => scrollToSection(key)}
-                  className="w-full text-left py-2 font-button text-sm tracking-wider uppercase opacity-85 hover:text-accent-gold transition-colors"
-                >
-                  {label === 'Whyus' ? 'Why Choose Us' : label}
-                </button>
-              );
-            })}
-          </div>
-        )}
       </header>
 
-      {/* Hero Section */}
-      <section
-        id="home"
-        ref={sectionRefs.home}
-        className="min-h-screen relative flex items-center justify-center overflow-hidden pt-20"
+      {/* Mobile Menu */}
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 999,
+          background: 'rgba(15,23,42,0.97)',
+          backdropFilter: 'blur(20px)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 32,
+          opacity: menuOpen ? 1 : 0,
+          pointerEvents: menuOpen ? 'all' : 'none',
+          transition: 'opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
+        }}
       >
-        {/* Animated Background Visual */}
-        <div className="absolute inset-0 bg-[#1A1A1A] z-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-[#162436]/40 via-[#1A1A1A]/90 to-[#1A1A1A] z-10" />
-          <div 
-            className="w-full h-full opacity-40 bg-cover bg-center filter blur-[2px] animate-ken-burns"
-            style={{ backgroundImage: `url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=2000')` }}
+        {navItems.map((item, i) => (
+          <button
+            key={item}
+            onClick={() => scrollTo(item.toLowerCase().replace(/\s/g, '-'))}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'white',
+              fontFamily: 'var(--font-serif)',
+              fontSize: 'clamp(1.75rem, 5vw, 3rem)',
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              transition: 'color 0.3s',
+              transform: menuOpen ? 'translateY(0)' : 'translateY(20px)',
+              transitionDelay: `${i * 60}ms`,
+            }}
+            onMouseEnter={e => (e.currentTarget.style.color = 'var(--accent)')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'white')}
+          >
+            {item}
+          </button>
+        ))}
+        <button
+          onClick={() => scrollTo('contact')}
+          className="btn-primary"
+          style={{ marginTop: 16 }}
+        >
+          Get in Touch →
+        </button>
+      </div>
+
+      <style>{`
+        @media (min-width: 768px) {
+          .desktop-nav { display: flex !important; }
+          .hamburger-btn { display: none !important; }
+          #nav-cta { display: inline-flex !important; }
+        }
+        @media (max-width: 767px) {
+          .desktop-nav { display: none !important; }
+        }
+      `}</style>
+    </>
+  );
+}
+
+// ─── HERO ─────────────────────────────────────────────────────────────────
+function Hero() {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const heroRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!heroRef.current) return;
+      const rect = heroRef.current.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width - 0.5) * 20;
+      const y = ((e.clientY - rect.top) / rect.height - 0.5) * 20;
+      setMousePos({ x, y });
+    };
+    window.addEventListener('mousemove', onMove);
+    return () => window.removeEventListener('mousemove', onMove);
+  }, []);
+
+  return (
+    <section
+      id="home"
+      ref={heroRef}
+      style={{
+        position: 'relative',
+        height: '100vh',
+        minHeight: 700,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+        background: 'var(--dark)',
+      }}
+    >
+      {/* Animated Background */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: '-10%',
+          backgroundImage: `
+            radial-gradient(ellipse 80% 60% at 30% 40%, rgba(232,184,109,0.15) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 80% at 70% 60%, rgba(22,36,54,0.9) 0%, transparent 70%),
+            linear-gradient(135deg, #0F172A 0%, #162436 50%, #0F1A2E 100%)
+          `,
+          transform: `translate(${mousePos.x * 0.3}px, ${mousePos.y * 0.3}px)`,
+          transition: 'transform 0.8s cubic-bezier(0.22, 1, 0.36, 1)',
+          animation: 'heroZoom 20s ease-in-out infinite alternate',
+        }}
+      />
+
+      {/* Floating Orbs */}
+      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+        {[
+          { w: 500, h: 500, left: '-10%', top: '-10%', opacity: 0.08, delay: '0s' },
+          { w: 400, h: 400, right: '-5%', top: '20%', opacity: 0.06, delay: '3s' },
+          { w: 300, h: 300, left: '20%', bottom: '10%', opacity: 0.05, delay: '6s' },
+        ].map((orb, i) => (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              width: orb.w,
+              height: orb.h,
+              background: `radial-gradient(circle, var(--accent), transparent)`,
+              borderRadius: '50%',
+              left: orb.left,
+              top: orb.top,
+              right: (orb as any).right,
+              bottom: (orb as any).bottom,
+              opacity: orb.opacity,
+              animation: `float 8s ease-in-out infinite`,
+              animationDelay: orb.delay,
+              transform: `translate(${mousePos.x * (i + 1) * 0.15}px, ${mousePos.y * (i + 1) * 0.15}px)`,
+              transition: 'transform 1.2s cubic-bezier(0.22, 1, 0.36, 1)',
+            }}
           />
+        ))}
+      </div>
+
+      {/* Grid overlay */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: `linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)`,
+          backgroundSize: '60px 60px',
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* Content */}
+      <div
+        className="container"
+        style={{
+          position: 'relative',
+          zIndex: 10,
+          textAlign: 'center',
+          padding: '0 clamp(24px, 5vw, 96px)',
+        }}
+      >
+        <div
+          style={{
+            animation: 'fadeUp 0.8s ease 0.3s both',
+            marginBottom: 24,
+          }}
+        >
+          <span
+            className="label"
+            style={{
+              color: 'var(--accent)',
+              letterSpacing: '0.2em',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 12,
+            }}
+          >
+            <span style={{ width: 32, height: 1, background: 'var(--accent)', display: 'inline-block' }} />
+            Paidhu Group Global Vision
+            <span style={{ width: 32, height: 1, background: 'var(--accent)', display: 'inline-block' }} />
+          </span>
         </div>
 
-        <div className="relative max-w-5xl mx-auto px-6 text-center z-20 text-white mt-12">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-6 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-            <span className="w-1.5 h-1.5 rounded-full bg-accent-gold animate-pulse" />
-            <span className="text-[10px] md:text-xs tracking-widest uppercase font-semibold text-accent-gold">Paidhu Group Global Vision</span>
-          </div>
+        <h1
+          className="display-xl"
+          style={{
+            color: 'white',
+            animation: 'fadeUp 0.9s ease 0.5s both',
+            marginBottom: 16,
+            maxWidth: 900,
+            margin: '0 auto 24px',
+          }}
+        >
+          Building Businesses That
+          <br />
+          <span className="gradient-text">Inspire a Better Future</span>
+        </h1>
 
-          <h1 className="text-4xl md:text-7xl font-serif font-light leading-[1.15] mb-6 tracking-tight animate-fade-in-up" style={{ animationDelay: '300ms' }}>
-            Building Businesses That <br />
-            <span className="font-semibold italic text-accent-gold">Inspire a Better Future</span>
-          </h1>
+        <p
+          style={{
+            color: 'rgba(255,255,255,0.65)',
+            fontSize: 'clamp(1rem, 2vw, 1.25rem)',
+            lineHeight: 1.7,
+            maxWidth: 580,
+            margin: '0 auto 48px',
+            animation: 'fadeUp 0.9s ease 0.7s both',
+          }}
+        >
+          A diversified group shaping tomorrow through ethical foods, breakthrough technology, premium consumer brands, and transformative education.
+        </p>
 
-          <p className="text-sm md:text-lg max-w-2xl mx-auto opacity-80 font-sans font-light leading-relaxed mb-10 animate-fade-in-up" style={{ animationDelay: '500ms' }}>
-            Paidhu Group is a diversified organization shaping the future through ethical foods, innovative technology, premium consumer brands, and transformative education.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center font-button animate-fade-in-up" style={{ animationDelay: '700ms' }}>
-            <button
-              onClick={() => scrollToSection('businesses')}
-              className="group w-full sm:w-auto px-8 py-3.5 bg-accent-gold hover:bg-accent-gold/90 text-white text-xs uppercase tracking-wider font-semibold rounded-full flex items-center justify-center gap-2 shadow-lg transition-all duration-300 hover:translate-y-[-2px]"
-            >
-              Explore Our Businesses
-              <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1.5" />
-            </button>
-            <button
-              onClick={() => scrollToSection('about')}
-              className="w-full sm:w-auto px-8 py-3.5 bg-white/5 hover:bg-white/10 border border-white/20 text-white text-xs uppercase tracking-wider font-semibold rounded-full transition-all duration-300 backdrop-blur-md"
-            >
-              Learn More
-            </button>
-          </div>
+        <div
+          style={{
+            display: 'flex',
+            gap: 16,
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+            animation: 'fadeUp 0.9s ease 0.9s both',
+          }}
+        >
+          <button
+            className="btn-primary"
+            onClick={() => document.getElementById('businesses')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            Explore Our Businesses →
+          </button>
+          <button
+            className="btn-outline"
+            onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            Our Story
+          </button>
         </div>
 
         {/* Scroll Indicator */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer opacity-70 hover:opacity-100 transition-opacity z-20" onClick={() => scrollToSection('about')}>
-          <span className="text-[10px] uppercase tracking-widest text-white/50">Scroll to Explore</span>
-          <div className="w-6 h-10 border border-white/30 rounded-full flex justify-center p-1.5">
-            <div className="w-1.5 h-2.5 bg-accent-gold rounded-full animate-bounce" />
-          </div>
+        <div
+          style={{
+            position: 'absolute',
+            bottom: -120,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 8,
+            animation: 'fadeIn 1s ease 1.5s both',
+          }}
+        >
+          <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem', letterSpacing: '0.15em', textTransform: 'uppercase' }}>Scroll</span>
+          <div style={{ width: 1.5, height: 48, background: 'linear-gradient(to bottom, rgba(255,255,255,0.4), transparent)', animation: 'scrollBounce 2s ease-in-out infinite' }} />
         </div>
-      </section>
+      </div>
 
-      {/* About Section */}
-      <section
-        id="about"
-        ref={sectionRefs.about}
-        className="py-24 md:py-32 bg-[#F8F6F2] dark:bg-[#1A1A1A] relative"
-      >
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            {/* Left - Image collage */}
-            <ScrollReveal direction="left" className="col-span-12 lg:col-span-1">
-              <div className="relative grid grid-cols-12 gap-4">
-              <div className="col-span-8 rounded-3xl overflow-hidden shadow-2xl relative group">
-                <div className="absolute inset-0 bg-primary/10 group-hover:bg-transparent transition-colors duration-500" />
-                <img
-                  src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=800"
-                  alt="Sustainable Farming fields"
-                  className="w-full aspect-[4/3] object-cover scale-102 hover:scale-108 transition-transform duration-700"
-                />
-              </div>
-              <div className="col-span-4 rounded-3xl overflow-hidden shadow-2xl relative self-end group translate-y-8">
-                <div className="absolute inset-0 bg-accent-gold/15 group-hover:bg-transparent transition-colors duration-500" />
-                <img
-                  src="https://images.unsplash.com/photo-1507537297725-24a1c029d3ca?auto=format&fit=crop&q=80&w=500"
-                  alt="Corporate growth & strategy"
-                  className="w-full aspect-[3/4] object-cover scale-102 hover:scale-108 transition-transform duration-700"
-                />
-              </div>
-              </div>
-            </ScrollReveal>
+      {/* Bottom fade */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 200,
+          background: 'linear-gradient(to top, var(--bg), transparent)',
+          pointerEvents: 'none',
+        }}
+      />
+    </section>
+  );
+}
 
-            {/* Right - Content */}
-            <ScrollReveal direction="right">
-              <div>
-              <span className="text-xs uppercase tracking-widest text-accent-gold font-semibold">Who We Are</span>
-              <h2 className="text-3xl md:text-5xl font-serif font-light mt-2 mb-6 text-primary dark:text-white">
-                Driven by Purpose. <br />
-                <span className="font-semibold text-accent-gold">Inspired by Impact.</span>
-              </h2>
+// ─── MARQUEE ─────────────────────────────────────────────────────────────
+function MarqueeStrip() {
+  const items = ['Ethical Business', 'Premium Quality', 'Sustainable Future', 'Indian Craftsmanship', 'Global Vision', 'Purpose-Driven Growth', 'Innovation at Scale'];
+  const repeated = [...items, ...items];
 
-              <p className="opacity-75 font-sans leading-relaxed mb-8 text-sm md:text-base">
-                Paidhu Group is a multi-sector organization committed to creating long-term value through innovation, sustainability, technology, education, and ethical food solutions. Our businesses are united by a shared vision to improve lives while protecting the future.
-              </p>
+  return (
+    <div style={{ background: 'var(--accent)', padding: '14px 0', overflow: 'hidden' }}>
+      <div className="marquee-track">
+        {repeated.map((item, i) => (
+          <span
+            key={i}
+            style={{
+              color: 'var(--primary)',
+              fontFamily: 'var(--font-sans)',
+              fontSize: '0.8125rem',
+              fontWeight: 600,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              whiteSpace: 'nowrap',
+              paddingRight: 48,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 48,
+            }}
+          >
+            {item}
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--primary)', opacity: 0.4, display: 'inline-block' }} />
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
 
-              {/* Counter Statistics Grid */}
-              <div className="grid grid-cols-3 gap-6 border-t border-gray-200/10 pt-8">
-                <div>
-                  <div className="text-3xl md:text-5xl font-serif font-bold text-primary dark:text-accent-gold flex items-center">
-                    <span>{brandsCount}</span>
-                  </div>
-                  <p className="text-[11px] uppercase tracking-widest opacity-60 mt-2 font-medium">Brands</p>
-                </div>
-                <div>
-                  <div className="text-3xl md:text-5xl font-serif font-bold text-primary dark:text-accent-gold">
-                    <span>{industriesCount}</span>
-                  </div>
-                  <p className="text-[11px] uppercase tracking-widest opacity-60 mt-2 font-medium">Industries</p>
-                </div>
-                <div>
-                  <div className="text-3xl md:text-5xl font-serif font-bold text-primary dark:text-accent-gold">
-                    <span>{satisfaction}%</span>
-                  </div>
-                  <p className="text-[11px] uppercase tracking-widest opacity-60 mt-2 font-medium">Trust Focus</p>
-                </div>
-              </div>
-              </div>
-            </ScrollReveal>
-          </div>
-        </div>
-      </section>
+// ─── ABOUT ────────────────────────────────────────────────────────────────
+function About() {
+  const [statsVisible, setStatsVisible] = useState(false);
+  const statsRef = useRef<HTMLDivElement>(null);
 
-      {/* Our Businesses Section */}
-      <section
-        id="businesses"
-        ref={sectionRefs.businesses}
-        className="py-24 md:py-32 bg-[#EDEDED]/50 dark:bg-dark relative"
-      >
-        <div className="max-w-7xl mx-auto px-6">
-          <ScrollReveal>
-            <div className="text-center mb-16">
-              <span className="text-xs uppercase tracking-widest text-accent-gold font-semibold">Diverse Sectors</span>
-              <h2 className="text-3xl md:text-5xl font-serif font-light mt-2 mb-4 text-primary dark:text-white">Our Business Verticals</h2>
-              <p className="text-sm md:text-base max-w-xl mx-auto opacity-75 leading-relaxed">
-                We lead across food, tech and educational sectors with a focus on premium quality.
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setStatsVisible(true); },
+      { threshold: 0.3 }
+    );
+    if (statsRef.current) observer.observe(statsRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section id="about" style={{ background: 'var(--bg)', padding: 'clamp(80px, 12vw, 140px) clamp(24px, 5vw, 64px)' }}>
+      <div className="container">
+        {/* Editorial Header */}
+        <div style={{ marginBottom: 80 }}>
+          <p className="label reveal" style={{ color: 'var(--accent)', marginBottom: 16 }}>Who We Are</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, alignItems: 'end' }}>
+            <h2 className="display-md reveal" style={{ color: 'var(--primary)' }}>
+              A Legacy of Purpose&#8209;Driven Enterprise
+            </h2>
+            <div className="reveal-right" style={{ paddingBottom: 8 }}>
+              <div style={{ width: 48, height: 3, background: 'var(--accent)', marginBottom: 24, borderRadius: 2 }} />
+              <p style={{ color: 'var(--muted)', fontSize: '1.0625rem', lineHeight: 1.8 }}>
+                Paidhu Group was born from a simple conviction — that business can be both profitable and principled. We build verticals that serve real human needs, powered by ethical sourcing, genuine innovation, and deep community respect.
               </p>
             </div>
-          </ScrollReveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-            {businessVerticals.map((biz, idx) => (
-              <ScrollReveal key={biz.id} delay={idx * 150} direction={idx % 2 === 0 ? 'left' : 'right'}>
-                <div 
-                  className="group rounded-3xl overflow-hidden glass-card transition-all duration-500 hover:-translate-y-2 hover:scale-[1.01] hover:shadow-2xl flex flex-col justify-between border-2 border-transparent"
-                style={{ borderColor: 'transparent' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = biz.brandColor;
-                  e.currentTarget.style.boxShadow = `0 20px 40px -15px ${biz.brandColor}20`;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'transparent';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                {/* Visual header */}
-                <div className="relative overflow-hidden aspect-[16/9]">
-                  <img
-                    src={biz.image}
-                    alt={biz.name}
-                    className="w-full h-full object-cover transition-transform duration-700 scale-100 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-dark/80 via-dark/30 to-transparent" />
-                  
-                  {/* Brand Logo Overlay badge */}
-                  <div 
-                    className="absolute top-4 right-4 w-12 h-12 rounded-xl p-1 flex items-center justify-center shadow-md overflow-hidden"
-                    style={{ backgroundColor: biz.id === 'foods' ? '#522742' : '#ffffff' }}
-                  >
-                    {biz.id === 'foods' ? (
-                      <span className="font-serif text-white font-bold text-xs tracking-tight">
-                        Paidhu<span className="text-accent-gold">.</span>
-                      </span>
-                    ) : (
-                      <img src={biz.logo} alt="" className="max-h-full max-w-full object-contain" />
-                    )}
-                  </div>
-
-                  <div className="absolute bottom-6 left-6 right-6 text-white">
-                    <span 
-                      className="text-[10px] uppercase tracking-widest font-semibold px-3 py-1 rounded-full backdrop-blur-md text-white"
-                      style={{ backgroundColor: biz.brandColor }}
-                    >
-                      {biz.id === 'foods' || biz.id === 'floffi' ? 'Agri & Food' : biz.id === 'viyara' ? 'Tech & IT' : 'Education'}
-                    </span>
-                    <h3 className="text-xl md:text-2xl font-serif font-bold mt-2">{biz.name}</h3>
-                  </div>
-                </div>
-
-                {/* Content body */}
-                <div className="p-6 md:p-8 flex-grow flex flex-col justify-between">
-                  <div>
-                    <p 
-                      className="text-xs font-semibold uppercase tracking-wider mb-2 italic"
-                      style={{ color: biz.brandColor }}
-                    >
-                      "{biz.tagline}"
-                    </p>
-                    <p className="text-sm opacity-80 leading-relaxed mb-6">
-                      {biz.desc}
-                    </p>
-
-                    {/* Sub Brands and features list */}
-                    <div className="grid grid-cols-2 gap-4 mb-6 pt-4 border-t border-gray-200/10">
-                      <div>
-                        <span className="text-[10px] uppercase tracking-widest font-bold opacity-60 block mb-2">Offerings</span>
-                        <ul className="space-y-1">
-                          {biz.subBrands.map((sub, i) => (
-                            <li key={i} className="text-xs opacity-80 flex items-center gap-1.5">
-                              <span 
-                                className="w-1 h-1 rounded-full" 
-                                style={{ backgroundColor: biz.brandColor }}
-                              />
-                              {sub}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div>
-                        <span className="text-[10px] uppercase tracking-widest font-bold opacity-60 block mb-2">Core Principles</span>
-                        <ul className="space-y-1">
-                          {biz.features.map((feat, i) => (
-                            <li key={i} className="text-xs opacity-85 flex items-center gap-1.5 text-primary dark:text-[#F8F6F2]">
-                              <CheckCircle2 
-                                className="w-3 h-3" 
-                                style={{ color: biz.brandColor }}
-                              />
-                              {feat}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-
-                  <a
-                    href={biz.ctaUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 mt-4 text-xs font-semibold tracking-wider uppercase transition-colors duration-300 font-button group/btn"
-                    style={{ color: biz.brandColor }}
-                  >
-                    {biz.ctaText}
-                    <ArrowUpRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1 group-hover/btn:translate-y-[-1px]" />
-                  </a>
-                </div>
-              </div>
-              </ScrollReveal>
-            ))}
           </div>
         </div>
-      </section>
 
-      {/* Brand Showcase Wall */}
-      {/* Brand Showcase Wall */}
-      <section
-        id="brands"
-        ref={sectionRefs.brands}
-        className="py-24 md:py-32 bg-[#EDEDED]/40 dark:bg-dark text-[#1A1A1A] dark:text-[#F8F6F2] relative"
-      >
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <span className="text-xs uppercase tracking-widest text-accent-gold font-semibold">Group Network</span>
-            <h2 className="text-3xl md:text-5xl font-serif font-light mt-2 mb-4">Core Group Brands</h2>
-            <p className="text-sm opacity-70 max-w-md mx-auto">
-              Our market leading subsidiaries working in cohesion.
-            </p>
+        {/* Stats Grid */}
+        <div
+          ref={statsRef}
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gap: 2,
+            background: 'var(--border)',
+            borderRadius: 'var(--radius-lg)',
+            overflow: 'hidden',
+            marginBottom: 80,
+          }}
+        >
+          {STATS.map((stat, i) => (
+            <StatCounter key={i} stat={stat} visible={statsVisible} delay={i * 150} />
+          ))}
+        </div>
+
+        {/* Mission / Vision / Values */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
+          {[
+            {
+              title: 'Our Mission',
+              text: 'To build ethical, scalable businesses that create lasting value for customers, communities, and the planet — without compromise.',
+              icon: '🎯',
+            },
+            {
+              title: 'Our Vision',
+              text: 'A world where enterprise and ethics are inseparable — where every product sold and every service rendered makes lives measurably better.',
+              icon: '🌅',
+            },
+            {
+              title: 'Our Values',
+              text: 'Integrity in sourcing. Excellence in execution. Humility in leadership. Community in growth. These are not aspirations — they are non-negotiables.',
+              icon: '🧭',
+            },
+          ].map((item, i) => (
+            <div
+              key={i}
+              className="card-premium reveal"
+              style={{
+                padding: 36,
+                animationDelay: `${i * 100}ms`,
+                transitionDelay: `${i * 100}ms`,
+              }}
+            >
+              <div style={{ fontSize: 36, marginBottom: 20 }}>{item.icon}</div>
+              <h3 className="heading-md" style={{ color: 'var(--primary)', marginBottom: 12 }}>{item.title}</h3>
+              <p style={{ color: 'var(--muted)', fontSize: '0.9375rem', lineHeight: 1.8 }}>{item.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          #about .display-md + div { grid-column: 1; }
+        }
+      `}</style>
+    </section>
+  );
+}
+
+function StatCounter({ stat, visible, delay }: { stat: typeof STATS[0]; visible: boolean; delay: number }) {
+  const count = useCounter(stat.value, 2000, visible);
+
+  return (
+    <div
+      style={{
+        background: 'white',
+        padding: '48px 32px',
+        textAlign: 'center',
+        transition: 'background 0.3s',
+      }}
+      onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#FAFAFA')}
+      onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'white')}
+    >
+      <div className="stat-number">
+        {stat.value > 1000 ? count.toLocaleString() : count}{stat.suffix}
+      </div>
+      <p style={{ color: 'var(--muted)', fontSize: '0.875rem', marginTop: 8, letterSpacing: '0.04em' }}>{stat.label}</p>
+    </div>
+  );
+}
+
+// ─── BUSINESSES ───────────────────────────────────────────────────────────
+function Businesses() {
+  const [hovered, setHovered] = useState<number | null>(null);
+
+  return (
+    <section
+      id="businesses"
+      style={{
+        background: 'var(--dark)',
+        padding: 'clamp(80px, 12vw, 140px) clamp(24px, 5vw, 64px)',
+      }}
+    >
+      <div className="container">
+        <div style={{ marginBottom: 72, display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'end', gap: 32 }}>
+          <div>
+            <p className="label reveal" style={{ color: 'var(--accent)', marginBottom: 16 }}>Our Verticals</p>
+            <h2 className="display-md reveal" style={{ color: 'white' }}>
+              Four Pillars of<br />
+              <span className="gradient-text">Purposeful Growth</span>
+            </h2>
           </div>
+          <p className="reveal-right" style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9375rem', maxWidth: 280, lineHeight: 1.7 }}>
+            Each vertical is an independent business with its own identity, built on shared values.
+          </p>
+        </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { name: 'Paidhu Ethical Foods', logo: '/paidhu_logo.png', link: 'https://www.paidhuethicalfoods.com/', desc: 'Discover premium quality organic edible flowers, organic saffron, and handcrafted floral jams.' },
-              { name: 'Floffi Preservation', logo: 'https://floffi.in/floffi_logo.png', link: 'https://floffi.in/', desc: 'Naturally crafted floral goodness, premium fruit jams, spreads, and natural preserves.' },
-              { name: 'Viyara IT Services', logo: 'https://viyara.co.in/logo-badge-blue.png', link: 'https://viyara.co.in/', desc: 'Engineers world-class enterprise software and curates premium brand experiences.' },
-              { name: 'Kalika Sphere', logo: 'https://www.kalikasphere.com/assets/logo-Drzuq4t7.png', link: 'https://www.kalikasphere.com/', desc: 'Future-ready skill development platforms, tech courses, and corporate training.' },
-            ].map((logo, index) => (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+          {BUSINESSES.map((biz, i) => (
+            <a
+              key={i}
+              href={biz.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="reveal"
+              style={{
+                textDecoration: 'none',
+                display: 'block',
+                transitionDelay: `${i * 80}ms`,
+              }}
+              onMouseEnter={() => setHovered(i)}
+              onMouseLeave={() => setHovered(null)}
+            >
               <div
-                key={index}
-                className="group relative p-8 rounded-3xl bg-[#FFFFFF] dark:bg-dark border border-gray-200/10 shadow-md hover:shadow-2xl transition-all duration-300 text-center flex flex-col justify-between"
+                style={{
+                  background: hovered === i ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.03)',
+                  border: `1px solid ${hovered === i ? 'rgba(232,184,109,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                  borderRadius: 'var(--radius-lg)',
+                  padding: 36,
+                  height: '100%',
+                  transition: 'all 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
+                  transform: hovered === i ? 'translateY(-8px)' : 'translateY(0)',
+                  boxShadow: hovered === i ? '0 24px 60px rgba(0,0,0,0.3)' : 'none',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
               >
-                <div className="absolute inset-0 bg-accent-gold/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-                
-                <div>
-                  <div className="w-20 h-20 bg-white dark:bg-dark border border-gray-200/10 mx-auto flex items-center justify-center p-3 rounded-2xl mb-6 shadow-sm transition-transform duration-500 group-hover:scale-110">
-                    <img src={logo.logo} alt={logo.name} className="max-h-full max-w-full object-contain" />
-                  </div>
-                  <h3 className="font-serif text-base font-bold mb-2">{logo.name}</h3>
-                  <p className="text-xs opacity-70 leading-relaxed mb-6">{logo.desc}</p>
+                {/* Category badge */}
+                <span
+                  style={{
+                    display: 'inline-block',
+                    padding: '4px 12px',
+                    background: 'rgba(232,184,109,0.12)',
+                    border: '1px solid rgba(232,184,109,0.2)',
+                    borderRadius: 50,
+                    color: 'var(--accent)',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    marginBottom: 24,
+                    width: 'fit-content',
+                  }}
+                >
+                  {biz.category}
+                </span>
+
+                {/* Logo */}
+                <div
+                  style={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: 16,
+                    background: 'rgba(255,255,255,0.08)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: 24,
+                    overflow: 'hidden',
+                    transition: 'transform 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
+                    transform: hovered === i ? 'scale(1.1)' : 'scale(1)',
+                  }}
+                >
+                  <img src={biz.logo} alt={biz.name} style={{ width: '80%', height: '80%', objectFit: 'contain' }} />
                 </div>
 
-                <a
-                  href={logo.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-2.5 rounded-full border border-gray-200 dark:border-gray-800 text-[11px] uppercase tracking-wider font-semibold group-hover:bg-accent-gold group-hover:border-accent-gold group-hover:text-white transition-all duration-300 font-button"
+                <h3 style={{ color: 'white', fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.125rem, 2vw, 1.375rem)', fontWeight: 700, marginBottom: 8, letterSpacing: '-0.01em' }}>
+                  {biz.name}
+                </h3>
+                <p style={{ color: 'var(--accent)', fontSize: '0.8125rem', fontWeight: 600, marginBottom: 16, letterSpacing: '0.04em' }}>
+                  {biz.tagline}
+                </p>
+                <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.9rem', lineHeight: 1.75, flex: 1 }}>
+                  {biz.description}
+                </p>
+
+                <div
+                  style={{
+                    marginTop: 28,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    color: 'var(--accent)',
+                    fontSize: '0.8125rem',
+                    fontWeight: 600,
+                    letterSpacing: '0.06em',
+                    textTransform: 'uppercase',
+                    transition: 'gap 0.3s',
+                  }}
                 >
                   Visit Website
-                </a>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-
-      {/* Why Choose Us */}
-      <section
-        id="whyus"
-        ref={sectionRefs.whyus}
-        className="py-24 md:py-32 bg-[#EDEDED]/50 dark:bg-dark relative"
-      >
-        <div className="max-w-7xl mx-auto px-6">
-          <ScrollReveal>
-            <div className="text-center mb-16">
-              <span className="text-xs uppercase tracking-widest text-accent-gold font-semibold">Value Core</span>
-              <h2 className="text-3xl md:text-5xl font-serif font-light mt-2 mb-4">Why Choose Paidhu Group</h2>
-              <p className="text-sm opacity-70 max-w-sm mx-auto">
-                Our principles define who we are and guide our future.
-              </p>
-            </div>
-          </ScrollReveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {[
-              { icon: Compass, title: 'Ethical Foods', desc: 'Sourcing organic Kashmir saffron, cookies, and flowers directly from farms under Paidhu Ethical Foods.' },
-              { icon: ShieldCheck, title: 'Floffi Preserves', desc: 'Floffi uses natural recipes, real fruit content, and zero artificial preservatives.' },
-              { icon: Cpu, title: 'Viyara Technology', desc: 'Viyara builds future-proof Web, SaaS, cloud, and AI applications for digital business transformation.' },
-              { icon: Award, title: 'Kalika Learning', desc: 'Kalika Sphere delivers digital learning, technology certification, and professional growth.' },
-            ].map((card, idx) => {
-              const Icon = card.icon;
-              return (
-                <ScrollReveal key={idx} delay={idx * 100} direction="up">
-                  <div className="p-8 rounded-3xl bg-[#FFFFFF] dark:bg-dark border border-gray-200/10 text-center shadow-sm h-full">
-                  <div className="w-12 h-12 rounded-2xl bg-primary/5 dark:bg-white/5 text-accent-gold flex items-center justify-center mx-auto mb-6">
-                    <Icon className="w-6 h-6" />
-                  </div>
-                  <h3 className="font-serif text-lg font-bold mb-2 text-primary dark:text-white">{card.title}</h3>
-                  <p className="text-xs opacity-70 leading-relaxed">{card.desc}</p>
-                  </div>
-                </ScrollReveal>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Section */}
-      <section
-        id="contact"
-        ref={sectionRefs.contact}
-        className="py-24 md:py-32 bg-[#F8F6F2] dark:bg-[#1A1A1A] relative"
-      >
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-            {/* Left Info Column */}
-            <ScrollReveal direction="left">
-              <div>
-                <span className="text-xs uppercase tracking-widest text-accent-gold font-semibold">Connect With Us</span>
-              <h2 className="text-3xl md:text-5xl font-serif font-light mt-2 mb-6 text-primary dark:text-white">
-                Let’s Shape the <br />
-                <span className="font-semibold text-accent-gold">Future Together</span>
-              </h2>
-              <p className="text-sm opacity-75 leading-relaxed mb-8">
-                Get in touch with Paidhu Group corporate office regarding partnerships, careers, vendor registration or media inquiries.
-              </p>
-
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-accent-gold/10 flex items-center justify-center text-accent-gold">
-                    <MapPin className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs uppercase tracking-wider font-semibold opacity-60">Headquarters</h4>
-                    <p className="text-sm mt-1 opacity-85">No 11 Saraswati Avenue, Achipatti, Pollachi - 642002</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-accent-gold/10 flex items-center justify-center text-accent-gold">
-                    <Phone className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs uppercase tracking-wider font-semibold opacity-60">Phone Link</h4>
-                    <p className="text-sm mt-1 opacity-85">+91 8754287774</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-accent-gold/10 flex items-center justify-center text-accent-gold">
-                    <Mail className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs uppercase tracking-wider font-semibold opacity-60">Email Inquiries</h4>
-                    <p className="text-sm mt-1 opacity-85">info@paidhu.com</p>
-                  </div>
+                  <span style={{ transition: 'transform 0.3s', transform: hovered === i ? 'translateX(4px)' : 'none' }}>→</span>
                 </div>
               </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── BRANDS ───────────────────────────────────────────────────────────────
+function Brands() {
+  return (
+    <section
+      id="brands"
+      style={{
+        background: 'var(--bg)',
+        padding: 'clamp(80px, 12vw, 140px) clamp(24px, 5vw, 64px)',
+      }}
+    >
+      <div className="container">
+        <div style={{ textAlign: 'center', marginBottom: 64 }}>
+          <p className="label reveal" style={{ color: 'var(--accent)', marginBottom: 16 }}>Group Network</p>
+          <h2 className="display-md reveal" style={{ color: 'var(--primary)' }}>Core Group Brands</h2>
+          <p className="reveal" style={{ color: 'var(--muted)', maxWidth: 480, margin: '16px auto 0', fontSize: '1rem', lineHeight: 1.7 }}>
+            Market-leading subsidiaries working in cohesion across industries.
+          </p>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
+          {BRANDS.map((brand, i) => (
+            <a
+              key={i}
+              href={brand.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="card-premium reveal"
+              style={{
+                textDecoration: 'none',
+                padding: 40,
+                textAlign: 'center',
+                display: 'block',
+                transitionDelay: `${i * 80}ms`,
+              }}
+            >
+              <div
+                style={{
+                  width: 80,
+                  height: 80,
+                  margin: '0 auto 24px',
+                  borderRadius: 20,
+                  background: '#F7F8FA',
+                  border: '1px solid var(--border)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  overflow: 'hidden',
+                  transition: 'transform 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
+                }}
+              >
+                <img src={brand.logo} alt={brand.name} style={{ width: '80%', height: '80%', objectFit: 'contain' }} />
+              </div>
+              <h3 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: '1rem', color: 'var(--primary)', marginBottom: 8 }}>
+                {brand.name}
+              </h3>
+              <p style={{ color: 'var(--muted)', fontSize: '0.875rem', lineHeight: 1.6 }}>{brand.desc}</p>
+              <span
+                style={{
+                  display: 'inline-block',
+                  marginTop: 16,
+                  color: 'var(--accent)',
+                  fontSize: '0.8125rem',
+                  fontWeight: 600,
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                Visit →
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── STORYTELLING / WHY US ────────────────────────────────────────────────
+function WhyUs() {
+  return (
+    <section
+      id="why-us"
+      style={{
+        background: 'var(--primary)',
+        padding: 'clamp(80px, 12vw, 140px) clamp(24px, 5vw, 64px)',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Decorative bg */}
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(ellipse 70% 70% at 80% 50%, rgba(232,184,109,0.06), transparent)', pointerEvents: 'none' }} />
+
+      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
+        <div style={{ textAlign: 'center', marginBottom: 72 }}>
+          <p className="label reveal" style={{ color: 'var(--accent)', marginBottom: 16 }}>Why Paidhu</p>
+          <h2 className="display-md reveal" style={{ color: 'white' }}>
+            The Paidhu<br />
+            <span className="gradient-text">Difference</span>
+          </h2>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+          {WHY_US.map((item, i) => (
+            <div
+              key={i}
+              className="card-dark reveal"
+              style={{
+                padding: 36,
+                transitionDelay: `${i * 80}ms`,
+              }}
+            >
+              <div
+                style={{
+                  width: 56,
+                  height: 56,
+                  borderRadius: 16,
+                  background: 'rgba(232,184,109,0.12)',
+                  border: '1px solid rgba(232,184,109,0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 24,
+                  marginBottom: 24,
+                }}
+              >
+                {item.icon}
+              </div>
+              <h3 style={{ color: 'white', fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: '1.125rem', marginBottom: 12 }}>
+                {item.title}
+              </h3>
+              <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.9375rem', lineHeight: 1.75 }}>{item.desc}</p>
             </div>
-            </ScrollReveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 
-            {/* Right Form Column */}
-            <ScrollReveal direction="right">
-              <div className="p-8 md:p-10 rounded-3xl glass-card relative">
-              {formSubmitted ? (
-                <div className="flex flex-col items-center justify-center h-full text-center py-10">
-                  <div className="w-16 h-16 bg-[#162436]/10 rounded-full flex items-center justify-center text-[#162436] dark:text-accent-gold mb-6">
-                    <CheckCircle2 className="w-8 h-8" />
-                  </div>
-                  <h3 className="font-serif text-xl font-bold mb-2">Message Received</h3>
-                  <p className="text-xs opacity-75">Thank you for reaching out. A Paidhu Group representative will contact you shortly.</p>
-                </div>
-              ) : (
-                <form onSubmit={handleContactSubmit} className="space-y-6">
-                  <div>
-                    <label className="text-[10px] uppercase tracking-wider font-semibold opacity-60 block mb-2">Full Name</label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="e.g. Jane Doe"
-                      className="w-full px-4 py-3 rounded-xl border border-gray-300/35 bg-[#F8F6F2]/50 dark:bg-dark focus:outline-none focus:ring-1 focus:ring-accent-gold text-xs"
-                    />
-                  </div>
+// ─── CONTACT ──────────────────────────────────────────────────────────────
+function Contact() {
+  const [form, setForm] = useState({ name: '', email: '', message: '' });
+  const [sent, setSent] = useState(false);
 
-                  <div>
-                    <label className="text-[10px] uppercase tracking-wider font-semibold opacity-60 block mb-2">Email Address</label>
-                    <input
-                      type="email"
-                      required
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="jane@company.com"
-                      className="w-full px-4 py-3 rounded-xl border border-gray-300/35 bg-[#F8F6F2]/50 dark:bg-dark focus:outline-none focus:ring-1 focus:ring-accent-gold text-xs"
-                    />
-                  </div>
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSent(true);
+    setTimeout(() => setSent(false), 4000);
+    setForm({ name: '', email: '', message: '' });
+  };
 
-                  <div>
-                    <label className="text-[10px] uppercase tracking-wider font-semibold opacity-60 block mb-2">Message</label>
-                    <textarea
-                      rows={4}
-                      required
-                      value={formData.message}
-                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      placeholder="How can we help your business?"
-                      className="w-full px-4 py-3 rounded-xl border border-gray-300/35 bg-[#F8F6F2]/50 dark:bg-dark focus:outline-none focus:ring-1 focus:ring-accent-gold text-xs"
-                    />
-                  </div>
+  return (
+    <section
+      id="contact"
+      style={{
+        background: 'var(--dark)',
+        padding: 'clamp(80px, 12vw, 140px) clamp(24px, 5vw, 64px)',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Decorative circle */}
+      <div
+        style={{
+          position: 'absolute',
+          right: '-200px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          width: 600,
+          height: 600,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(232,184,109,0.06), transparent)',
+          pointerEvents: 'none',
+        }}
+      />
 
-                  <button
-                    type="submit"
-                    className="w-full py-3.5 bg-primary dark:bg-accent-gold text-white font-button text-xs font-semibold uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 hover:opacity-95 transition-opacity cursor-pointer shadow-lg"
+      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'start' }}>
+          {/* Info */}
+          <div>
+            <p className="label reveal" style={{ color: 'var(--accent)', marginBottom: 16 }}>Get In Touch</p>
+            <h2 className="display-md reveal" style={{ color: 'white', marginBottom: 24 }}>
+              Let's Build<br />
+              <span className="gradient-text">Something Great</span>
+            </h2>
+            <p className="reveal" style={{ color: 'rgba(255,255,255,0.55)', fontSize: '1rem', lineHeight: 1.8, marginBottom: 48 }}>
+              Whether you're a business partner, customer, investor, or job seeker — we'd love to hear from you.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+              {[
+                { icon: '📍', label: 'Address', value: 'No 11 Saraswati Avenue, Achipatti,\nPollachi – 642002, Tamil Nadu' },
+                { icon: '📞', label: 'Phone', value: '+91 87542 87774' },
+                { icon: '🌐', label: 'Website', value: 'www.paidhu.com' },
+              ].map((info, i) => (
+                <div key={i} className="reveal" style={{ display: 'flex', gap: 20, transitionDelay: `${i * 80}ms` }}>
+                  <div
+                    style={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: 12,
+                      background: 'rgba(232,184,109,0.12)',
+                      border: '1px solid rgba(232,184,109,0.2)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 20,
+                      flexShrink: 0,
+                    }}
                   >
-                    Send Message
-                    <Send className="w-3.5 h-3.5" />
-                  </button>
-                </form>
-              )}
+                    {info.icon}
+                  </div>
+                  <div>
+                    <p style={{ color: 'var(--accent)', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>
+                      {info.label}
+                    </p>
+                    <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.9375rem', lineHeight: 1.6, whiteSpace: 'pre-line' }}>
+                      {info.value}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
-            </ScrollReveal>
+          </div>
+
+          {/* Form */}
+          <div
+            className="reveal-right"
+            style={{
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: 'var(--radius-xl)',
+              padding: 'clamp(32px, 5vw, 48px)',
+            }}
+          >
+            {sent ? (
+              <div style={{ textAlign: 'center', padding: '48px 0' }}>
+                <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
+                <h3 style={{ color: 'white', fontFamily: 'var(--font-serif)', fontSize: '1.5rem', marginBottom: 8 }}>Message Sent!</h3>
+                <p style={{ color: 'rgba(255,255,255,0.55)' }}>We'll get back to you within 24 hours.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                <h3 style={{ color: 'white', fontFamily: 'var(--font-serif)', fontSize: '1.5rem', marginBottom: 8 }}>Send a Message</h3>
+
+                <div>
+                  <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8125rem', fontWeight: 500, display: 'block', marginBottom: 8 }}>Full Name</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Your full name"
+                    value={form.name}
+                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                    className="form-input"
+                  />
+                </div>
+
+                <div>
+                  <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8125rem', fontWeight: 500, display: 'block', marginBottom: 8 }}>Email Address</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="your@email.com"
+                    value={form.email}
+                    onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                    className="form-input"
+                  />
+                </div>
+
+                <div>
+                  <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8125rem', fontWeight: 500, display: 'block', marginBottom: 8 }}>Message</label>
+                  <textarea
+                    required
+                    rows={4}
+                    placeholder="How can we help you?"
+                    value={form.message}
+                    onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
+                    className="form-input"
+                    style={{ resize: 'none' }}
+                  />
+                </div>
+
+                <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '16px 32px' }}>
+                  Send Message →
+                </button>
+              </form>
+            )}
           </div>
         </div>
-      </section>
+      </div>
+    </section>
+  );
+}
 
-      {/* Elegant Footer */}
-      <footer className="bg-dark text-white border-t border-white/5 py-16">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-12">
-          {/* Brand Info */}
-          <div className="md:col-span-4">
+// ─── FOOTER ───────────────────────────────────────────────────────────────
+function Footer() {
+  const navLinks = [
+    { label: 'Home', id: 'home' },
+    { label: 'About', id: 'about' },
+    { label: 'Businesses', id: 'businesses' },
+    { label: 'Brands', id: 'brands' },
+    { label: 'Why Us', id: 'why-us' },
+    { label: 'Contact', id: 'contact' },
+  ];
+
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  return (
+    <footer style={{ background: '#080E1A', padding: 'clamp(64px, 10vw, 96px) clamp(24px, 5vw, 64px) 0' }}>
+      <div className="container">
+        {/* Top Row */}
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 48, paddingBottom: 64, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          {/* Brand */}
+          <div>
             <img
               src="/ChatGPT Image Aug 1, 2026, 08_30_36 PM.png"
               alt="Paidhu"
-              className="h-20 w-auto object-contain mb-2"
-              style={{
-                filter: 'invert(1)',
-                mixBlendMode: 'screen',
-              }}
+              style={{ height: 64, width: 'auto', filter: 'invert(1)', mixBlendMode: 'screen', marginBottom: 20 }}
             />
-            <p className="text-xs opacity-65 leading-relaxed mt-4 max-w-sm">
+            <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.9rem', lineHeight: 1.8, maxWidth: 300 }}>
               Building sustainable, ethical, and value-driven business verticals for a cleaner, modern tomorrow.
             </p>
+            <div style={{ display: 'flex', gap: 16, marginTop: 24 }}>
+              {['LinkedIn', 'Twitter', 'Instagram'].map((soc) => (
+                <a
+                  key={soc}
+                  href="#"
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 10,
+                    background: 'rgba(255,255,255,0.06)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'rgba(255,255,255,0.5)',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    transition: 'all 0.3s',
+                  }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLElement).style.background = 'rgba(232,184,109,0.15)';
+                    (e.currentTarget as HTMLElement).style.borderColor = 'rgba(232,184,109,0.3)';
+                    (e.currentTarget as HTMLElement).style.color = 'var(--accent)';
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)';
+                    (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.1)';
+                    (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.5)';
+                  }}
+                >
+                  {soc[0]}
+                </a>
+              ))}
+            </div>
           </div>
 
-          {/* Quick Links */}
-          <div className="md:col-span-2">
-            <h4 className="text-[11px] uppercase tracking-widest font-bold text-accent-gold mb-6">Group Sitemap</h4>
-            <ul className="space-y-3 text-xs opacity-70">
-              <li><button onClick={() => scrollToSection('home')} className="hover:text-accent-gold transition-colors">Home</button></li>
-              <li><button onClick={() => scrollToSection('about')} className="hover:text-accent-gold transition-colors">About</button></li>
-              <li><button onClick={() => scrollToSection('businesses')} className="hover:text-accent-gold transition-colors">Businesses</button></li>
-
-              <li><button onClick={() => scrollToSection('contact')} className="hover:text-accent-gold transition-colors">Contact</button></li>
-            </ul>
+          {/* Navigation */}
+          <div>
+            <h4 style={{ color: 'white', fontWeight: 600, fontSize: '0.875rem', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 24 }}>Navigation</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {navLinks.map((link) => (
+                <button
+                  key={link.id}
+                  onClick={() => scrollTo(link.id)}
+                  className="hover-underline"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.45)', fontSize: '0.9rem', textAlign: 'left', padding: 0, transition: 'color 0.3s' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = 'var(--accent)')}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.45)')}
+                >
+                  {link.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Businesses */}
-          <div className="md:col-span-3">
-            <h4 className="text-[11px] uppercase tracking-widest font-bold text-accent-gold mb-6">Our Brands</h4>
-            <ul className="space-y-3 text-xs opacity-70">
-              <li><a href="https://www.paidhuethicalfoods.com/" target="_blank" rel="noopener noreferrer" className="hover:text-accent-gold transition-colors">Paidhu Ethical Foods</a></li>
-              <li><a href="https://floffi.in/" target="_blank" rel="noopener noreferrer" className="hover:text-accent-gold transition-colors">Floffi Jams</a></li>
-              <li><a href="https://viyara.co.in/" target="_blank" rel="noopener noreferrer" className="hover:text-accent-gold transition-colors">Viyara Digital</a></li>
-              <li><a href="https://www.kalikasphere.com/" target="_blank" rel="noopener noreferrer" className="hover:text-accent-gold transition-colors">Kalika Sphere</a></li>
-            </ul>
+          <div>
+            <h4 style={{ color: 'white', fontWeight: 600, fontSize: '0.875rem', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 24 }}>Businesses</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {BUSINESSES.map((biz) => (
+                <a
+                  key={biz.name}
+                  href={biz.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.9rem', textDecoration: 'none', transition: 'color 0.3s' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = 'var(--accent)')}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.45)')}
+                >
+                  {biz.name.split(' ').slice(0, 2).join(' ')}
+                </a>
+              ))}
+            </div>
           </div>
 
-          {/* Newsletter */}
-          <div className="md:col-span-3">
-            <h4 className="text-[11px] uppercase tracking-widest font-bold text-accent-gold mb-6">Newsletter Sign Up</h4>
-            <p className="text-xs opacity-65 leading-relaxed mb-4">
-              Subscribe to get updates on Paidhu ESG progress and brand announcements.
-            </p>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                placeholder="email@company.com"
-                className="px-4 py-2 rounded-xl bg-white/5 border border-white/15 text-xs focus:outline-none focus:border-accent-gold w-full text-white"
-              />
-              <button className="px-4 py-2 bg-accent-gold text-white text-xs rounded-xl font-semibold hover:bg-accent-gold/90">
-                Join
-              </button>
+          {/* Contact */}
+          <div>
+            <h4 style={{ color: 'white', fontWeight: 600, fontSize: '0.875rem', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 24 }}>Contact</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, color: 'rgba(255,255,255,0.45)', fontSize: '0.875rem', lineHeight: 1.7 }}>
+              <p>No 11 Saraswati Avenue,<br />Achipatti, Pollachi – 642002</p>
+              <p>+91 87542 87774</p>
+              <p>www.paidhu.com</p>
             </div>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 border-t border-white/5 mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] opacity-50 space-y-4 sm:space-y-0">
-          <p>© {new Date().getFullYear()} Paidhu Group. All Rights Reserved.</p>
-          <div className="flex gap-6">
-            <a href="#" className="hover:text-white">Privacy Policy</a>
-            <a href="#" className="hover:text-white">Terms of Service</a>
-            <a href="#" className="hover:text-white">Careers</a>
+        {/* Bottom Row */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '24px 0',
+            gap: 16,
+            flexWrap: 'wrap',
+          }}
+        >
+          <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.8125rem' }}>
+            © {new Date().getFullYear()} Paidhu Group. All rights reserved.
+          </p>
+          <div style={{ display: 'flex', gap: 24 }}>
+            {['Privacy Policy', 'Terms of Use'].map((item) => (
+              <a
+                key={item}
+                href="#"
+                style={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.8125rem', textDecoration: 'none', transition: 'color 0.3s' }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--accent)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.25)')}
+              >
+                {item}
+              </a>
+            ))}
           </div>
         </div>
-      </footer>
-    </div>
+      </div>
+
+      <style>{`
+        @media (max-width: 1024px) {
+          footer .container > div:first-child {
+            grid-template-columns: 1fr 1fr !important;
+          }
+        }
+        @media (max-width: 640px) {
+          footer .container > div:first-child {
+            grid-template-columns: 1fr !important;
+          }
+          footer .container > div:last-child {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+        }
+      `}</style>
+    </footer>
+  );
+}
+
+// ─── MAIN PAGE ─────────────────────────────────────────────────────────────
+export default function Page() {
+  useScrollReveal();
+
+  return (
+    <>
+      <LoadingScreen />
+      <ScrollProgressBar />
+      <Navbar />
+      <main>
+        <Hero />
+        <MarqueeStrip />
+        <About />
+        <Businesses />
+        <Brands />
+        <WhyUs />
+        <Contact />
+      </main>
+      <Footer />
+    </>
   );
 }

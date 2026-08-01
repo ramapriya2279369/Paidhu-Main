@@ -1,35 +1,37 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Inter, Manrope } from "next/font/google";
+import { IBM_Plex_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
-const playfair = Playfair_Display({
+const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
-  variable: "--font-playfair",
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-sans",
   display: "swap",
 });
 
-const inter = Inter({
+const playfairDisplay = Playfair_Display({
   subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const manrope = Manrope({
-  subsets: ["latin"],
-  variable: "--font-manrope",
+  weight: ["400", "600", "700", "900"],
+  style: ["normal", "italic"],
+  variable: "--font-serif",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Paidhu Group | Ethical Businesses, Sustainable Future",
-  description: "Paidhu Group is a diversified organization shaping the future through ethical foods, innovative technology, premium consumer brands, and transformative education. Building sustainable businesses for a better tomorrow.",
-  keywords: ["Paidhu Group", "Ethical Foods", "Sustainability", "Viyara", "Floffi", "Kalika Sphere", "Corporate Group"],
+  title: "Paidhu Group | Building Businesses That Inspire a Better Future",
+  description: "Paidhu Group is a diversified Fortune-class organization building ethical foods, premium technology, consumer brands, and transformative education. A legacy of purpose-driven enterprise.",
+  keywords: ["Paidhu Group", "Ethical Businesses", "Floffi", "Viyara IT", "Kalika Sphere", "Paidhu Ethical Foods", "Corporate Group India"],
   authors: [{ name: "Paidhu Group" }],
   openGraph: {
-    title: "Paidhu Group | Ethical Businesses, Sustainable Future",
-    description: "Paidhu Group is a diversified organization shaping the future through ethical foods, innovative technology, premium consumer brands, and transformative education.",
+    title: "Paidhu Group | Building Businesses That Inspire a Better Future",
+    description: "A diversified group shaping the future through ethical innovation and purposeful enterprise.",
     type: "website",
-    url: "https://www.paidhugroup.com",
+    url: "https://www.paidhu.com",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Paidhu Group",
+    description: "Building Businesses That Inspire a Better Future",
   },
 };
 
@@ -41,10 +43,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${playfair.variable} ${inter.variable} ${manrope.variable} scroll-smooth`}
+      className={`${ibmPlexSans.variable} ${playfairDisplay.variable}`}
       suppressHydrationWarning
     >
-      <body className="font-sans antialiased text-[#1A1A1A] bg-[#F8F6F2] transition-colors duration-300">
+      <body className="antialiased">
         {children}
       </body>
     </html>
