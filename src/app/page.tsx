@@ -260,10 +260,10 @@ export default function Home() {
           {/* Logo */}
           <div className="flex items-center cursor-pointer group" onClick={() => scrollToSection('home')}>
             <img
-              src="/paidhu_exact.jpg"
+              src="/ChatGPT Image Aug 1, 2026, 08_30_36 PM.png"
               alt="Paidhu"
               className="h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
-              style={{ mixBlendMode: 'screen' }}
+              style={{ filter: 'invert(1)', opacity: 0.95 }}
             />
           </div>
 
@@ -1181,10 +1181,10 @@ export default function Home() {
           {/* Brand Info */}
           <div className="md:col-span-4">
             <img
-              src="/paidhu_exact.jpg"
+              src="/ChatGPT Image Aug 1, 2026, 08_30_36 PM.png"
               alt="Paidhu"
-              className="h-14 w-auto object-contain"
-              style={{ mixBlendMode: 'screen' }}
+              className="h-14 w-auto object-contain mb-2"
+              style={{ filter: 'invert(1)', opacity: 0.95 }}
             />
             <p className="text-xs opacity-65 leading-relaxed mt-4 max-w-sm">
               Building sustainable, ethical, and value-driven business verticals for a cleaner, modern tomorrow.
