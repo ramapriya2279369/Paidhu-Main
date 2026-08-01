@@ -256,14 +256,14 @@ export default function Home() {
       
       {/* Sticky Navigation Header */}
       <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 glass border-b border-gray-200/10 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center cursor-pointer group" onClick={() => scrollToSection('home')}>
             <img
               src="/ChatGPT Image Aug 1, 2026, 08_30_36 PM.png"
               alt="Paidhu"
-              className="h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
-              style={{ filter: 'invert(1)', opacity: 0.95 }}
+              className="h-20 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
+              style={{ filter: 'invert(1)', opacity: 1 }}
             />
           </div>
 
@@ -1183,8 +1183,8 @@ export default function Home() {
             <img
               src="/ChatGPT Image Aug 1, 2026, 08_30_36 PM.png"
               alt="Paidhu"
-              className="h-14 w-auto object-contain mb-2"
-              style={{ filter: 'invert(1)', opacity: 0.95 }}
+              className="h-20 w-auto object-contain mb-2"
+              style={{ filter: 'invert(1)', opacity: 1 }}
             />
             <p className="text-xs opacity-65 leading-relaxed mt-4 max-w-sm">
               Building sustainable, ethical, and value-driven business verticals for a cleaner, modern tomorrow.
