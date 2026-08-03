@@ -2,11 +2,37 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  ArrowRight, 
+  Search, 
+  Globe, 
+  X, 
+  ChevronDown, 
+  ArrowUpRight, 
+  Check, 
+  Menu, 
+  Plus, 
+  Mail, 
+  Phone, 
+  MapPin, 
+  Sparkles,
+  ArrowLeft,
+  ChevronRight,
+  ChevronLeft,
+  Clock
+} from 'lucide-react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-// Advanced Subtle Grid Canvas Background (Clean & High-End)
+
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+// 1. DYNAMIC DOT GRID BACKGROUND (refined for luxury feel)
 function DynamicCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const ripples = useRef<Array<{ x: number; y: number; radius: number; maxRadius: number; speed: number; alpha: number }>>([]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -18,85 +44,21 @@ function DynamicCanvas() {
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
-    const spacing = 40;
-    const dotRadius = 1;
-
-    // Drifting particles (very slow and professional)
-    const particles: Array<{ x: number; y: number; vx: number; vy: number; radius: number }> = [];
-    const numParticles = 15;
-    for (let i = 0; i < numParticles; i++) {
-      particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.1,
-        vy: (Math.random() - 0.5) * 0.1,
-        radius: Math.random() * 1.2 + 0.4,
-      });
-    }
+    const spacing = 64;
+    const dotRadius = 0.75;
 
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
 
       // Draw subtle grid dots
-      ctx.fillStyle = 'rgba(63, 94, 81, 0.03)';
+      ctx.fillStyle = 'rgba(17, 17, 17, 0.03)';
       for (let x = 0; x < width; x += spacing) {
         for (let y = 0; y < height; y += spacing) {
-          let scale = 1;
-          ripples.current.forEach((r) => {
-            const dist = Math.hypot(x - r.x, y - r.y);
-            const diff = Math.abs(dist - r.radius);
-            if (diff < 60) {
-              const strength = (1 - diff / 60) * r.alpha;
-              scale += strength * 1.5;
-            }
-          });
-
           ctx.beginPath();
-          ctx.arc(x, y, dotRadius * scale, 0, Math.PI * 2);
+          ctx.arc(x, y, dotRadius, 0, Math.PI * 2);
           ctx.fill();
         }
       }
-
-      // Draw drifting particles & connection lines
-      ctx.fillStyle = 'rgba(63, 94, 81, 0.04)';
-      ctx.strokeStyle = 'rgba(63, 94, 81, 0.01)';
-      particles.forEach((p, idx) => {
-        p.x += p.vx;
-        p.y += p.vy;
-
-        if (p.x < 0 || p.x > width) p.vx *= -1;
-        if (p.y < 0 || p.y > height) p.vy *= -1;
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fill();
-
-        for (let j = idx + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-          if (dist < 150) {
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.stroke();
-          }
-        }
-      });
-
-      // Update click ripples
-      ripples.current.forEach((r, idx) => {
-        r.radius += r.speed;
-        r.alpha -= 0.015;
-        if (r.alpha <= 0) {
-          ripples.current.splice(idx, 1);
-          return;
-        }
-        ctx.strokeStyle = `rgba(63, 94, 81, ${r.alpha * 0.08})`;
-        ctx.lineWidth = 1.2;
-        ctx.beginPath();
-        ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
-        ctx.stroke();
-      });
 
       animationFrameId = requestAnimationFrame(draw);
     };
@@ -108,830 +70,1103 @@ function DynamicCanvas() {
       height = canvas.height = window.innerHeight;
     };
 
-    const handleClick = (e: MouseEvent) => {
-      ripples.current.push({
-        x: e.clientX,
-        y: e.clientY,
-        radius: 0,
-        maxRadius: 200,
-        speed: 3,
-        alpha: 0.8,
-      });
-    };
-
     window.addEventListener('resize', handleResize);
-    window.addEventListener('click', handleClick);
 
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleResize);
-      window.removeEventListener('click', handleClick);
     };
   }, []);
 
   return <canvas ref={canvasRef} style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }} />;
 }
 
-// Magnetic Element Wrapper
-function MagneticElement({ children }: { children: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const el = ref.current;
-    if (!el) return;
-    const { left, top, width, height } = el.getBoundingClientRect();
-    const xc = left + width / 2;
-    const yc = top + height / 2;
-    setPosition({
-      x: (e.clientX - xc) * 0.2,
-      y: (e.clientY - yc) * 0.2,
-    });
-  };
-
-  const handleMouseLeave = () => {
-    setPosition({ x: 0, y: 0 });
-  };
-
-  return (
-    <motion.div
-      ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      animate={{ x: position.x, y: position.y }}
-      transition={{ type: 'spring', stiffness: 220, damping: 22 }}
-      style={{ display: 'inline-block' }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-// 3D Parallax Layer Card Wrapper
-function ParallaxCard({ children }: { children: React.ReactNode }) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [rotateX, setRotateX] = useState(0);
-  const [rotateY, setRotateY] = useState(0);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const el = cardRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const xc = rect.width / 2;
-    const yc = rect.height / 2;
-    setRotateY((x - xc) / 12);
-    setRotateX((yc - y) / 12);
-  };
-
-  const handleMouseLeave = () => {
-    setRotateX(0);
-    setRotateY(0);
-  };
-
-  return (
-    <div
-      ref={cardRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{
-        perspective: 1200,
-        height: '100%',
-      }}
-    >
-      <motion.div
-        animate={{ rotateX, rotateY }}
-        transition={{ type: 'spring', stiffness: 200, damping: 22 }}
-        style={{
-          transformStyle: 'preserve-3d',
-          height: '100%',
-        }}
-      >
-        <div style={{ transformStyle: 'preserve-3d', height: '100%', transition: 'all 0.3s' }}>
-          {children}
-        </div>
-      </motion.div>
-    </div>
-  );
-}
-
-// Infinite Scrolling Ticker Banner Component
-function TickerBanner() {
-  return (
-    <div style={{ overflow: 'hidden', whiteSpace: 'nowrap', display: 'flex', background: '#D5D8D5', padding: '16px 0', borderTop: '1px solid #B4BCB4', borderBottom: '1px solid #B4BCB4', position: 'relative', zIndex: 2 }}>
-      <motion.div
-        animate={{ x: [0, -1000] }}
-        transition={{ repeat: Infinity, ease: 'linear', duration: 25 }}
-        style={{ display: 'flex', gap: 60, fontSize: '0.875rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.2em', color: '#3F5E51' }}
-      >
-        <span>Paidhu Ethical Foods</span>
-        <span>•</span>
-        <span>Floffi Preservation</span>
-        <span>•</span>
-        <span>Viyara IT Services</span>
-        <span>•</span>
-        <span>Kalika Sphere</span>
-        <span>•</span>
-        <span>Paidhu Ethical Foods</span>
-        <span>•</span>
-        <span>Floffi Preservation</span>
-        <span>•</span>
-        <span>Viyara IT Services</span>
-        <span>•</span>
-        <span>Kalika Sphere</span>
-      </motion.div>
-    </div>
-  );
-}
-
+// 2. DATASETS
 const BUSINESSES = [
   {
     id: 'ethical-foods',
     name: 'Paidhu Ethical Foods',
-    sector: 'Agriculture & Sustainable Sourcing',
-    tagline: 'Empowering Kashmir’s Heritage Agriculture',
-    description: 'Re-engineering Kashmir saffron farming through absolute vertical integration. By partnering directly with local smallholder grower families, we guarantee origin-traceable saffron, wild organic honey, and hand-selected floral crops. Our fair-trade pricing model ensures کشمیر farmers receive honest value while preserving pristine agricultural traditions.',
-    highlights: ['100% Trace-to-Origin Saffron', 'Empowering 100+ Grower Families', 'Fair-Trade Guaranteed Sourcing', 'Pristine Saffron Logistics Pipelines'],
-    metrics: { count: '100+', label: 'Local Kashmir Farms' },
+    sector: 'FMCG & Sourcing',
+    tagline: 'Empowering Saffron Sourcing & Organic Food Staples',
+    description: 'Re-engineering Kashmir saffron farming through absolute vertical integration. We partner directly with local smallholder grower families to guarantee origin-traceable saffron, organic edible flowers, and zero-synthetic bloom cookies. Under this division, we power Floffi preserves with zero chemical stabilizers.',
+    highlights: ['Edible Flowers & Saffron Flowers', 'Zero-Additive Bloom Cookies', 'Floffi Preserves Sourcing (floffi.in)', 'Direct Saffron Sourcing pipelines'],
+    metrics: { value: 100, suffix: '+', label: 'Local Kashmir Farms' },
     link: 'https://www.paidhuethicalfoods.com/',
-    logo: '/paidhu_logo.png',
     image: '/paidhu_screen.png',
-    color: '#3F5E51',
-  },
-  {
-    id: 'floffi',
-    name: 'Floffi Preservation',
-    sector: 'FMCG & Artisanal Preserves',
-    tagline: 'Artisanal Preserves, Zero Synthetic Chemistry',
-    description: 'Redefining the pantry staples category through pure, chemical-free food preservation. Floffi processes native wild fruits, botanical petals, and natural Kashmir honey in small, artisanal batches. By using zero artificial gelling agents or synthetic additives, we bottle natural purity in 100% biodegradable glass preserves.',
-    highlights: ['0% Artificial Additives & Gelatins', 'Small-Batch Glass Preservation', 'Supporting Agrarian Micro-Enterprises', 'Native Himalayan Fruit Botanicals'],
-    metrics: { count: '12+', label: 'Artisanal Flavors' },
-    link: 'https://floffi.in/',
-    logo: 'https://floffi.in/floffi_logo.png',
-    image: '/floffi_screen.png',
-    color: '#3F5E51',
+    cardTag: 'Heritage Sourcing',
+    cardTitle: '2026 First Half Saffron Audits',
+    cardAction: 'Access Saffron Reports'
   },
   {
     id: 'viyara',
-    name: 'Viyara IT Services',
-    sector: 'Enterprise Software & Custom AI',
+    name: 'Viyara',
+    sector: 'Technology & Software',
     tagline: 'Engineering Scalable Digital Infrastructure',
-    description: 'Building the digital pipelines that scale tomorrow\'s web. Viyara IT delivers enterprise software architecture, high-performance cloud operations, scalable SaaS frameworks, and custom generative AI system integrations. Viyara operates as the engineering core behind modern distribution networks.',
-    highlights: ['Scalable SaaS Architecture Design', 'Generative AI Pipeline Integration', 'Automated DevOps & Cloud Modernization', 'Powering Supply Chain Technologies'],
-    metrics: { count: '99.9%', label: 'Platform Reliability' },
+    description: 'Building the digital pipelines that scale tomorrow\'s web. Viyara delivers enterprise software architectures, custom high-performance website and mobile application development, scalable SaaS products, UI/UX systems, branding guidelines, and custom generative AI integrations.',
+    highlights: ['Website & Custom Software Dev', 'Scalable SaaS Product Pipelines', 'Stripe-Level UI/UX and Branding', 'Generative AI Pipeline Integration'],
+    metrics: { value: 99.9, suffix: '%', label: 'Platform Reliability' },
     link: 'https://viyara.co.in/',
-    logo: 'https://viyara.co.in/logo-badge-blue.png',
     image: '/viyara_screen.png',
-    color: '#3F5E51',
+    cardTag: 'Digital Infrastructure',
+    cardTitle: 'Scalable Enterprise Solutions',
+    cardAction: 'Explore Tech Architecture'
   },
   {
-    id: 'kalika',
-    name: 'Kalika Sphere',
-    sector: 'Education & Technical Academics',
+    id: 'kaligar',
+    name: 'Kaligasphere',
+    sector: 'Education & Learning',
     tagline: 'Democratizing Advanced Technology Education',
-    description: 'Democratizing modern tech education through immersive, project-driven learning. Kalika Sphere operates full-stack bootcamps, developer mentorship circles, and skill certifications that bridge the gap between local graduate talent and enterprise software demand. We foster technical excellence without systemic boundaries.',
-    highlights: ['Project-Driven Software Engineering', 'Elite Mentor Placement Pathways', 'Rural Technology Scholarships', 'Over 5,000+ Certified Graduates'],
-    metrics: { count: '5,000+', label: 'Graduates Trained' },
-    link: 'https://www.kalikasphere.com/',
-    logo: 'https://www.kalikasphere.com/assets/logo-Drzuq4t7.png',
+    description: 'Democratizing tech education through immersive, project-driven learning. Kaligasphere operates a full-stack learning platform, professional certification courses, and software skill development ecosystems that directly bridge the gap between local talent and enterprise developer needs.',
+    highlights: ['Immersive Learning Platform', 'Professional Tech Courses', 'Corporate Skill Development', 'Enterprise-Recognized Certs'],
+    metrics: { value: 5000, suffix: '+', label: 'Graduates Trained' },
+    link: 'https://www.kaligasphere.com/',
     image: '/kalika_screen.png',
-    color: '#3F5E51',
+    cardTag: 'Academic Innovation',
+    cardTitle: '5,000 Certified Tech Professionals',
+    cardAction: 'View Academic Ecosystem'
   },
 ];
 
-// Processed Logo Component using Canvas to strip black background
-function ProcessedLogo() {
-  const [dataUrl, setDataUrl] = useState<string>('');
+const STORIES = [
+  {
+    id: 'story-1',
+    title: "From Kashmir Soil to Global Pantries: The Saffron Revolution",
+    category: "Sustainable Agriculture",
+    date: "June 2026",
+    description: "How Paidhu Ethical Foods bypassed intermediaries to bring origin-verified saffron to international markets, ensuring 100% of growers receive fair compensation.",
+    image: "/paidhu_screen.png",
+    featured: true
+  },
+  {
+    id: 'story-2',
+    title: "The Alchemy of Batch Fruit Sourcing",
+    category: "Preservation",
+    date: "May 2026",
+    description: "Exploring Floffi's micro-preservation methods that use natural honey as a stabilizer instead of artificial preservatives.",
+    image: "/floffi_screen.png",
+    featured: false
+  },
+  {
+    id: 'story-3',
+    title: "Scaling Custom SaaS Pipelines: Viyara's Tech Architecture",
+    category: "IT & Technology",
+    date: "May 2026",
+    description: "Deploying secure, high-performance cloud networks and custom generative AI automation pipelines to drive digital agility for modern global enterprises.",
+    image: "/viyara_screen.png",
+    featured: false
+  },
+  {
+    id: 'story-4',
+    title: "Bridging the Remote Engineering Gap",
+    category: "IT Education",
+    date: "April 2026",
+    description: "How Kaligasphere and Viyara cooperate to train developers in small-town municipalities and deploy them into global software pipelines.",
+    image: "/kalika_screen.png",
+    featured: false
+  }
+];
 
-  useEffect(() => {
-    const img = new Image();
-    img.src = '/paidhu_logo_raw.png';
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      ctx.drawImage(img, 0, 0);
+const PARTNERS = [
+  "Himalayan Saffron Board",
+  "National Organic Certification Authority",
+  "Vercel Enterprise Network",
+  "AWS Cloud Partner Labs",
+  "National Skill Development Council",
+  "Pampore Agrarian Cooperative"
+];
 
-      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imgData.data;
-
-      // Make black transparent and change white text to Sage Mint (#3F5E51)
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i+1];
-        const b = data[i+2];
-        
-        // If it's close to black background, set alpha to 0
-        if (r < 50 && g < 50 && b < 50) {
-          data[i+3] = 0;
-        } else {
-          // Keep anti-aliasing smooth by scaling transparency with brightness
-          const brightness = (r + g + b) / 3 / 255;
-          data[i] = 63;     // R
-          data[i+1] = 94;    // G
-          data[i+2] = 81;    // B
-          data[i+3] = Math.round(brightness * 255);
-        }
-      }
-
-      ctx.putImageData(imgData, 0, 0);
-      setDataUrl(canvas.toDataURL());
-    };
-  }, []);
-
-  return (
-    <motion.div
-      whileHover={{ scale: 1.03, y: -0.5 }}
-      style={{ display: 'flex', alignItems: 'center' }}
-    >
-      {dataUrl ? (
-        <img 
-          src={dataUrl} 
-          alt="Paidhu" 
-          style={{ height: 38, width: 'auto', objectFit: 'contain' }} 
-        />
-      ) : (
-        <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.25rem', fontWeight: 800, color: '#3F5E51' }}>paidhu</span>
-      )}
-    </motion.div>
-  );
-}
-
-// Hero Dynamic Slideshow Showcase Component
-function HeroSlideshow({ isMobile }: { isMobile: boolean }) {
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % BUSINESSES.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const slide = BUSINESSES[index];
-
-  return (
-    <div style={{ position: 'relative', width: '100%', height: isMobile ? 240 : 360, background: '#F5F5F0', border: '1px solid #C5C4BE', borderRadius: 24, overflow: 'hidden', boxShadow: '0 20px 40px rgba(63,94,81,0.04)' }}>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={slide.id}
-          initial={{ opacity: 0, scale: 1.02 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.6 }}
-          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1 }}
-        >
-          <img src={slide.image} alt={slide.name} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.95 }} />
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(to top, rgba(44,45,43,0.9) 0%, rgba(44,45,43,0.4) 60%, transparent 100%)' }} />
-        </motion.div>
-      </AnimatePresence>
-
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: isMobile ? 20 : 32, zIndex: 2, display: 'flex', flexDirection: 'column', gap: 6, color: '#F5F5F0' }}>
-        <span style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#B4BCB4' }}>{slide.sector}</span>
-        <h3 style={{ fontFamily: 'var(--font-display)', fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: 700, margin: 0 }}>{slide.name}</h3>
-        {!isMobile && <p style={{ fontSize: '0.875rem', opacity: 0.8, margin: 0, maxWidth: 440 }}>{slide.tagline}</p>}
-      </div>
-
-      <div style={{ position: 'absolute', top: isMobile ? 16 : 24, right: isMobile ? 16 : 24, zIndex: 3, display: 'flex', gap: 6 }}>
-        {BUSINESSES.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setIndex(i)}
-            style={{
-              width: isMobile ? 16 : 24,
-              height: 4,
-              borderRadius: 2,
-              border: 'none',
-              background: i === index ? '#3F5E51' : 'rgba(245, 245, 240, 0.4)',
-              cursor: 'pointer',
-              transition: 'background 0.3s'
-            }}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
+const NEWS_ITEMS = [
+  {
+    title: "Paidhu Ethical Foods Completes 100% Saffron Traceability Audit",
+    source: "Corporate Press",
+    date: "July 28, 2026",
+    excerpt: "Paidhu announced complete logistics validation, proving origin traceability from individual grower plots in Pampore to export shipment packing."
+  },
+  {
+    title: "Viyara Deploys Automated Generative AI Models for Supply Chains",
+    source: "Tech Insights",
+    date: "July 15, 2026",
+    excerpt: "New AI pipeline integration allows enterprise client networks to monitor inventory, automate order flows, and optimize routing dynamically."
+  },
+  {
+    title: "Kaligasphere Fosters 5,000 Certified Tech Graduates",
+    source: "Academic Review",
+    date: "June 30, 2026",
+    excerpt: "The technology academy celebrated its graduation milestone, marking an industry-leading 92% placement rate across global software ecosystems."
+  }
+];
 
 export default function Page() {
-  const [form, setForm] = useState({ name: '', email: '', message: '' });
+  const [form, setForm] = useState({ company: '', name: '', email: '', phone: '', country: '', industry: '', message: '' });
   const [sent, setSent] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [trailPos, setTrailPos] = useState({ x: 0, y: 0 });
+  const [headerScrolled, setHeaderScrolled] = useState(false);
+  const [activeSlide, setActiveSlide] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // Responsive check
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [language, setLanguage] = useState('EN');
+  
+  // Responsive Check
   useEffect(() => {
     const checkResponsive = () => {
-      setIsMobile(window.innerWidth < 850);
+      setIsMobile(window.innerWidth < 1024);
     };
     checkResponsive();
     window.addEventListener('resize', checkResponsive);
     return () => window.removeEventListener('resize', checkResponsive);
   }, []);
 
+  // Sync scroll animations
   useEffect(() => {
     const handleScroll = () => {
-      const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
-      if (totalScroll > 0) {
-        setScrollProgress((window.scrollY / totalScroll) * 100);
-      }
+      setHeaderScrolled(window.scrollY > 40);
     };
     window.addEventListener('scroll', handleScroll);
 
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({
-        x: (e.clientX / window.innerWidth - 0.5) * 12,
-        y: (e.clientY / window.innerHeight - 0.5) * 12,
-      });
-      setTrailPos({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
+    // Initial fade in triggers using GSAP ScrollTrigger
+    const fadeElements = document.querySelectorAll('.scroll-fade-in');
+    fadeElements.forEach((el) => {
+      gsap.fromTo(el, 
+        { opacity: 0, y: 40 },
+        { 
+          opacity: 1, 
+          y: 0, 
+          duration: 1.2, 
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 88%',
+            toggleActions: 'play none none none'
+          }
+        }
+      );
+    });
+
+    const dividerLines = document.querySelectorAll('.scroll-line-draw');
+    dividerLines.forEach((el) => {
+      gsap.fromTo(el,
+        { scaleX: 0 },
+        {
+          scaleX: 1,
+          duration: 1.4,
+          ease: 'power4.inOut',
+          transformOrigin: 'left center',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 92%',
+            toggleActions: 'play none none none'
+          }
+        }
+      );
+    });
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('mousemove', handleMouseMove);
+      ScrollTrigger.getAll().forEach(t => t.kill());
     };
+  }, []);
+
+  // Hero slideshow auto-advance
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % BUSINESSES.length);
+    }, 7000);
+    return () => clearInterval(timer);
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSent(true);
     setTimeout(() => setSent(false), 4000);
-    setForm({ name: '', email: '', message: '' });
+    setForm({ company: '', name: '', email: '', phone: '', country: '', industry: '', message: '' });
   };
 
   const scrollTo = (id: string) => {
     setMobileMenuOpen(false);
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const selectBusiness = (id: string) => {
-    setDropdownOpen(false);
-    setMobileMenuOpen(false);
-    setTimeout(() => {
-      scrollTo(`brand-${id}`);
-    }, 100);
+    const element = document.getElementById(id);
+    if (element) {
+      const headerOffset = 100;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
   };
 
   return (
-    <div style={{ background: '#ECEBE4', color: '#2C2D2B', fontFamily: 'var(--font-body)', minHeight: '100vh', display: 'flex', flexDirection: 'column', overflowX: 'hidden', position: 'relative' }}>
+    <div className="w-full bg-white text-charcoal font-sans min-h-screen flex flex-col relative overflow-x-hidden selection:bg-[#111111] selection:text-white">
       
-      {/* Subtle Canvas grid dots background */}
+      {/* Background Canvas Particles */}
       <DynamicCanvas />
 
-      {/* Subtle cursor light glow trail */}
-      {!isMobile && (
-        <div 
-          style={{
-            position: 'fixed',
-            top: trailPos.y - 120,
-            left: trailPos.x - 120,
-            width: 240,
-            height: 240,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(63, 94, 81, 0.03) 0%, transparent 70%)',
-            pointerEvents: 'none',
-            zIndex: 1,
-            transition: 'transform 0.1s ease-out',
-          }}
-        />
-      )}
-
-      {/* SCROLL BAR */}
-      <div style={{ position: 'fixed', top: 0, left: 0, width: `${scrollProgress}%`, height: '3px', background: 'linear-gradient(90deg, #3F5E51, #5A7E70)', zIndex: 1000, transition: 'width 0.1s ease-out' }} />
-
-      {/* HEADER */}
-      <motion.header 
-        initial={{ opacity: 0, y: -15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        onMouseLeave={() => setDropdownOpen(false)}
-        style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(236, 235, 228, 0.96)', backdropFilter: 'blur(20px)', borderBottom: '1px solid #C5C4BE', padding: '16px 24px' }}
-      >
-        <div style={{ maxWidth: 1140, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
-          <button onClick={() => scrollTo('hero')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-            <ProcessedLogo />
+      {/* ── LVMH ACCESSIBILITY TOP BAR ── */}
+      <div className="w-full bg-white border-b border-gray-100 py-2.5 px-6 md:px-12 flex justify-between items-center text-[10px] tracking-[0.2em] font-semibold text-gray-500 z-110 relative select-none">
+        <a href="#accessibility" className="hover:text-black transition-colors uppercase">
+          Accessibility
+        </a>
+        <div className="flex items-center gap-6">
+          <span className="hidden sm:inline-block text-[#3F5E51]">
+            PAIDHU GROUP +1.24%
+          </span>
+          <button onClick={() => scrollTo('maisons')} className="hover:text-black transition-colors uppercase focus:outline-none">
+            Maisons
           </button>
-          
-          {/* Responsive Navigation block */}
-          {isMobile ? (
+          <button onClick={() => scrollTo('investors')} className="hover:text-black transition-colors uppercase focus:outline-none">
+            Investors
+          </button>
+          <button onClick={() => scrollTo('chairman')} className="hover:text-black transition-colors uppercase focus:outline-none">
+            Leadership
+          </button>
+          <div className="relative group cursor-pointer flex items-center gap-1 hover:text-black transition-colors">
+            <span>{language}</span>
+            <ChevronDown className="w-3 h-3" />
+            <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 shadow-md rounded overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 text-[10px] min-w-[60px] text-left">
+              {['EN', 'FR', 'ES'].map(lang => (
+                <button
+                  key={lang}
+                  onClick={() => setLanguage(lang)}
+                  className="w-full px-3 py-1.5 hover:bg-gray-50 text-left font-semibold border-none bg-transparent"
+                >
+                  {lang}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── MAIN FLOATING NAVIGATION BAR ── */}
+      <header 
+        style={{
+          position: 'fixed',
+          top: '35px',
+          left: 0,
+          right: 0,
+          zIndex: 100,
+          background: headerScrolled ? 'rgba(255, 255, 255, 0.95)' : 'transparent',
+          backdropFilter: headerScrolled ? 'blur(10px)' : 'none',
+          borderBottom: headerScrolled ? '1px solid #E5E5E5' : '1px solid transparent',
+          padding: headerScrolled ? '16px 24px' : '28px 48px',
+          transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+        }}
+      >
+        <div 
+          className="flex items-center justify-between relative w-full"
+          style={{ maxWidth: '1440px', marginLeft: 'auto', marginRight: 'auto' }}
+        >
+          {/* Left: Combined Menu & Search Bar */}
+          <div className="flex items-center gap-3">
             <button 
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="flex items-center gap-3 px-4 py-2 border border-gray-200/20 bg-white/10 backdrop-blur-sm rounded-none hover:bg-white hover:border-black transition-all cursor-pointer group focus:outline-none"
               style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                padding: 4,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 5,
-                zIndex: 1001
+                borderColor: headerScrolled ? '#E5E5E5' : 'rgba(255,255,255,0.2)',
+                backgroundColor: headerScrolled ? 'transparent' : 'rgba(255,255,255,0.1)'
               }}
             >
-              <span style={{ display: 'block', width: 22, height: 2, background: '#2C2D2B', transform: mobileMenuOpen ? 'rotate(45deg) translate(5px, 5px)' : 'none', transition: 'transform 0.2s' }} />
-              <span style={{ display: 'block', width: 22, height: 2, background: '#2C2D2B', opacity: mobileMenuOpen ? 0 : 1, transition: 'opacity 0.2s' }} />
-              <span style={{ display: 'block', width: 22, height: 2, background: '#2C2D2B', transform: mobileMenuOpen ? 'rotate(-45deg) translate(5px, -5px)' : 'none', transition: 'transform 0.2s' }} />
-            </button>
-          ) : (
-            <nav style={{ display: 'flex', gap: 36, alignItems: 'center' }}>
-              <button 
-                onMouseEnter={() => setDropdownOpen(true)}
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-                style={{ 
-                  background: 'none', 
-                  border: 'none', 
-                  cursor: 'pointer', 
-                  fontSize: '0.8125rem', 
-                  fontWeight: 700, 
-                  color: dropdownOpen ? '#3F5E51' : '#5A5D5A', 
-                  letterSpacing: '0.12em', 
-                  textTransform: 'uppercase',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  padding: '8px 0',
-                  borderBottom: dropdownOpen ? '2px solid #3F5E51' : '2px solid transparent',
-                  transition: 'all 0.2s'
-                }}
+              <div className="flex flex-col gap-1 w-4">
+                <span className="h-0.5 w-full bg-white group-hover:bg-black transition-colors" style={{ backgroundColor: headerScrolled ? '#111111' : '#FFFFFF' }} />
+                <span className="h-0.5 w-full bg-white group-hover:bg-black transition-colors" style={{ backgroundColor: headerScrolled ? '#111111' : '#FFFFFF' }} />
+              </div>
+              <span 
+                className="text-[10px] tracking-[0.2em] font-semibold uppercase group-hover:text-black transition-colors"
+                style={{ color: headerScrolled ? '#111111' : '#FFFFFF' }}
               >
-                Businesses
-              </button>
+                Menu
+              </span>
+            </button>
 
-              <MagneticElement>
-                <button onClick={() => scrollTo('brands')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 700, color: '#5A5D5A', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Portfolio</button>
-              </MagneticElement>
-              <MagneticElement>
-                <button onClick={() => scrollTo('contact')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 700, color: '#5A5D5A', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Inquiry</button>
-              </MagneticElement>
-            </nav>
-          )}
+            <button 
+              onClick={() => setSearchOpen(true)}
+              className="p-2.5 rounded-none border border-gray-200/20 bg-white/10 hover:bg-white hover:border-black hover:text-black transition-all cursor-pointer focus:outline-none"
+              style={{
+                borderColor: headerScrolled ? '#E5E5E5' : 'rgba(255,255,255,0.2)',
+                backgroundColor: headerScrolled ? 'transparent' : 'rgba(255,255,255,0.1)',
+                color: headerScrolled ? '#111111' : '#FFFFFF'
+              }}
+              aria-label="Search site"
+            >
+              <Search className="w-3.5 h-3.5" />
+            </button>
+          </div>
 
-          {/* TATA STYLE CORPORATE MEGA DROPDOWN MENU (Desktop only) */}
-          {!isMobile && (
-            <AnimatePresence>
-              {dropdownOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 8 }}
-                  transition={{ duration: 0.25, ease: 'easeOut' }}
-                  onMouseEnter={() => setDropdownOpen(true)}
-                  style={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: 0,
-                    right: 0,
-                    background: 'rgba(245, 245, 240, 0.98)',
-                    backdropFilter: 'blur(20px)',
-                    border: '1px solid #C5C4BE',
-                    borderRadius: '16px',
-                    boxShadow: '0 20px 40px rgba(0,0,0,0.06)',
-                    padding: '36px 40px',
-                    marginTop: '12px',
-                    zIndex: 1000,
-                    display: 'grid',
-                    gridTemplateColumns: '1.2fr 1fr 1.5fr',
-                    gap: '40px',
-                    textAlign: 'left'
-                  }}
-                >
-                  {/* Column 1: Business Overview */}
-                  <div style={{ borderRight: '1px solid rgba(197, 196, 190, 0.5)', paddingRight: '32px' }}>
-                    <h4 style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#3F5E51', letterSpacing: '0.1em', marginBottom: '16px' }}>Business Overview</h4>
-                    <p style={{ fontSize: '0.875rem', color: '#5A5D5A', lineHeight: 1.6, marginBottom: '20px' }}>
-                      Mapping Kashmir fair-trade agriculture, artisanal FMCG, software engineering, and developer education under one cohesive conglomerate ecosystem.
-                    </p>
-                    <button 
-                      onClick={() => { setDropdownOpen(false); scrollTo('brands'); }}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 700, color: '#2C2D2B', textDecoration: 'underline', padding: 0 }}
-                    >
-                      Explore Group Brands
-                    </button>
-                  </div>
-
-                  {/* Column 2: Our Brands */}
-                  <div style={{ borderRight: '1px solid rgba(197, 196, 190, 0.5)', paddingRight: '32px' }}>
-                    <h4 style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#3F5E51', letterSpacing: '0.1em', marginBottom: '16px' }}>Our Brands</h4>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                      {BUSINESSES.map((b) => (
-                        <button
-                          key={b.id}
-                          onClick={() => selectBusiness(b.id)}
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            cursor: 'pointer',
-                            textAlign: 'left',
-                            fontSize: '0.875rem',
-                            fontWeight: 600,
-                            color: '#2C2D2B',
-                            padding: 0,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            transition: 'color 0.2s'
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.color = '#3F5E51'}
-                          onMouseLeave={(e) => e.currentTarget.style.color = '#2C2D2B'}
-                        >
-                          <span style={{ fontSize: '0.5rem', color: '#3F5E51' }}>●</span>
-                          {b.name}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Column 3: Business Verticals */}
-                  <div>
-                    <h4 style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#3F5E51', letterSpacing: '0.1em', marginBottom: '16px' }}>Business Verticals</h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px', fontSize: '0.8125rem', color: '#5A5D5A' }}>
-                      <div>
-                        <strong style={{ color: '#2C2D2B', display: 'block', fontSize: '0.875rem' }}>Technology & SaaS Platforms</strong>
-                        Cloud automation, SaaS operations, Custom AI workflows, Bootcamps.
-                      </div>
-                      <div>
-                        <strong style={{ color: '#2C2D2B', display: 'block', fontSize: '0.875rem' }}>Sustainable Agriculture & Food</strong>
-                        Trace-to-origin Kashmiri Saffron exports, handpicked flower crops.
-                      </div>
-                      <div>
-                        <strong style={{ color: '#2C2D2B', display: 'block', fontSize: '0.875rem' }}>Consumer Preservation FMCG</strong>
-                        Floral preserves, organic botanicals, biodegradable glass spreads.
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          )}
+          {/* Right: Paidhu Exact Logo */}
+          <button 
+            onClick={() => scrollTo('hero')} 
+            className="focus:outline-none cursor-pointer border-none bg-transparent outline-none text-right flex items-center justify-end"
+          >
+            <div className="overflow-hidden h-10 md:h-12 flex items-center justify-end">
+              <img 
+                src="/paidhu_logo_new.png" 
+                alt="Paidhu Logo" 
+                className="h-28 md:h-32 w-auto object-contain transition-all duration-300"
+                style={{
+                  filter: headerScrolled ? 'invert(1)' : 'none',
+                  margin: '-12px 0'
+                }}
+              />
+            </div>
+          </button>
         </div>
 
-        {/* Mobile Menu Panel */}
+        {/* LVMH-Style Slide-In Menu Drawer */}
         <AnimatePresence>
-          {isMobile && mobileMenuOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              style={{
-                background: '#ECEBE4',
-                padding: '24px 8px',
-                borderTop: '1px solid #C5C4BE',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 16,
-                zIndex: 999,
-                position: 'relative'
-              }}
-            >
-              <button onClick={() => scrollTo('brands')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem', fontWeight: 700, color: '#2C2D2B', textAlign: 'left', letterSpacing: '0.05em' }}>PORTFOLIO</button>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingLeft: 12, borderLeft: '1px solid #C5C4BE' }}>
-                {BUSINESSES.map((b) => (
-                  <button key={b.id} onClick={() => selectBusiness(b.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.875rem', color: '#5A5D5A', textAlign: 'left' }}>
-                    {b.name}
+          {mobileMenuOpen && (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.4 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setMobileMenuOpen(false)}
+                className="fixed inset-0 bg-black z-190"
+              />
+              {/* Drawer Content */}
+              <motion.div
+                initial={{ x: '-100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '-100%' }}
+                transition={{ type: 'spring', damping: 26, stiffness: 220 }}
+                className="fixed top-0 left-0 bottom-0 w-full sm:w-[420px] bg-white z-200 shadow-2xl flex flex-col justify-between overflow-y-auto border-r border-gray-100"
+              >
+                {/* Drawer Header */}
+                <div className="flex justify-between items-center py-5 px-8 border-b border-gray-200/60">
+                  <button
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 text-black hover:opacity-75 transition-opacity cursor-pointer border-none bg-transparent focus:outline-none"
+                  >
+                    <X className="w-5 h-5 font-light" />
+                    <span className="text-[10px] tracking-[0.25em] font-semibold uppercase">Close</span>
                   </button>
-                ))}
-              </div>
-              <button onClick={() => scrollTo('contact')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem', fontWeight: 700, color: '#2C2D2B', textAlign: 'left', letterSpacing: '0.05em' }}>INQUIRY</button>
-            </motion.div>
+                  <button
+                    onClick={() => { setMobileMenuOpen(false); setSearchOpen(true); }}
+                    className="p-2 text-black hover:opacity-75 transition-opacity cursor-pointer border-none bg-transparent focus:outline-none"
+                  >
+                    <Search className="w-4 h-4 font-light" />
+                  </button>
+                </div>
+
+                {/* Main Large Serif Menu Links */}
+                <div className="flex flex-col gap-6 py-12 px-10 text-left">
+                  {[
+                    { label: 'Group', target: 'highlights' },
+                    { label: 'Commitments', target: 'chairman' },
+                    { label: 'Maisons', target: 'maisons' },
+                    { label: 'Join Us', target: 'contact' },
+                    { label: 'Dream Machine', target: 'hero' }
+                  ].map((item) => (
+                    <button
+                      key={item.label}
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        scrollTo(item.target);
+                      }}
+                      className="font-serif text-[26px] font-light text-black tracking-[0.08em] hover:text-gray-400 transition-colors uppercase text-left border-none bg-transparent cursor-pointer"
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Accent Callout Row (Les Journées Particulières / Sourcing Audits) */}
+                <div className="border-t border-b border-gray-200/50 bg-[#FBF9F6]">
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      scrollTo('highlights');
+                    }}
+                    className="w-full flex justify-between items-center py-5 px-10 text-left text-[9px] tracking-[0.25em] font-semibold text-black uppercase hover:bg-gray-50 transition-colors border-none bg-transparent cursor-pointer"
+                  >
+                    <span>Les Journées Particulières</span>
+                    <ChevronRight className="w-4 h-4 text-black font-light" />
+                  </button>
+                </div>
+
+                {/* Lower Secondary Links */}
+                <div className="flex flex-col gap-4.5 py-8 px-10 text-left">
+                  {[
+                    { label: 'Investors', target: 'investors' },
+                    { label: 'Press', target: 'highlights' },
+                    { label: 'Startups & Tech Partners', target: 'maisons' },
+                    { label: 'Suppliers', target: 'contact' },
+                    { label: 'Candidate Portal', target: 'contact' }
+                  ].map((subLink) => (
+                    <button
+                      key={subLink.label}
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        scrollTo(subLink.target);
+                      }}
+                      className="text-[9px] font-bold tracking-[0.2em] text-gray-400 hover:text-black transition-colors uppercase text-left border-none bg-transparent cursor-pointer"
+                    >
+                      {subLink.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Social Network Section (2 rows of custom monochrome icons) */}
+                <div className="py-8 border-t border-gray-200/50 flex flex-col items-center gap-6 bg-[#FFFFFF]">
+                  {/* Row 1: Facebook, Instagram, YouTube, Pinterest */}
+                  <div className="flex justify-center gap-7 items-center text-black">
+                    {/* Facebook */}
+                    <a href="#facebook" className="hover:opacity-60 transition-opacity" aria-label="Facebook">
+                      <svg className="w-4.5 h-4.5 fill-current" viewBox="0 0 24 24">
+                        <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/>
+                      </svg>
+                    </a>
+                    {/* Instagram */}
+                    <a href="#instagram" className="hover:opacity-60 transition-opacity" aria-label="Instagram">
+                      <svg className="w-4.5 h-4.5 fill-current" viewBox="0 0 24 24">
+                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                      </svg>
+                    </a>
+                    {/* YouTube */}
+                    <a href="#youtube" className="hover:opacity-60 transition-opacity" aria-label="YouTube">
+                      <svg className="w-4.5 h-4.5 fill-current" viewBox="0 0 24 24">
+                        <path d="M23.498 6.163a3.003 3.003 0 00-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.517 0-9.388.508a3.003 3.003 0 00-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 002.11 2.11c1.871.508 9.388.508 9.388.508s7.517 0 9.388-.508a3.003 3.003 0 002.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                      </svg>
+                    </a>
+                    {/* Pinterest */}
+                    <a href="#pinterest" className="hover:opacity-60 transition-opacity" aria-label="Pinterest">
+                      <svg className="w-4.5 h-4.5 fill-current" viewBox="0 0 24 24">
+                        <path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.162 0 7.397 2.967 7.397 6.93 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/>
+                      </svg>
+                    </a>
+                  </div>
+
+                  {/* Row 2: LinkedIn, X, TikTok */}
+                  <div className="flex justify-center gap-7 items-center text-black">
+                    {/* LinkedIn */}
+                    <a href="#linkedin" className="hover:opacity-60 transition-opacity" aria-label="LinkedIn">
+                      <svg className="w-4.5 h-4.5 fill-current" viewBox="0 0 24 24">
+                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                      </svg>
+                    </a>
+                    {/* X */}
+                    <a href="#x" className="hover:opacity-60 transition-opacity" aria-label="X">
+                      <svg className="w-4.5 h-4.5 fill-current" viewBox="0 0 24 24">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                      </svg>
+                    </a>
+                    {/* TikTok */}
+                    <a href="#tiktok" className="hover:opacity-60 transition-opacity" aria-label="TikTok">
+                      <svg className="w-4.5 h-4.5 fill-current" viewBox="0 0 24 24">
+                        <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.52-4.06-1.39-.33-.24-.63-.51-.9-.8-.06 2.68-.02 5.37-.04 8.05-.04 2.44-.72 4.87-2.2 6.78-1.89 2.43-5.07 3.75-8.1 3.22-3.1-.53-5.83-2.87-6.73-5.89-.98-3.3.17-7.14 2.91-9.17 1.71-1.27 3.86-1.78 5.96-1.45v4.08c-1.13-.34-2.37-.18-3.37.47-1.16.76-1.73 2.19-1.5 3.56.22 1.34 1.25 2.5 2.58 2.76 1.48.29 3.09-.43 3.69-1.84.22-.52.28-1.1.27-1.66-.03-4.83-.02-9.66-.02-14.49z"/>
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
-      </motion.header>
+      </header>
 
-      {/* HERO */}
-      <section id="hero" style={{ padding: isMobile ? '80px 20px 60px' : '120px 24px 80px', position: 'relative', background: '#F5F5F0', borderBottom: '1px solid #C5C4BE', overflow: 'hidden' }}>
-        <div className="glow-spot" style={{ top: '10%', left: '-10%' }} />
-        <div className="glow-spot" style={{ bottom: '10%', right: '-10%' }} />
-
-        <div className="container" style={{ maxWidth: 1140, margin: '0 auto', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(320px, 1fr))', gap: isMobile ? 40 : 56, alignItems: 'center', position: 'relative', zIndex: 2 }}>
-          <motion.div
-            initial={{ opacity: 0, x: isMobile ? 0 : -40, y: isMobile ? 20 : 0 }}
-            animate={{ opacity: 1, x: 0, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      {/* SEARCH OVERLAY */}
+      <AnimatePresence>
+        {searchOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-200 bg-white flex flex-col p-6 md:p-24"
           >
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, marginBottom: isMobile ? 16 : 24 }}>
-              <motion.span initial={{ width: 0 }} animate={{ width: 24 }} transition={{ delay: 0.2 }} style={{ height: 1, background: '#3F5E51' }} />
-              <span style={{ color: '#3F5E51', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', fontFamily: 'var(--font-display)' }}>
-                Paidhu Group Enterprise
-              </span>
-            </div>
-
-            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: isMobile ? '2.25rem' : 'clamp(2.5rem, 5vw, 4rem)', fontWeight: 800, color: '#2C2D2B', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: isMobile ? 18 : 24 }}>
-              Building Businesses That <br />
-              <motion.span
-                initial={{ opacity: 0, scale: 0.97 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.7, delay: 0.25 }}
-                className="gradient-sage-text"
-                style={{ fontStyle: 'italic', fontWeight: 700, display: 'inline-block' }}
+            <div className="w-full flex justify-between items-center mb-16 px-6 md:px-12" style={{ maxWidth: '1440px', marginLeft: 'auto', marginRight: 'auto' }}>
+              <span className="font-serif text-xl tracking-[0.2em] font-light text-black">PAIDHU SEARCH</span>
+              <button 
+                onClick={() => setSearchOpen(false)}
+                className="p-3 border border-gray-200 rounded-full text-black hover:border-black transition-colors cursor-pointer bg-transparent focus:outline-none"
               >
-                Inspire a Better Future
-              </motion.span>
-            </h1>
-
-            <p style={{ color: '#5A5D5A', fontSize: isMobile ? '1rem' : '1.125rem', lineHeight: 1.7, maxWidth: 540, marginBottom: isMobile ? 28 : 40 }}>
-              A diversified modern conglomerate branching out into ethical agriculture, gourmet preservation, SaaS technology, and certification academics.
-            </p>
-
-            <div style={{ display: 'flex', gap: 16 }}>
-              <MagneticElement>
-                <motion.button 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => scrollTo('brands')} 
-                  className="btn-sage-action"
-                >
-                  Explore Portfolio
-                </motion.button>
-              </MagneticElement>
-              <MagneticElement>
-                <motion.button 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => scrollTo('contact')} 
-                  className="btn-outline-sage"
-                >
-                  Get In Touch
-                </motion.button>
-              </MagneticElement>
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="w-full flex-grow flex flex-col justify-center px-6 md:px-12" style={{ maxWidth: '1000px', marginLeft: 'auto', marginRight: 'auto' }}>
+              <input
+                type="text"
+                autoFocus
+                placeholder="Search Paidhu Group..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-transparent border-b border-gray-300 py-6 text-2xl md:text-5xl text-black font-serif font-light focus:outline-none focus:border-black transition-colors placeholder-gray-300"
+              />
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
-            style={{ 
-              transform: isMobile ? 'none' : `translate3d(${mousePos.x}px, ${mousePos.y}px, 0)`,
-              transition: 'transform 0.4s ease-out'
-            }}
+      {/* ── LVMH-STYLE HERO CAROUSEL ── */}
+      <section 
+        id="hero" 
+        className="w-full relative h-[94vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden"
+      >
+        {/* Slides */}
+        <div className="absolute inset-0 z-0 bg-[#0f1110]">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeSlide}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.72 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.5, ease: 'easeInOut' }}
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ 
+                backgroundImage: `url(${BUSINESSES[activeSlide].image})`,
+                backgroundPosition: 'center 20%',
+              }}
+            />
+          </AnimatePresence>
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/50 pointer-events-none" />
+        </div>
+
+        {/* Vertical Slide Controls */}
+        <button 
+          onClick={() => setActiveSlide((prev) => (prev - 1 + BUSINESSES.length) % BUSINESSES.length)}
+          className="absolute left-0 top-0 bottom-0 w-16 bg-black/5 hover:bg-black/15 flex items-center justify-center text-white border-none cursor-pointer transition-colors z-20 focus:outline-none"
+          aria-label="Previous Slide"
+        >
+          <ChevronLeft className="w-8 h-8 font-light" />
+        </button>
+
+        <button 
+          onClick={() => setActiveSlide((prev) => (prev + 1) % BUSINESSES.length)}
+          className="absolute right-0 top-0 bottom-0 w-16 bg-black/5 hover:bg-black/15 flex items-center justify-center text-white border-none cursor-pointer transition-colors z-20 focus:outline-none"
+          aria-label="Next Slide"
+        >
+          <ChevronRight className="w-8 h-8 font-light" />
+        </button>
+
+        {/* Signature Centered White Card Overlay */}
+        <div className="absolute bottom-[10%] left-1/2 -translate-x-1/2 z-10 w-[90%] max-w-[650px] bg-white border border-gray-100 shadow-xl py-10 px-8 text-center scroll-fade-in">
+          <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-[#C79B36] block mb-3 font-mono">
+            {BUSINESSES[activeSlide].cardTag}
+          </span>
+          <h2 className="font-serif text-2xl md:text-3xl font-light text-black tracking-[0.08em] uppercase leading-tight mb-5">
+            {BUSINESSES[activeSlide].cardTitle}
+          </h2>
+          <div className="w-12 h-[1px] bg-gray-200 mx-auto mb-5" />
+          <button 
+            onClick={() => scrollTo(`brand-${BUSINESSES[activeSlide].id}`)}
+            className="font-serif text-[11px] uppercase tracking-[0.2em] font-semibold text-black hover:opacity-70 transition-opacity border-b border-black pb-0.5 bg-transparent cursor-pointer"
           >
-            <HeroSlideshow isMobile={isMobile} />
-          </motion.div>
+            {BUSINESSES[activeSlide].cardAction}
+          </button>
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-3 z-10">
+          {BUSINESSES.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setActiveSlide(idx)}
+              className="w-1.5 h-1.5 rounded-full transition-all focus:outline-none border-none cursor-pointer"
+              style={{
+                backgroundColor: activeSlide === idx ? '#FFFFFF' : 'rgba(255,255,255,0.4)',
+                transform: activeSlide === idx ? 'scale(1.3)' : 'scale(1)'
+              }}
+            />
+          ))}
         </div>
       </section>
 
-      {/* INFINITE SCROLLING TICKER */}
-      <TickerBanner />
-
-      {/* PORTFOLIO GRID WITH 3D PARALLAX CARDS */}
-      <section id="brands" style={{ padding: isMobile ? '60px 20px' : '100px 24px', background: '#ECEBE4', borderBottom: '1px solid #C5C4BE' }}>
-        <div style={{ maxWidth: 1140, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: isMobile ? 40 : 64 }}>
-            <span style={{ color: '#3F5E51', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase', display: 'block', marginBottom: 12 }}>Subsidiaries</span>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: isMobile ? '2rem' : '2.5rem', fontWeight: 700, color: '#2C2D2B' }}>Group Brand Profiles</h2>
+      {/* ── 3. GROUP HIGHLIGHTS (Clean Editorial Grid with thin borders) ── */}
+      <section 
+        id="highlights" 
+        className="w-full bg-[#FCFAF6] py-28 flex flex-col items-center relative z-10 text-left"
+      >
+        <div 
+          className="w-full px-6 md:px-12 flex flex-col gap-12"
+          style={{ maxWidth: '1440px', marginLeft: 'auto', marginRight: 'auto' }}
+        >
+          {/* Header Block */}
+          <div className="text-center max-w-[800px] mx-auto mb-6 scroll-fade-in">
+            <span className="text-[10px] uppercase font-bold tracking-[0.3em] text-gray-400 block mb-3 font-mono">
+              Corporate Ledger
+            </span>
+            <h2 className="font-serif text-3xl md:text-5xl font-light text-black tracking-[0.1em] uppercase leading-tight">
+              Group Editorial Highlights
+            </h2>
+            <div className="w-16 h-[1.5px] bg-[#C79B36] mx-auto mt-6" />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(230px, 1fr))', gap: 20 }}>
-            {BUSINESSES.map((b, idx) => (
-              <ParallaxCard key={idx}>
-                <motion.div 
-                  id={`brand-${b.id}`}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: idx * 0.1 }}
-                  className="elegant-panel"
-                  style={{ 
-                    overflow: 'hidden', 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    justifyContent: 'space-between', 
-                    height: '100%',
-                    transformStyle: 'preserve-3d',
-                    position: 'relative'
-                  }}
-                >
-                  <motion.div 
-                    initial={{ opacity: 0 }}
-                    whileHover={{ opacity: 0.03 }}
-                    style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(135deg, #3F5E51 0%, transparent 60%)', zIndex: 1, pointerEvents: 'none' }}
-                  />
-
-                  <div style={{ transformStyle: 'preserve-3d', zIndex: 2 }}>
-                    <div style={{ height: 140, overflow: 'hidden', borderBottom: '1px solid #C5C4BE', position: 'relative', transformStyle: 'preserve-3d' }}>
-                      <motion.img 
-                        whileHover={{ scale: 1.06, translateZ: 20 }}
-                        transition={{ duration: 0.4 }}
-                        src={b.image} 
-                        alt={b.name} 
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                      />
-                    </div>
-                    <div style={{ padding: 20, transformStyle: 'preserve-3d' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12, transformStyle: 'preserve-3d' }}>
-                        <motion.div 
-                          whileHover={{ scale: 1.05, rotate: 4, translateZ: 30 }}
-                          style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#ECEBE4', border: '1px solid #C5C4BE', borderRadius: 8, padding: 6, flexShrink: 0 }}
-                        >
-                          <img src={b.logo} alt={b.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
-                        </motion.div>
-                        <div>
-                          <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#3F5E51', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 2 }}>{b.sector}</span>
-                          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#2C2D2B', margin: 0, fontFamily: 'var(--font-display)' }}>{b.name}</h3>
-                        </div>
-                      </div>
-                      <p style={{ color: '#5A5D5A', fontSize: '0.8125rem', lineHeight: 1.5, margin: 0 }}>{b.description}</p>
-                    </div>
+          {/* Grid Layout */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 border-t border-l border-gray-200/60 items-stretch">
+            {STORIES.map((story) => (
+              <div 
+                key={story.id} 
+                className="group flex flex-col justify-between overflow-hidden bg-white border-r border-b border-gray-200/60 hover:shadow-lg transition-all duration-500 relative scroll-fade-in"
+              >
+                <div>
+                  <div className="relative overflow-hidden w-full aspect-[4/3] bg-gray-50">
+                    <img 
+                      src={story.image} 
+                      alt={story.title} 
+                      className="w-full h-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-103"
+                    />
                   </div>
-                  <div style={{ padding: '0 20px 20px', transformStyle: 'preserve-3d', zIndex: 2 }}>
-                    <motion.a 
-                      whileHover={{ x: 4, translateZ: 15 }}
-                      href={b.link} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#2C2D2B', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', textDecoration: 'none' }}
-                    >
-                      Visit Website <span style={{ color: '#3F5E51' }}>→</span>
-                    </motion.a>
+                  <div className="p-8">
+                    <span className="text-[9px] uppercase font-bold tracking-widest text-[#C79B36] block mb-2 font-mono">
+                      {story.category}
+                    </span>
+                    <h3 className="font-serif text-xl font-light text-black leading-snug tracking-wide group-hover:text-gray-600 transition-colors uppercase">
+                      {story.title}
+                    </h3>
+                    <p className="text-xs text-gray-500 mt-4 leading-relaxed font-sans line-clamp-3">
+                      {story.description}
+                    </p>
                   </div>
-                </motion.div>
-              </ParallaxCard>
+                </div>
+                <div className="p-8 pt-0 flex justify-between items-center text-[10px] font-bold tracking-wider font-mono text-gray-400">
+                  <span>{story.date}</span>
+                  <button 
+                    onClick={() => scrollTo('contact')}
+                    className="text-black hover:text-[#C79B36] flex items-center gap-1.5 transition-colors border-none bg-transparent uppercase focus:outline-none"
+                  >
+                    View
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CONTACT */}
-      <section id="contact" style={{ padding: isMobile ? '60px 20px' : '100px 24px', background: '#ECEBE4' }}>
-        <div style={{ maxWidth: 1140, margin: '0 auto', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', gap: isMobile ? 40 : 64, alignItems: 'start' }}>
-          <div>
-            <span style={{ color: '#3F5E51', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase', display: 'block', marginBottom: 12 }}>Corporate Inquiry</span>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2.25rem', fontWeight: 700, color: '#2C2D2B', marginBottom: 20 }}>Get In Touch</h2>
-            <p style={{ color: '#5A5D5A', fontSize: '1rem', lineHeight: 1.7, marginBottom: 36 }}>
-              Partner with Paidhu Group across agriculture exports, enterprise software services, retail distribution, or skill bootcamps.
+      {/* ── 4. THE MAISONS / GROUP PORTFOLIO ── */}
+      <section 
+        id="maisons" 
+        className="w-full py-28 bg-white flex justify-center text-left border-t border-gray-100"
+      >
+        <div 
+          className="w-full px-6 md:px-12 flex flex-col gap-16"
+          style={{ maxWidth: '1440px', marginLeft: 'auto', marginRight: 'auto' }}
+        >
+          <div className="text-center scroll-fade-in">
+            <span className="text-[10px] uppercase font-bold tracking-[0.3em] text-gray-400 block mb-3 font-mono">
+              Division Sectors
+            </span>
+            <h2 className="font-serif text-3xl md:text-5xl font-light text-black tracking-[0.1em] uppercase leading-tight">
+              The Houses of Paidhu
+            </h2>
+            <p className="text-sm text-gray-500 max-w-md mx-auto mt-4 font-sans leading-relaxed">
+              Diversified conglomerates focused on direct agricultural logistics, enterprise cloud technology, and academic placement ecosystems.
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20, fontSize: '0.875rem', color: '#5A5D5A', lineHeight: 1.6 }}>
-              <div><strong>Global Headquarters:</strong><br />No 11 Saraswati Avenue, Achipatti, Pollachi – 642002, Tamil Nadu, India.</div>
-              <div><strong>Phone:</strong> +91 87542 87774</div>
-              <div><strong>Website:</strong> www.paidhu.com</div>
-            </div>
           </div>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            style={{ background: '#F5F5F0', border: '1px solid #C5C4BE', borderRadius: 20, padding: isMobile ? 24 : 36, boxShadow: '0 8px 32px rgba(63, 94, 81, 0.01)' }}
-          >
-            <AnimatePresence mode="wait">
-              {sent ? (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0 }}
-                  style={{ textAlign: 'center', padding: '36px 0', color: '#3F5E51' }}
-                >
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: 700, fontFamily: 'var(--font-display)', marginBottom: 8 }}>Inquiry Submitted</h3>
-                  <p style={{ fontSize: '0.875rem', color: '#5A5D5A' }}>We will contact you within 24 hours.</p>
-                </motion.div>
-              ) : (
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-                  <div>
-                    <label style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#2C2D2B', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 6 }}>Full Name</label>
-                    <input type="text" required placeholder="Your name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} style={{ width: '100%', padding: '12px', border: '1px solid #C5C4BE', background: '#F5F5F0', color: '#2C2D2B', borderRadius: 8, fontSize: '0.875rem', outline: 'none' }} />
+
+          <div className="flex flex-col gap-24">
+            {BUSINESSES.map((b, idx) => (
+              <div 
+                key={b.id} 
+                id={`brand-${b.id}`}
+                className={`grid grid-cols-1 lg:grid-cols-12 gap-12 items-center ${idx % 2 === 1 ? 'lg:flex-row-reverse' : ''} scroll-fade-in`}
+              >
+                {/* Visual Cover */}
+                <div className={`lg:col-span-7 overflow-hidden relative border border-gray-100 ${idx % 2 === 1 ? 'lg:order-2' : ''}`}>
+                  <div className="relative overflow-hidden aspect-[16/10] bg-gray-50 group">
+                    <img 
+                      src={b.image} 
+                      alt={b.name} 
+                      className="w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-102"
+                    />
                   </div>
-                  <div>
-                    <label style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#2C2D2B', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 6 }}>Email Address</label>
-                    <input type="email" required placeholder="your@email.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} style={{ width: '100%', padding: '12px', border: '1px solid #C5C4BE', background: '#F5F5F0', color: '#2C2D2B', borderRadius: 8, fontSize: '0.875rem', outline: 'none' }} />
+                </div>
+
+                {/* Text Content */}
+                <div className="lg:col-span-5 flex flex-col justify-center text-left">
+                  <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-[#C79B36] block mb-3 font-mono">
+                    {b.sector}
+                  </span>
+                  <h3 className="font-serif text-2xl md:text-4xl font-light text-black tracking-[0.08em] uppercase mb-6">
+                    {b.name}
+                  </h3>
+                  <div className="w-10 h-[1px] bg-gray-200 mb-6" />
+                  <p className="text-sm text-gray-600 leading-relaxed mb-6 font-sans">
+                    {b.description}
+                  </p>
+
+                  <div className="flex flex-col gap-3.5 mb-8 text-xs font-medium text-gray-500 font-sans">
+                    {b.highlights.map((hl, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#C79B36] shrink-0" />
+                        <span>{hl}</span>
+                      </div>
+                    ))}
                   </div>
-                  <div>
-                    <label style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#2C2D2B', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 6 }}>Message</label>
-                    <textarea required rows={4} placeholder="Your message..." value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} style={{ width: '100%', padding: '12px', border: '1px solid #C5C4BE', background: '#F5F5F0', color: '#2C2D2B', borderRadius: 8, fontSize: '0.875rem', outline: 'none', resize: 'none' }} />
+
+                  <div className="flex items-baseline gap-4 mb-8">
+                    <span className="font-serif text-5xl font-light text-[#C79B36] tracking-tight">
+                      {b.metrics.value}{b.metrics.suffix}
+                    </span>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-gray-400 font-mono">
+                      {b.metrics.label}
+                    </span>
                   </div>
-                  <motion.button 
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    type="submit" 
-                    className="btn-sage-action"
+
+                  <a 
+                    href={b.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-sage-action py-3.5 text-center self-start"
                   >
-                    Submit Inquiry
-                  </motion.button>
-                </form>
-              )}
-            </AnimatePresence>
-          </motion.div>
+                    Enter House Portal
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer style={{ marginTop: 'auto', background: '#ECEBE4', padding: '40px 24px', borderTop: '1px solid #C5C4BE', textAlign: 'center' }}>
-        <div style={{ maxWidth: 1140, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
-          <span style={{ fontSize: '0.75rem', color: '#5A5D5A', letterSpacing: '0.05em' }}>© {new Date().getFullYear()} Paidhu Group. All rights reserved.</span>
-          <div style={{ display: 'flex', gap: 24 }}>
-            <span style={{ fontSize: '0.75rem', color: '#5A5D5A', cursor: 'pointer' }}>Privacy Policy</span>
-            <span style={{ fontSize: '0.75rem', color: '#5A5D5A', cursor: 'pointer' }}>Terms of Use</span>
+
+      {/* ── 6. LEADERSHIP EDITORIAL SPREAD ── */}
+      <section
+        id="chairman"
+        className="w-full py-36 bg-white flex justify-center text-left relative z-10"
+      >
+        <div 
+          className="w-full px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-16 items-center"
+          style={{ maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto' }}
+        >
+          {/* Left Column: Portrait & Title */}
+          <div className="lg:col-span-5 flex flex-col items-center justify-center text-center scroll-fade-in lg:border-r lg:border-gray-100 lg:pr-12">
+            <div className="relative p-2.5 border border-[#B08D57]/40 bg-[#FCFAF6] shadow-xl rounded-full max-w-[250px] w-full aspect-square mb-6">
+              <div className="w-full h-full overflow-hidden rounded-full bg-gray-100 relative">
+                <img
+                  src="/WhatsApp Image 2026-08-03 at 5.59.24 PM.jpeg"
+                  alt="Ragapriya Karunakaran"
+                  className="w-full h-full object-cover object-[50%_15%] transition-transform duration-700 hover:scale-102"
+                />
+              </div>
+            </div>
+            
+            <h3 className="font-serif text-2xl font-semibold text-black tracking-wide leading-tight">
+              Ragapriya Karunakaran
+            </h3>
+            <p className="text-[11px] uppercase font-bold tracking-[0.2em] text-[#B08D57] mt-2 font-mono">
+              Founder &amp; CEO, Paidhu Group
+            </p>
+            
+            {/* Optional Signature Style Element */}
+            <div className="mt-6 border-t border-gray-100 pt-4 w-24">
+              <span className="font-serif text-xs italic text-gray-400">Ragapriya K.</span>
+            </div>
+          </div>
+
+          {/* Right Column: Editorial Message */}
+          <div className="lg:col-span-7 flex flex-col justify-center text-left scroll-fade-in max-w-[650px]">
+            
+            <p className="font-serif text-xl md:text-2xl text-gray-800 italic leading-relaxed mb-8 font-light">
+              "As the Founder of Paidhu, I am driven by a vision to redefine the way generations experience floral-based foods through authenticity, purity, and innovation."
+            </p>
+
+            <div className="flex flex-col gap-6 text-sm text-gray-600 leading-relaxed mb-8 font-sans">
+              <p>
+                Building a brand founded on ethical sourcing, absolute transparency, and mutual trust is at the core of our operations. By establishing direct-from-grower supply structures in Kashmir and connecting regional engineering talent with global software deployments, we foster purposeful development that empowers health and bridges industrial gaps.
+              </p>
+              <p>
+                Through Paidhu Ethical Foods, Viyara, and Kaligasphere, our houses work in tandem to align sustainable agriculture, custom SaaS technologies, and professional learning systems under one cohesive mission of global impact.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-2.5">
+              {['Ethical Sourcing', 'Innovation', 'Sustainability', 'Global Technology', 'Agriculture', 'Transparency'].map((tag) => (
+                <span
+                  key={tag}
+                  className="text-[9px] uppercase font-bold tracking-widest text-gray-600 font-mono py-2 px-4 border border-gray-200/80 rounded-full bg-[#F9F7F2]"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
+      </section>
+
+      {/* ── 8. INQUIRY PORTAL (Contact Form) ── */}
+      <section id="contact" className="w-full py-36 bg-[#F9F7F2] relative z-10 flex justify-center border-t border-b border-gray-200/40">
+        <div 
+          className="w-full px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-16 items-start text-left"
+          style={{ maxWidth: '1440px', marginLeft: 'auto', marginRight: 'auto' }}
+        >
+          {/* Left Side: Cards and Info */}
+          <div className="lg:col-span-6 flex flex-col gap-8 scroll-fade-in">
+            <div>
+              <span className="text-[10px] uppercase font-bold tracking-[0.35em] text-[#B08D57] block mb-3 font-mono">Inquiry Portal</span>
+              <h2 className="font-serif text-3xl md:text-5xl font-light text-black tracking-[0.08em] uppercase mb-6 leading-tight">Partner With Our Houses</h2>
+              <p className="text-sm text-gray-500 leading-relaxed font-sans max-w-lg">
+                We welcome sourcing partners, institutional buyers, software collaborations and strategic business partnerships.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 max-w-lg">
+              {/* Card 1: Headquarters */}
+              <div className="p-6 bg-[#FCFAF6] border border-[#B08D57]/20 rounded-[12px] shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-350 flex gap-4">
+                <MapPin className="w-5 h-5 text-[#B08D57] shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-serif text-xs font-semibold text-black uppercase tracking-wider mb-2">Headquarters</h4>
+                  <p className="text-xs text-gray-500 leading-relaxed">
+                    No.11 Saraswati Avenue,<br />
+                    Achipatti,<br />
+                    Pollachi - 642002
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 2: Corporate Relations */}
+              <div className="p-6 bg-[#FCFAF6] border border-[#B08D57]/20 rounded-[12px] shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-350 flex gap-4">
+                <Phone className="w-5 h-5 text-[#B08D57] shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-serif text-xs font-semibold text-black uppercase tracking-wider mb-2">Corporate Relations</h4>
+                  <p className="text-xs text-gray-500 leading-relaxed">
+                    +91 87542 87774
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 3: Business Hours */}
+              <div className="p-6 bg-[#FCFAF6] border border-[#B08D57]/20 rounded-[12px] shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-350 flex gap-4 sm:col-span-2 lg:col-span-1">
+                <Clock className="w-5 h-5 text-[#B08D57] shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-serif text-xs font-semibold text-black uppercase tracking-wider mb-2">Business Hours</h4>
+                  <p className="text-xs text-gray-500 leading-relaxed">
+                    Monday - Friday<br />
+                    9:00 AM - 6:00 PM
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Side: Inquiry Form */}
+          <div className="lg:col-span-6 w-full scroll-fade-in">
+            <div className="bg-white border border-gray-100 p-8 md:p-10 shadow-lg rounded-[12px]">
+              <div className="mb-8">
+                <h3 className="font-serif text-xl font-semibold text-black uppercase tracking-wide">Business Inquiry</h3>
+                <p className="text-xs text-gray-400 mt-1">We will connect with you within 24 hours.</p>
+              </div>
+
+              <AnimatePresence mode="wait">
+                {sent ? (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="py-16 text-center text-black flex flex-col items-center justify-center"
+                  >
+                    <div className="w-12 h-12 rounded-full border border-[#B08D57] flex items-center justify-center mb-6">
+                      <Check className="w-5 h-5 text-[#B08D57]" />
+                    </div>
+                    <h3 className="font-serif text-lg uppercase tracking-wider mb-2">Request Successfully Logged</h3>
+                    <p className="text-xs text-gray-500 max-w-xs mx-auto leading-relaxed">
+                      Your query has been logged. An executive secretary will verify origin details and contact you within 24 operational hours.
+                    </p>
+                  </motion.div>
+                ) : (
+                  <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <div>
+                        <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-2 font-mono">Company / Organization</label>
+                        <input 
+                          type="text" 
+                          required 
+                          placeholder="e.g. Alexis Saffron S.A." 
+                          value={form.company} 
+                          onChange={(e) => setForm({ ...form, company: e.target.value })} 
+                          className="w-full bg-[#FCFAF6] border border-gray-200 px-4 py-2.5 text-xs text-black placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#B08D57] transition-all font-sans rounded-lg"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-2 font-mono">Contact Person</label>
+                        <input 
+                          type="text" 
+                          required 
+                          placeholder="e.g. Jean Dupont" 
+                          value={form.name} 
+                          onChange={(e) => setForm({ ...form, name: e.target.value })} 
+                          className="w-full bg-[#FCFAF6] border border-gray-200 px-4 py-2.5 text-xs text-black placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#B08D57] transition-all font-sans rounded-lg"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <div>
+                        <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-2 font-mono">Business Email</label>
+                        <input 
+                          type="email" 
+                          required 
+                          placeholder="partner@company.com" 
+                          value={form.email} 
+                          onChange={(e) => setForm({ ...form, email: e.target.value })} 
+                          className="w-full bg-[#FCFAF6] border border-gray-200 px-4 py-2.5 text-xs text-black placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#B08D57] transition-all font-sans rounded-lg"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-2 font-mono">Phone Number</label>
+                        <input 
+                          type="tel" 
+                          required 
+                          placeholder="e.g. +33 1 23 45 67 89" 
+                          value={form.phone} 
+                          onChange={(e) => setForm({ ...form, phone: e.target.value })} 
+                          className="w-full bg-[#FCFAF6] border border-gray-200 px-4 py-2.5 text-xs text-black placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#B08D57] transition-all font-sans rounded-lg"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <div>
+                        <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-2 font-mono">Country</label>
+                        <input 
+                          type="text" 
+                          required 
+                          placeholder="e.g. France" 
+                          value={form.country} 
+                          onChange={(e) => setForm({ ...form, country: e.target.value })} 
+                          className="w-full bg-[#FCFAF6] border border-gray-200 px-4 py-2.5 text-xs text-black placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#B08D57] transition-all font-sans rounded-lg"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-2 font-mono">Industry</label>
+                        <input 
+                          type="text" 
+                          required 
+                          placeholder="e.g. FMCG / Technology / Retail" 
+                          value={form.industry} 
+                          onChange={(e) => setForm({ ...form, industry: e.target.value })} 
+                          className="w-full bg-[#FCFAF6] border border-gray-200 px-4 py-2.5 text-xs text-black placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#B08D57] transition-all font-sans rounded-lg"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-2 font-mono">Message</label>
+                      <textarea 
+                        required 
+                        rows={4} 
+                        placeholder="Detail sourcing directives, volume requirements, or technical platforms here..." 
+                        value={form.message} 
+                        onChange={(e) => setForm({ ...form, message: e.target.value })} 
+                        className="w-full bg-[#FCFAF6] border border-gray-200 px-4 py-2.5 text-xs text-black placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#B08D57] transition-all font-sans resize-none rounded-lg"
+                      ></textarea>
+                    </div>
+
+                    <button 
+                      type="submit" 
+                      className="w-full py-4 text-xs font-bold tracking-[0.2em] bg-black text-white hover:bg-[#B08D57] hover:text-white transition-all duration-350 cursor-pointer focus:outline-none uppercase font-mono rounded-lg border-none"
+                    >
+                      Submit Business Inquiry
+                    </button>
+                  </form>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 9. LUXURY MULTI-COLUMN FOOTER ── */}
+      <footer className="w-full bg-[#FCFAF6] text-charcoal pt-28 pb-28 z-10 relative flex justify-center border-t border-gray-100 text-left">
+        <div 
+          className="w-full px-6 md:px-12"
+          style={{ maxWidth: '1440px', marginLeft: 'auto', marginRight: 'auto' }}
+        >
+          
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-16 pb-20 border-b border-gray-200/60">
+            <div className="col-span-12 md:col-span-4 flex flex-col gap-5">
+              <div className="overflow-hidden h-12 md:h-14 flex items-center mb-2">
+                <img 
+                  src="/paidhu_logo_new.png" 
+                  alt="Paidhu Group" 
+                  className="h-32 md:h-36 w-auto object-contain select-none" 
+                  style={{ 
+                    filter: 'invert(1)',
+                    margin: '-15px 0'
+                  }}
+                />
+              </div>
+              <p className="text-xs text-gray-500 leading-relaxed max-w-sm font-sans">
+                A multi-industry conglomerate directing trace-to-origin saffron pipelines, chemical-free food preservation systems, custom cloud software architectures, and educational platforms.
+              </p>
+              
+              <div className="flex gap-5">
+                {['LinkedIn', 'Instagram', 'Twitter'].map((social, i) => (
+                  <button 
+                    key={i} 
+                    className="text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black transition-colors cursor-pointer focus:outline-none border-none bg-transparent"
+                  >
+                    {social}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="col-span-6 md:col-span-3 font-sans">
+              <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-[#C79B36] block mb-5 font-mono">Maisons Portfolios</span>
+              <div className="flex flex-col gap-3">
+                {BUSINESSES.map((b) => (
+                  <button 
+                    key={b.id} 
+                    onClick={() => scrollTo(`brand-${b.id}`)}
+                    className="text-xs text-gray-400 hover:text-black transition-colors block text-left border-none bg-transparent"
+                  >
+                    {b.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="col-span-6 md:col-span-2 font-sans">
+              <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-[#C79B36] block mb-5 font-mono">Sectors</span>
+              <div className="flex flex-col gap-3 text-xs text-gray-400">
+                <span>Direct Agriculture</span>
+                <span>Organic Preserves</span>
+                <span>IT Infrastructure</span>
+                <span>Academics & Training</span>
+              </div>
+            </div>
+
+            <div className="col-span-12 md:col-span-3 font-sans">
+              <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-[#C79B36] block mb-5 font-mono">Corporate Dispatch</span>
+              <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                Subscribe to receive annual audit sheets, origin reports, and vertical allocations.
+              </p>
+              
+              <form onSubmit={(e) => { e.preventDefault(); alert("Successfully subscribed!"); }} className="flex gap-2">
+                <input 
+                  type="email" 
+                  required
+                  placeholder="Enter email address" 
+                  className="bg-white border border-gray-200 px-3 py-2 text-xs w-full text-black focus:outline-none focus:border-black placeholder-gray-300 font-mono"
+                />
+                <button 
+                  type="submit" 
+                  className="px-4 py-2 bg-black text-white text-[10px] uppercase font-bold tracking-widest hover:bg-black/95 transition-colors cursor-pointer border-none font-mono"
+                >
+                  Join
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div className="pt-10 flex flex-col sm:flex-row justify-between items-center gap-6 text-gray-400 font-sans text-[10px]">
+            <span>
+              © {new Date().getFullYear()} Paidhu Group. All rights reserved. Registered Indian Conglomerate.
+            </span>
+            
+            <div className="flex gap-6 uppercase tracking-wider font-semibold">
+              <span className="hover:text-black cursor-pointer transition-colors">Privacy Policy</span>
+              <span className="hover:text-black cursor-pointer transition-colors">Terms of Sourcing</span>
+              <span className="hover:text-black cursor-pointer transition-colors">Annual Audits</span>
+            </div>
+          </div>
+
+        </div>
       </footer>
+
     </div>
   );
 }

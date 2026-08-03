@@ -19,8 +19,8 @@ const playfairDisplay = Playfair_Display({
 
 export const metadata: Metadata = {
   title: "Paidhu Group | Building Businesses That Inspire a Better Future",
-  description: "Paidhu Group is a diversified Fortune-class organization building ethical foods, premium technology, consumer brands, and transformative education. A legacy of purpose-driven enterprise.",
-  keywords: ["Paidhu Group", "Ethical Businesses", "Floffi", "Viyara IT", "Kalika Sphere", "Paidhu Ethical Foods", "Corporate Group India"],
+  description: "Paidhu Group is a diversified corporate holding company building ethical foods, premium technology services, consumer brands, and transformative education ecosystems.",
+  keywords: ["Paidhu Group", "Ethical Businesses", "Floffi", "Viyara", "Kaligasphere", "Paidhu Ethical Foods", "Corporate Holding Company"],
   authors: [{ name: "Paidhu Group" }],
   openGraph: {
     title: "Paidhu Group | Building Businesses That Inspire a Better Future",
@@ -35,6 +35,8 @@ export const metadata: Metadata = {
   },
 };
 
+import LenisProvider from "@/components/LenisProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -47,7 +49,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="antialiased">
-        {children}
+        <LenisProvider>
+          {children}
+        </LenisProvider>
       </body>
     </html>
   );

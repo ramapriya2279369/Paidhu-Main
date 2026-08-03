@@ -15,30 +15,38 @@ interface Node {
 export default function Ecosystem() {
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
 
-  // Nodes placed in a responsive, elegant grid layout
+  // Nodes placed in a responsive, elegant grid layout representing official corporate hierarchy
   const nodes: Node[] = [
-    // Root
-    { id: 'group', label: 'Paidhu Group', type: 'root', x: 400, y: 50, description: 'Parent holding driving innovation and sustainability' },
+    // Root Conglomerate
+    { id: 'group', label: 'Paidhu Group', type: 'root', x: 400, y: 40, description: 'Parent holding company directing sustainable agriculture, custom software engineering, and technical academics.' },
     
-    // Verticals
-    { id: 'foods', label: 'Paidhu Ethical Foods', type: 'vertical', x: 130, y: 180, parent: 'group', description: 'Ethical sourcing & healthy living solutions' },
-    { id: 'floffi', label: 'Floffi', type: 'vertical', x: 310, y: 180, parent: 'group', description: 'Premium fruit jams & natural preserves' },
-    { id: 'viyara', label: 'Viyara', type: 'vertical', x: 490, y: 180, parent: 'group', description: 'Next-gen IT and digital transformation solutions' },
-    { id: 'kalika', label: 'Kalika Sphere', type: 'vertical', x: 670, y: 180, parent: 'group', description: 'Future-ready education & skills platforms' },
+    // Flagship Divisions (3 divisions)
+    { id: 'foods', label: 'Paidhu Ethical Foods', type: 'vertical', x: 200, y: 150, parent: 'group', description: 'FMCG division powering direct vertical agricultural sourcing and zero-chemistry preserves.' },
+    { id: 'viyara', label: 'Viyara', type: 'vertical', x: 400, y: 150, parent: 'group', description: 'Technology arm delivering enterprise cloud infrastructure, software products, and AI solutions.' },
+    { id: 'kaligar', label: 'Kaligasphere', type: 'vertical', x: 600, y: 150, parent: 'group', description: 'Educational arm providing professional skill development courses and certification pathways.' },
 
-    // Sub-brands / Offerings
-    { id: 'flowers', label: 'Edible Flowers', type: 'sub', x: 70, y: 310, parent: 'foods', description: 'Premium organic edible flower variations' },
-    { id: 'cookies', label: 'Bloom Cookies', type: 'sub', x: 130, y: 360, parent: 'foods', description: 'Healthy and premium cookies' },
-    { id: 'saffron', label: 'Premium Saffron', type: 'sub', x: 190, y: 310, parent: 'foods', description: 'Pure Kashmir saffron extracts' },
+    // Sub-brands under Paidhu Ethical Foods
+    { id: 'flowers', label: 'Edible Flowers', type: 'sub', x: 80, y: 280, parent: 'foods', description: 'Premium organic edible flower variations for global culinary uses.' },
+    { id: 'cookies', label: 'Bloom Cookies', type: 'sub', x: 140, y: 340, parent: 'foods', description: 'Baked products utilizing floral bases and zero synthetic additives.' },
+    { id: 'saffron', label: 'Saffron Flowers', type: 'sub', x: 200, y: 280, parent: 'foods', description: 'Direct-from-grower Kashmir saffron flowers and stigmas.' },
+    { id: 'floppy', label: 'Floffi', type: 'sub', x: 260, y: 340, parent: 'foods', description: 'Premium batch fruit jams and native preserves (floffi.in).' },
+    { id: 'future', label: 'Future Food Brands', type: 'sub', x: 320, y: 280, parent: 'foods', description: 'Pipeline consumer goods expanding our vertical trace-to-origin supply chain.' },
 
-    { id: 'jams', label: 'Fruit Jams', type: 'sub', x: 280, y: 320, parent: 'floffi', description: '100% natural, preservative-free jams' },
-    { id: 'spreads', label: 'Fruit Spreads', type: 'sub', x: 340, y: 320, parent: 'floffi', description: 'Low sugar, fruit-rich spreads' },
+    // Sub-offerings under Viyara
+    { id: 'web', label: 'Website Dev', type: 'sub', x: 340, y: 250, parent: 'viyara', description: 'High-performance corporate sites and web architectures.' },
+    { id: 'software', label: 'Software Dev', type: 'sub', x: 460, y: 250, parent: 'viyara', description: 'Enterprise backend solutions and business logic systems.' },
+    { id: 'saas', label: 'SaaS Products', type: 'sub', x: 340, y: 300, parent: 'viyara', description: 'Subscription software portals scaling client operations.' },
+    { id: 'apps', label: 'Mobile Apps', type: 'sub', x: 460, y: 300, parent: 'viyara', description: 'Native Android and iOS mobile app engineering.' },
+    { id: 'uiux', label: 'UI/UX Design', type: 'sub', x: 340, y: 350, parent: 'viyara', description: 'World-class visual systems and Stripe-level user interactions.' },
+    { id: 'branding', label: 'Branding', type: 'sub', x: 460, y: 350, parent: 'viyara', description: 'Digital identity guidelines and logo structures.' },
+    { id: 'ai', label: 'AI Solutions', type: 'sub', x: 400, y: 390, parent: 'viyara', description: 'Generative AI integrations and automated machine learning pipelines.' },
 
-    { id: 'software', label: 'Software & AI', type: 'sub', x: 460, y: 320, parent: 'viyara', description: 'Custom SaaS, cloud & AI models' },
-    { id: 'apps', label: 'Mobile Apps', type: 'sub', x: 520, y: 320, parent: 'viyara', description: 'Tailored Android and iOS applications' },
-
-    { id: 'education', label: 'Digital Learning', type: 'sub', x: 640, y: 320, parent: 'kalika', description: 'Modern skill development programs' },
-    { id: 'skills', label: 'Future Skills', type: 'sub', x: 700, y: 320, parent: 'kalika', description: 'Corporate & technology training' },
+    // Sub-offerings under Kaligasphere
+    { id: 'learning', label: 'Learning Platform', type: 'sub', x: 540, y: 280, parent: 'kaligar', description: 'Custom course hosting platform and virtual classroom software.' },
+    { id: 'courses', label: 'Professional Courses', type: 'sub', x: 600, y: 340, parent: 'kaligar', description: 'Immersive training tracks in technology, marketing, and design.' },
+    { id: 'skills', label: 'Skill Development', type: 'sub', x: 660, y: 280, parent: 'kaligar', description: 'Hands-on practical development programs bridging local talent and business.' },
+    { id: 'certs', label: 'Certifications', type: 'sub', x: 720, y: 340, parent: 'kaligar', description: 'Enterprise-recognized certificate and diploma programs.' },
+    { id: 'ecosystem', label: 'Educational Eco', type: 'sub', x: 760, y: 280, parent: 'kaligar', description: 'Comprehensive knowledge network linking students, mentors, and recruiters.' },
   ];
 
   // Helper to determine if a path/line should be highlighted
@@ -59,10 +67,10 @@ export default function Ecosystem() {
       <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-accent-gold/5 pointer-events-none" />
       
       <div className="text-center mb-8">
-        <span className="text-xs uppercase tracking-widest text-accent-gold font-semibold">Interactive Architecture</span>
+        <span className="text-xs uppercase tracking-widest text-[#C79B36] font-semibold">Interactive Architecture</span>
         <h3 className="text-3xl font-serif mt-2 mb-3 text-primary dark:text-secondary">Group Ecosystem</h3>
         <p className="text-sm max-w-lg mx-auto opacity-70">
-          Hover over nodes to explore connecting relationships across food, technology, and learning sectors.
+          Hover over nodes to explore connecting relationships across foods, technology, and learning sectors.
         </p>
       </div>
 
